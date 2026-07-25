@@ -1,0 +1,120 @@
+# === 密钥 / 环境变量(绝不入库)===
+.env
+.env.*
+.envrc
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.*
+credentials*.json
+token*.json
+*_token.json
+
+# === 系统 / 编辑器 ===
+.DS_Store
+Thumbs.db
+*.swp
+
+# === sage-wiki 运行缓存(按需)===
+.sage/
+*.sage-cache
+
+# === Obsidian(保留插件配置,忽略易变的工作区状态)===
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# === Claudian / Claude Code 本地状态(机器相关,不入库)===
+.claudian/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# === Python 运行缓存 ===
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# === 报告索引(纯派生:由 daily/weekly 下报告确定性重建,按需本地生成)===
+reports/index.md
+
+# 说明:raw/flomo/.processed_hashes.json 记录已处理的 flomo 指纹,
+# 属于有用状态,默认保留入库;如需忽略可自行取消下一行注释。
+# raw/flomo/.processed_hashes.json
+
+# === Obsidian 插件本地配置/状态(可能含 provider 密钥,永不入库)===
+.obsidian/plugins/*/data.json
+
+# === 个人原始囤积层(Google Drive 冷存,GB级/敏感,永不入库)===
+# raw/private/ 建议软链到 Google Drive 挂载目录;文件本体在云端,git 当它不存在。
+# 敏感内容(各类聊天/文档导出)一律放这里,不靠扩展名兜底。
+raw/private
+raw/_hoard/
+
+# === 大体积/敏感的原始二进制(sage-wiki 本地读即可,不入 git:防膨胀+隐私)===
+raw/**/*.pdf
+raw/**/*.doc
+raw/**/*.docx
+raw/**/*.xls
+raw/**/*.xlsx
+raw/**/*.ppt
+raw/**/*.pptx
+raw/**/*.wps
+raw/**/*.et
+raw/**/*.dps
+raw/**/*.db
+raw/**/*.sqlite
+raw/**/*.zip
+raw/**/*.rar
+raw/**/*.7z
+raw/**/*.tar.gz
+raw/**/*.gz
+raw/**/*.mp3
+raw/**/*.wav
+raw/**/*.m4a
+raw/**/*.mp4
+raw/**/*.mov
+raw/**/*.mkv
+raw/**/*.png
+raw/**/*.jpg
+raw/**/*.jpeg
+raw/**/*.gif
+raw/**/*.webp
+raw/**/*.heic
+raw/**/*.bmp
+raw/**/*.tiff
+raw/assets/
+
+# sage-wiki 查询暂存区:query 产物落此处待信任(verify/promote 后进 _wiki/outputs/ 才入库)
+_wiki/under_review/
+
+# Obsidian 插件运行时状态(非配置,不入库)
+.obsidian/plugins/*/data.json
+.obsidian/plugins/*/brat-migrations.json
+
+# === 本地私密浏览站(公私分明:browse/ 全私密,site/ 全公开)===
+# browse/ 整目录 gitignore:知识库 wiki、个人入口 index.html 等
+# 均由脚本再生(build-wiki-site.py / build-portal.py),含知识库内容,永不入库、不随文档站 部署。
+/browse/
+
+# === 个人内容:软链到你的私有内容库,永不进本代码库 ===
+# 布局见 README「双库设计」。工作目录不变,个人目录经软链指向相邻的
+# 内容库工作树;克隆本库的人只拿到代码,自建内容库(scripts/init-vault.sh)。
+/raw
+/_wiki
+/material
+/writing
+/reports/daily
+/reports/weekly
+/reports/lint
+.manifest.json
+# 内容库若被克隆到本库**内部**(很自然的误操作,布局本应是同级目录),
+# 没有这行会静默跟踪全部个人内容。零成本兜底。
+/mind-vault/
+/my-vault/
+# 真实评测 case 按 evaluation/README 规定只落 mind-vault/evaluation/;
+# 这里挡住手滑写进代码库的轮次产物(合成 fixtures 不受影响,已显式取消忽略)。
+/evaluation/round*
+/evaluation/*-real.json
+/evaluation/local/

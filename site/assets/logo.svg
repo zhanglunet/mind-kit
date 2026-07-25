@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="第二大脑 logo">
+  <!-- 第二大脑 · 脑图谱字标
+       骨架:汉字「脑」。左「月」旁 = 肉身之脑(你);右侧节点图谱 = 数字第二脑(Wiki);
+       中间水平连线 = 「接入」;枢纽大节点 = 知识汇聚复利之处。
+       几何:96 网格,全稿描边 8,圆头圆角;节点直径 ≥ 2×描边;内容留白 ≥10。 -->
+  <style>
+    .s{stroke:#4f46e5}.n{fill:#818cf8}
+    @media (prefers-color-scheme:dark){.s{stroke:#818cf8}.n{fill:#c7d2fe}}
+  </style>
+  <g class="s" fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 「月」旁:左竖 → 圆角顶 → 顶横 → 右竖,底部开口(月的辨识特征) -->
+    <path d="M14 82 V30 A14 14 0 0 1 28 16 H38 V82"/>
+    <!-- 月内两横:贯通内腔,两端圆头没入左右竖笔(连笔) -->
+    <path d="M15 40 H37 M15 58 H37"/>
+    <!-- 「接入」:从月旁右竖穿出,焊入图谱枢纽 -->
+    <path d="M40 48 H66"/>
+    <!-- 图谱双边:呼应「脑」右下「凶」中的㐅,交点即枢纽 -->
+    <path d="M52 24 L80 72 M80 24 L52 72"/>
+  </g>
+  <g class="n">
+    <!-- 枢纽(最大):知识汇聚处 -->
+    <circle cx="66" cy="48" r="9"/>
+    <!-- 四叶节点:半径交错,打破对称 -->
+    <circle cx="52" cy="24" r="6.5"/>
+    <circle cx="80" cy="24" r="5.5"/>
+    <circle cx="80" cy="72" r="6.5"/>
+    <circle cx="52" cy="72" r="5.5"/>
+  </g>
+</svg>

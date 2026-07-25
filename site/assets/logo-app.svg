@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="第二大脑 App 图标">
+  <!-- App 图标 / favicon 版:靛蓝圆角方容器 + 白色字标(节点用浅靛提亮) -->
+  <rect width="96" height="96" rx="21" fill="#4f46e5"/>
+  <g transform="translate(48 48) scale(.72) translate(-47 -49)">
+    <g fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 82 V30 A14 14 0 0 1 28 16 H38 V82"/>
+      <path d="M15 40 H37 M15 58 H37"/>
+      <path d="M40 48 H66"/>
+      <path d="M52 24 L80 72 M80 24 L52 72"/>
+    </g>
+    <g fill="#c7d2fe">
+      <circle cx="66" cy="48" r="9"/>
+      <circle cx="52" cy="24" r="6.5"/>
+      <circle cx="80" cy="24" r="5.5"/>
+      <circle cx="80" cy="72" r="6.5"/>
+      <circle cx="52" cy="72" r="5.5"/>
+    </g>
+  </g>
+</svg>

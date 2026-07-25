@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>安装指南 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="install.html" class="active">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 安装指南</div>
+<h1 id="安装指南">安装指南</h1>
+<blockquote>
+<p>目标:30
+分钟内把”第二大脑”骨架在你的机器上跑起来。完整设计依据见《第二大脑-个人知识库-PRD》§10.1
+与附录 B–D。</p>
+</blockquote>
+<h2 id="前置要求">0. 前置要求</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>依赖</th>
+<th>用途</th>
+<th>检查命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git</td>
+<td>版本化与归档判据(必装)</td>
+<td><code>git --version</code></td>
+</tr>
+<tr>
+<td>Go 运行环境</td>
+<td>安装 <a href="https://github.com/xoai/sage-wiki">sage-wiki</a>
+编译引擎</td>
+<td><code>go version</code></td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>安装 Claude Code CLI</td>
+<td><code>node --version</code></td>
+</tr>
+<tr>
+<td>Python 3.9+</td>
+<td>运行仓库脚本(索引 / 本地浏览站 / 报表等)</td>
+<td><code>python3 --version</code></td>
+</tr>
+<tr>
+<td>Obsidian</td>
+<td>存储/写作界面(桌面端)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="获取-vault-骨架">1. 获取 Vault 骨架</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="op">&lt;</span>你的仓库地址<span class="op">&gt;</span> mind</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mind</span></code></pre></div>
+<p>骨架自带根目录三件套:<code>config.yaml</code>(编译引擎配置)、<code>.mcp.json</code>(MCP
+接入)、<code>CLAUDE.md</code>(权责边界”宪法”)。</p>
+<blockquote>
+<p><strong>拆库后注意</strong>:<code>raw/</code>、<code>_wiki/</code>、<code>material/</code>、<code>writing/</code>、<code>reports/{daily,weekly,lint}</code>
+是<strong>个人内容</strong>,在<strong>另一个私有内容库</strong>里,经软链挂进来(见
+README「双库设计」)。所以新克隆里<strong>这些目录并不存在</strong>,这是设计如此。
+一条命令建好自己的内容库并接上软链:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/init-vault.sh <span class="at">--dry-run</span>   <span class="co"># 先看计划</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/init-vault.sh             <span class="co"># 建内容库 + 软链 + git init</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/vault.sh repo             <span class="co"># 验证:应打印你的内容库路径</span></span></code></pre></div>
+<p><strong>别跳过</strong>:<code>_wiki</code> 软链不存在时
+<code>vault.sh</code> 会静默退回单库模式,之后
+<code>vault.sh commit</code> 会把内容提交进<strong>代码库</strong>。 在
+Linux 服务器上从零部署,见<a href="server.html">在 Linux
+服务器上安装与使用</a>。</p>
+</blockquote>
+<p>若从零开始而非克隆:先
+<code>git init &amp;&amp; git add -A &amp;&amp; git commit -m "init"</code>。<strong>git
+必须在首次编译前就绪</strong>——归档脚本依赖 git
+记录判断哪些剪藏已编译。</p>
+<h3 id="安装脚本依赖">1.1 安装脚本依赖</h3>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements.txt</span></code></pre></div>
+<p><code>scripts/</code> 下绝大多数脚本只用 Python
+标准库,<strong>唯一的第三方依赖是 <code>markdown</code></strong>(供
+<code>scripts/build-wiki-site.py</code>
+生成本地浏览站)。不装也不影响编译:<code>compile.sh</code> 第 4
+步(生成浏览站)是 best-effort,缺 <code>markdown</code>
+时只告警跳过、不中断编译与提交。</p>
+<h2 id="设置-api-keyglm-kimi">2. 设置 API Key(GLM / Kimi)</h2>
+<p>编译引擎 <code>sage-wiki</code> 接的是 <strong>OpenAI
+兼容</strong>的国产编码端点,默认 <strong>GLM</strong>,可一键切
+<strong>Kimi</strong>。密钥写进 shell profile(如
+<code>~/.zshrc</code>),<strong>不要落进任何仓库文件</strong>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">GLM_API_KEY</span><span class="op">=</span>...     <span class="co"># GLM(默认后端)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">KIMI_API_KEY</span><span class="op">=</span>...    <span class="co"># Kimi(备选后端)</span></span></code></pre></div>
+<p>两个 profile 已内置端点与模型,无需手填:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>后端</th>
+<th>env 变量</th>
+<th>端点(OpenAI 兼容)</th>
+<th>模型</th>
+<th>配置文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLM</strong>(默认)</td>
+<td><code>GLM_API_KEY</code></td>
+<td><code>open.bigmodel.cn/api/coding/paas/v4</code></td>
+<td><code>glm-4.5-flash</code></td>
+<td><code>config.glm.yaml</code></td>
+</tr>
+<tr>
+<td><strong>Kimi</strong></td>
+<td><code>KIMI_API_KEY</code></td>
+<td><code>api.kimi.com/coding/v1</code></td>
+<td><code>kimi-for-coding</code></td>
+<td><code>config.kimi.yaml</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>切换后端</strong>(sage-wiki dev build 的
+<code>--config</code> 未接线,只能替换活动 <code>config.yaml</code>):</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh          <span class="co"># 看当前后端</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh kimi     <span class="co"># 切到 Kimi</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh glm      <span class="co"># 切回 GLM</span></span></code></pre></div>
+<p><code>.gitignore</code> 已排除 <code>.env</code>、<code>*.key</code>
+等常见密钥文件,但最稳妥的方式是密钥根本不落盘(只在环境变量)。</p>
+<h2 id="安装四件套">3. 安装四件套</h2>
+<ol type="1">
+<li><strong>sage-wiki</strong>(编译引擎):<a
+href="https://github.com/xoai/sage-wiki">https://github.com/xoai/sage-wiki</a>(Go
+实现,MIT)——按其 README 安装,提供 CLI / MCP server / watch
+监听。装完确保在 <code>PATH</code> 或 <code>~/go/bin/</code>。</li>
+<li><strong>Claude Code
+CLI</strong>:<code>npm install -g @anthropic-ai/claude-code</code>,之后在
+vault 根目录运行 <code>claude</code> 即可。</li>
+<li><strong>Obsidian</strong>:把本仓库目录作为 Vault 打开。</li>
+<li><strong>Claudian 插件</strong>(主交互界面):建议通过 BRAT
+插件安装以获得自动更新;它在 Obsidian 侧栏内嵌 Claude Code,复用同一份
+<code>CLAUDE.md</code> 与 <code>.mcp.json</code>。</li>
+</ol>
+<p>再装四个 Obsidian 插件:<strong>Web Clipper</strong>(剪藏落地到
+<code>raw/clippings/</code>)、<strong>Templater</strong>、<strong>Dataview</strong>(五维标签检索)、<strong>BRAT</strong>;附件目录设为
+<code>raw/assets/</code>。</p>
+<h2 id="校验配置与连接">4. 校验配置与连接</h2>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor        <span class="co"># 验证 API 连接与配置</span></span></code></pre></div>
+<p><code>config.yaml</code>
+骨架已配置好来源目录、忽略清单与模型(当前单一
+<code>glm-4.5-flash</code>,不分层),<code>doctor</code>
+会报出活动后端与连通性。通常无需修改;两个关键语义请知悉:</p>
+<ul>
+<li><code>sources</code> 声明
+<code>raw/clippings</code>、<code>raw/flomo/delta</code>、<code>raw/pdfs</code>
+三个来源;</li>
+<li><code>ignore</code> 中的 <code>raw/flomo</code>
+只排除原始导出,<strong>delta/ 子目录因在 sources
+中显式声明而优先生效</strong>(引擎须满足 PRD §4.4 硬标准
+5;首次编译后请按第 6 步验证)。</li>
+</ul>
+<p><code>.mcp.json</code> 使用相对路径
+<code>--project .</code>,换机器无需修改;若你的客户端不以 vault
+为工作目录启动 MCP server,再改为绝对路径。</p>
+<h2 id="放入存量资产">5. 放入存量资产</h2>
+<ul>
+<li>文章库/剪藏 → <code>raw/clippings/</code></li>
+<li>待精读的重要文章 → <code>raw/todo/</code></li>
+<li>本地 PDF → <code>raw/pdfs/</code></li>
+<li>卡片笔记增量导出 →
+<code>raw/flomo/&lt;日期&gt;/</code>(可选,原样保留;flomo
+管线保留但当前未启用)</li>
+</ul>
+<h2 id="首次编译与验证">6. 首次编译与验证</h2>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh        <span class="co"># 全流水线:编译 → 重建 index → lint → 生成本地浏览站 → 提交</span></span></code></pre></div>
+<blockquote>
+<p>日常编译一律走 <code>bash scripts/compile.sh</code>(而非裸
+<code>sage-wiki compile</code>):dev build 不自动维护
+<code>index.md</code>、不触发
+auto_lint、浏览站也需重生成,<code>compile.sh</code>
+把这些串成一条命令。<strong>不做 auto-archive</strong> —— sage-wiki 靠
+manifest hash 增量,归档已编译剪藏反而让引擎标记幻影
+“removed”。本地浏览站生成在
+<code>browse/wiki/index.html</code>,<code>file://</code>
+直接打开(含关系图,gitignore 不入库、不上公开站)。</p>
+</blockquote>
+<p><strong>✅ 首周验收清单</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox" /><code>sage-wiki doctor</code>
+通过,API 连接正常</label></li>
+<li><label><input type="checkbox" /><code>bash scripts/compile.sh</code>
+成功:<code>_wiki/</code> 生成摘要/概念页,<code>index.md</code> 更新,lint
+记账到 <code>reports/lint/</code></label></li>
+<li><label><input type="checkbox" />本地浏览站
+<code>browse/wiki/index.html</code> 能 <code>file://</code>
+打开(概念/摘要/产出/素材 + 关系图)</label></li>
+<li><label><input type="checkbox" />Web Clipper 能把文章剪藏进
+<code>raw/clippings/</code></label></li>
+<li><label><input type="checkbox" />Claudian 侧栏能调用编译引擎(MCP
+连通)</label></li>
+<li><label><input type="checkbox" />编译后自动 commit 生效</label></li>
+</ul>
+<p>下一步请阅读<a
+href="usage.html">使用手册</a>,建立每周节奏;想先搞清楚”这套东西整体怎么转”的,看<a
+href="architecture.html">系统如何运作</a>。</p>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#安装指南" id="toc-安装指南">安装指南</a>
+<ul>
+<li><a href="#前置要求" id="toc-前置要求">0. 前置要求</a></li>
+<li><a href="#获取-vault-骨架" id="toc-获取-vault-骨架">1. 获取 Vault
+骨架</a></li>
+<li><a href="#设置-api-keyglm-kimi" id="toc-设置-api-keyglm-kimi">2.
+设置 API Key(GLM / Kimi)</a></li>
+<li><a href="#安装四件套" id="toc-安装四件套">3. 安装四件套</a></li>
+<li><a href="#校验配置与连接" id="toc-校验配置与连接">4.
+校验配置与连接</a></li>
+<li><a href="#放入存量资产" id="toc-放入存量资产">5.
+放入存量资产</a></li>
+<li><a href="#首次编译与验证" id="toc-首次编译与验证">6.
+首次编译与验证</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- 每日「本机全量更新」:调 scripts/update-all.sh(见其头注)。与门户「🔄 全量更新」按钮同一入口。
+       安装: cp scripts/com.mind.update-all.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.mind.update-all.plist
+       卸载: launchctl unload ~/Library/LaunchAgents/com.mind.update-all.plist && rm ~/Library/LaunchAgents/com.mind.update-all.plist
+       立即试跑一次: launchctl start com.mind.update-all
+       为什么用 zsh -c source ~/.zshrc:update-all 会调 sage-wiki(需 ~/.zshrc 里的 GLM/KIMI API key)与 pandoc(需 PATH)。
+       注:macOS 睡眠到点会漏跑(与既有报告 cron 一致);要"睡醒补跑"改 StartInterval 或 launchd 唤醒策略。 -->
+  <key>Label</key><string>com.mind.update-all</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-c</string>
+    <string>source ~/.zshrc >/dev/null 2>&amp;1; exec /bin/bash $HOME/second-brain/mind-kit/scripts/update-all.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key><integer>9</integer>
+    <key>Minute</key><integer>30</integer>
+  </dict>
+  <key>StandardOutPath</key><string>$HOME/.mind-update-all.log</string>
+  <key>StandardErrorPath</key><string>$HOME/.mind-update-all.log</string>
+</dict>
+</plist>

@@ -1,0 +1,32 @@
+{
+  "schema_version": "eval-retrieval-1",
+  "_comment": "P1-1 检索栈升级的量化提升基线(合成语料):h1/h2/h3 为旧参考打分器(--backend fixture)必败、新栈(--backend local:同义扩展+三通道 RRF)必过的 case;h4/h5/h6 为不回退平价 case。评测绑定架构决策(FR-QRY-06)。",
+  "corpus": [
+    {"path": "_wiki/concepts/conflict-notes.md", "title": "Conflict Notes",
+     "content": "Conflict detection: when two sources contradict, mark the conflict explicitly and keep both claims."},
+    {"path": "_wiki/concepts/标注工具.md", "title": "标注工具",
+     "content": "标注工具的使用指南:如何给图片打标注、管理标注标签、批量导出标注结果。"},
+    {"path": "_wiki/concepts/保鲜检查.md", "title": "保鲜检查",
+     "content": "保鲜检查按半衰期提示过期风险,定期复核后更新确认时间。"},
+    {"path": "_wiki/concepts/星图编译.md", "title": "星图编译",
+     "content": "星图编译把笔记编译为互联页面,编译一次持续保鲜,知识持续增值。"},
+    {"path": "_wiki/outputs/五维决策看板.md", "title": "五维决策看板",
+     "content": "看板页,汇总入口。"},
+    {"path": "_wiki/concepts/决策方法.md", "title": "决策方法",
+     "content": "决策决策决策,维度维度,方法方法方法,反复讨论决策的维度与方法细节。"}
+  ],
+  "cases": [
+    {"id": "h1-中文查英文页", "query": "冲突 标注",
+     "expected_top1": "_wiki/concepts/conflict-notes.md"},
+    {"id": "h2-纯英查中文页", "query": "freshness",
+     "expected_top1": "_wiki/concepts/保鲜检查.md"},
+    {"id": "h3-同义词跨语言", "query": "矛盾 检测",
+     "expected_top1": "_wiki/concepts/conflict-notes.md"},
+    {"id": "h4-短语精确平价", "query": "编译一次持续保鲜",
+     "expected_top1": "_wiki/concepts/星图编译.md"},
+    {"id": "h5-标题压制平价", "query": "五维决策看板",
+     "expected_top1": "_wiki/outputs/五维决策看板.md"},
+    {"id": "h6-不存在实体平价", "query": "量子海鲜反应堆手册",
+     "expect_no_results": true}
+  ]
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>$title$ · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="install.html"$if(active_install)$ class="active"$endif$>安装指南</a>
+    <a href="usage.html"$if(active_usage)$ class="active"$endif$>使用手册</a>
+    <a href="faq.html"$if(active_faq)$ class="active"$endif$>FAQ</a>
+    <a href="deploy.html"$if(active_deploy)$ class="active"$endif$>发布</a>
+    <a href="server.html"$if(active_server)$ class="active"$endif$>服务器部署</a>
+    <a href="prd.html"$if(active_prd)$ class="active"$endif$>PRD</a>
+    <a href="changelog.html"$if(active_changelog)$ class="active"$endif$>更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / $title$</div>
+$body$
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+$toc$
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

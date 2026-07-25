@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>FAQ 与避坑 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html" class="active">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / FAQ 与避坑</div>
+<h1 id="faq-与避坑">FAQ 与避坑</h1>
+<blockquote>
+<p>汇总 PRD §11 的 12
+条风险与脚本的真实报错场景。红线只有三条:<strong>LLM
+不改编译引擎的领地、原始来源永不修改、todo 处理完进 archive 不回
+clippings。</strong></p>
+</blockquote>
+<h2 id="理念与流程">理念与流程</h2>
+<p><strong>Q:要不要先花几周把库整理好再开始用?</strong> 不要。这是 R1
+头号坑:“先整理后使用”会陷入永远做不完的整理。先接一个真实写作/决策任务,让
+AI 从现有积累里挖宝,库在使用中自然长大。</p>
+<p><strong>Q:todo 处理完的文章放哪?</strong> 移入
+<code>raw/archive/</code>,<strong>绝不移回
+<code>raw/clippings/</code></strong>。clippings 在 watch
+范围内,移回去会被当成新文件再次编译,产生重复 Wiki 条目(R2)。</p>
+<p><strong>Q:Query 得到的好答案怎么处理?</strong> 存入
+<code>_wiki/outputs/</code> 并在 <code>log.md</code>
+记一笔。洞见留在聊天记录里就是流失(R6)。</p>
+<p><strong>Q:为什么 LLM 不能直接改 <code>_wiki/summaries/</code>
+里的错误?</strong>
+那是编译引擎的领地(R5)。直接改会和下次编译冲突。正确做法:把修正写进
+<code>_wiki/outputs/</code>,或修正原始来源后重新编译。</p>
+<h2 id="flomo-相关">flomo 相关</h2>
+<p><strong>Q:flomo 导出能不能直接丢进编译范围?</strong> 不能(R3)。flomo
+每次导出是<strong>全量快照</strong>,直接编译会整库重复。永远走增量脚本:只有
+<code>raw/flomo/delta/</code> 会被编译,原始导出原样保留。</p>
+<p><strong>Q:<code>flomo-delta.py</code>
+报”状态文件损坏”怎么办?</strong> 按提示操作:若
+<code>.processed_hashes.json</code> 曾提交进 git,用 git
+历史恢复;<strong>不要直接删除</strong>——删除后下次运行会把全部历史笔记当作新增,造成大规模重复编译。可先备份损坏文件再手工修复
+JSON。</p>
+<p><strong>Q:报”不是 UTF-8 编码,本次已跳过”?</strong>
+该文件被安全跳过(不会写入乱码),其笔记未记指纹。用
+<code>iconv -f GBK -t UTF-8 旧文件 &gt; 新文件</code>
+转码后重跑,笔记会自动补上。</p>
+<p><strong>Q:delta 文件生成了,但没被编译进 Wiki?</strong>
+检查编译引擎是否满足”sources 优先于父目录 ignore”的语义(PRD §4.4 硬标准
+5):<code>config.yaml</code> 同时有 <code>ignore: raw/flomo</code> 和
+<code>sources: raw/flomo/delta</code>,若引擎按 ignore 优先解析,delta
+会被静默排除。这是换引擎时的必验项(PRD §10.2 验收清单)。</p>
+<p><strong>Q:一条笔记改了几个字,会重复进库吗?</strong>
+会作为”新增”再次输出(指纹按内容哈希)。这是全量快照比对的固有代价,健检(Lint)会发现近似重复并建议合并。</p>
+<h2 id="脚本与自动化">脚本与自动化</h2>
+<p><strong>Q:<code>auto-archive.sh</code> 一直说”尚无编译产物的 commit
+记录”?</strong> 两种可能:① 还没编译过或编译后没有 commit——先
+<code>sage-wiki compile</code> 并确认 auto_commit 生效;②
+<code>_wiki</code> 产物路径与脚本 pathspec 不一致——脚本只认
+<code>_wiki/summaries|concepts|entities</code> 下 <code>.md</code>
+的提交。</p>
+<p><strong>Q:为什么有的剪藏一直不被归档?</strong> 归档判据是”已提交 git
+且编译 commit
+后无任何改动”。未提交(untracked)或编译后被改过的文件会一直保留——这是刻意设计:失败方向永远是”多留一周”,绝不把没编译过的文章丢进不再编译的
+archive。</p>
+<p><strong>Q:忘了先 <code>git init</code> 就编译了?</strong> 补
+<code>git init &amp;&amp; git add -A &amp;&amp; git commit</code>
+即可。auto_commit
+与归档脚本从下次编译起正常工作;已编译内容不受影响。</p>
+<h2 id="成本与安全">成本与安全</h2>
+<p><strong>Q:LLM 调用成本怎么控?</strong>
+四层护栏(R11):高频任务用小模型(summarize/extract/lint 用 Haiku
+级)、忽略清单不送 API、只编译增量、月度预算上限内优先保留
+query/write。</p>
+<p><strong>Q:API Key 应该放哪?</strong>
+环境变量注入,绝不写进仓库文件(R9)。<code>.gitignore</code>
+已排除常见密钥文件。</p>
+<p><strong>Q:怎么备份?</strong> Git 本地版本化 +
+远端私有仓库或加密同步盘做异地备份(R10)。纯 Markdown 意味着迁移 =
+拷贝目录。</p>
+<p><strong>Q:发布文档站会泄露我的笔记吗?</strong>
+不会,前提是遵守发布边界:只有
+<code>site/</code>(项目文档)会部署,<code>raw/</code>、<code>_wiki/</code>、<code>material/</code>、<code>writing/</code>
+永不进入发布目录。知识库内容本地优先是 PRD §2.2 的明确非目标。详见<a
+href="deploy.html">发布指南</a>。</p>
+<p><strong>Q:库越来越大会变慢/变贵吗?</strong> 方案甜点区是 100–10,000
+篇高信号来源(R12)。超过数百页启用混合检索(BM25+向量,<code>config.yaml</code>
+可调权重);接近上限考虑分库。</p>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#faq-与避坑" id="toc-faq-与避坑">FAQ 与避坑</a>
+<ul>
+<li><a href="#理念与流程" id="toc-理念与流程">理念与流程</a></li>
+<li><a href="#flomo-相关" id="toc-flomo-相关">flomo 相关</a></li>
+<li><a href="#脚本与自动化" id="toc-脚本与自动化">脚本与自动化</a></li>
+<li><a href="#成本与安全" id="toc-成本与安全">成本与安全</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

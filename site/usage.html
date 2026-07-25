@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>使用手册 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html" class="active">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 使用手册</div>
+<h1 id="使用手册">使用手册</h1>
+<blockquote>
+<p>一句话心法:<strong>先有写作/决策任务,再让 AI
+从积累里挖宝——知识库不是用来整理的,是用来调用的。</strong>
+北极星指标是”调用率”:每周实际从库里调用素材或答案的次数(目标 ≥ 5
+次/周)。</p>
+</blockquote>
+<h2 id="目录与权责速查">目录与权责速查</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>目录</th>
+<th>谁写</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>raw/**</code></td>
+<td>人放入</td>
+<td>原始来源,只读不改,唯一真相</td>
+</tr>
+<tr>
+<td><code>_wiki/summaries·concepts·entities</code></td>
+<td>sage-wiki 全权</td>
+<td>LLM 只读;编译产物</td>
+</tr>
+<tr>
+<td><code>_wiki/outputs/</code></td>
+<td>LLM 可写</td>
+<td>查询产出与深度摄入摘要</td>
+</tr>
+<tr>
+<td><code>_wiki/index.md</code>、<code>log.md</code></td>
+<td>共同维护</td>
+<td>只追加,不删除</td>
+</tr>
+<tr>
+<td><code>material/**</code></td>
+<td>LLM 全权</td>
+<td>六类写作素材</td>
+</tr>
+<tr>
+<td><code>writing/**</code></td>
+<td>LLM 可写,人主导</td>
+<td>写作成稿存档</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>日志格式统一为 <code>## [日期] 类型 ｜ 标题</code>(全角”｜“)。</p>
+<h2 id="五大核心工作流">五大核心工作流</h2>
+<h3 id="自动摄入剪藏">1. 自动摄入(剪藏)</h3>
+<p>浏览器 Web Clipper 剪藏 → 自动落地 <code>raw/clippings/</code> →
+sage-wiki watch 自动编译 → 编译后运行
+<code>bash scripts/auto-archive.sh</code> 把已编译文件移入
+<code>raw/archive/</code>。</p>
+<p>归档判据以 git
+快照为准:只有”已提交且编译后无改动”的文件才会归档,失败方向永远是”多留一周”,绝不误归档。</p>
+<h3 id="深度摄入todo">2. 深度摄入(todo)</h3>
+<p>对标记进 <code>raw/todo/</code> 的重要文章,在 Claudian
+侧栏执行五步:</p>
+<ol type="1">
+<li>读文章,与你讨论关键要点(不跳过)</li>
+<li>在 <code>_wiki/outputs/</code> 写简要摘要页(不写
+<code>summaries/</code>,那是编译引擎的领地)</li>
+<li>按六类框架抽素材存入 <code>material/</code></li>
+<li>在 <code>log.md</code> 追加
+<code>## [日期] ingest ｜ 标题</code></li>
+<li>处理完把原文移入 <code>raw/archive/</code>——<strong>不要移回
+<code>clippings/</code></strong>(会被再次编译产生重复条目)</li>
+</ol>
+<h3 id="flomo-增量">3. flomo 增量</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 把最新全量导出放入 raw/flomo/&lt;日期&gt;/ 后:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/flomo-delta.py raw/flomo/<span class="op">&lt;</span>日期<span class="op">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> compile</span></code></pre></div>
+<p>脚本比对指纹只输出<strong>新增</strong>笔记到
+<code>raw/flomo/delta/delta-&lt;日期-时分秒&gt;.md</code>,原始导出永不修改。之后在侧栏用六类提取
+prompt 处理 delta(偏好:重点①金句②复盘⑤框架,弱化③外部引用⑥数据)。</p>
+<h3 id="query查询">4. Query(查询)</h3>
+<ol type="1">
+<li>先读 <code>_wiki/index.md</code> 定位相关页</li>
+<li>深入相关页,综合答案,附 Wiki 内链接</li>
+<li><strong>有价值的分析存入 <code>_wiki/outputs/</code></strong>
+并记日志——让探索也复利,别让洞见死在聊天记录里</li>
+</ol>
+<p>产品/竞品/融资/招聘决策用五维框架检索:市场与竞争 / 技术判断 /
+产品与用户 / 人与组织 / 框架与心智模型。</p>
+<h3 id="lint健检">5. Lint(健检)</h3>
+<p>定期让系统检查:页面间矛盾、被新来源推翻的旧声明、孤立页面、缺失交叉引用、值得新建的概念页、可联网补充的数据缺口。安全项(如补链接)可自动修复,变更进
+git。</p>
+<h2 id="写作闭环">写作闭环</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>阶段</th>
+<th>操作</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写作前</td>
+<td>六类框架 prompt 全库提取素材</td>
+<td><code>material/[主题]-素材库.md</code></td>
+</tr>
+<tr>
+<td>写作中</td>
+<td>取用金句/案例/数据,需深挖时即时 Query</td>
+<td>成稿草稿</td>
+</tr>
+<tr>
+<td>写作后</td>
+<td>新金句/判断回写 <code>material/</code>;分析存
+<code>_wiki/outputs/</code>;成稿存 <code>writing/</code></td>
+<td>库复利 + 存档</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="工作日志日报与周报">工作日志:日报与周报</h2>
+<p>持续记录在知识库上做过的工作,并方便合成周报。报告存在
+<code>reports/</code>(不参与编译)。</p>
+<p><strong>日报</strong>——盘点前一天的工作:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/daily-report.py           <span class="co"># 默认盘点“昨天”</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/daily-report.py <span class="at">--today</span>    <span class="co"># 今天(截至此刻)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/daily-report.py <span class="at">--days</span> 7    <span class="co"># 回填最近 7 天</span></span></code></pre></div>
+<p>脚本从三处<strong>自动盘点</strong>并生成
+<code>reports/daily/YYYY-MM-DD.md</code>:git
+提交(作者日期)、<code>_wiki/log.md</code> 条目、当天 flomo
+增量——每条结论都挂 git sha 或 log 条目,可回溯。</p>
+<p>每份日报底部有一个<strong>“手记”区</strong>(<code>&lt;!-- 手记开始 --&gt;…&lt;!-- 手记结束 --&gt;</code>
+标记之间):在这里补写今日反思、决策复盘、库外工作,或让 LLM
+填写。<strong>重新生成日报时手记区原样保留</strong>,只有上方的自动盘点部分会刷新。</p>
+<p><strong>周报</strong>——把一周日报聚合:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/weekly-report.py           <span class="co"># 上一个完整周(周一–周日)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/weekly-report.py <span class="at">--this-week</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/weekly-report.py <span class="at">--last</span> 7</span></code></pre></div>
+<p>生成 <code>reports/weekly/YYYY-Www.md</code>:汇总数字直接盘点本周期的
+git 提交 +
+<code>log.md</code>(即使没生成过日报也准确),再加每日要点(缺日报的日子会标注)、分类小结、各日手记汇编,以及一个<strong>“周度综述”区</strong>留给
+LLM 写叙事——在 Claudian 里让它读本周日报,写主线/进展/问题/下步。</p>
+<p><strong>cron 化(可选)</strong>:把日报生成挂到本机
+cron,每天自动留档并提交。<code>date +%F</code>(今天,POSIX
+可移植)作提交信息;<code>|| true</code>
+只为吞掉”无改动可提交”这一非错误情形:</p>
+<pre class="cron"><code>0 6 * * *  cd /path/to/mind &amp;&amp; python3 scripts/daily-report.py &amp;&amp; git add reports/daily reports/weekly &amp;&amp; git commit -q -m &quot;自动日报($(date +\%F) 生成)&quot; || true</code></pre>
+<blockquote>
+<p>macOS 自带 BSD <code>date</code> 语义不同,但这里只用了可移植的
+<code>date +%F</code>,无需改动。</p>
+</blockquote>
+<h2 id="一键全量更新">一键全量更新</h2>
+<p>把散落的更新命令收成<strong>一条编排脚本</strong>
+<code>scripts/update-all.sh</code>:按序跑 日报 →
+<code>compile.sh</code>(编译 + 索引 + lint + 保鲜 + 决策 + 浏览站 +
+提交)→ 订阅台账页 → 门户入口页 → 对外文档站。逐步 best-effort:缺
+<code>sage-wiki</code>/<code>pandoc</code> 的步骤自动跳过,真跑失败才记 ✗
+并非零退出。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/update-all.sh <span class="at">--dry-run</span>   <span class="co"># 先看计划(不执行、不落盘)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/update-all.sh             <span class="co"># 全量更新</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/update-all.sh <span class="at">--pull</span>      <span class="co"># 顺带先 git pull --ff-only 拉最新代码</span></span></code></pre></div>
+<p><strong>网页一键启动</strong>:门户入口页(<code>browse/index.html</code>)的
+hero 区有「🔄
+全量更新」按钮——本地服务(<code>python3 scripts/brain-server.py</code>)在线时点亮,点击即在后台跑
+<code>update-all.sh</code>,页面实时回显日志尾,完成显示 ✅/⚠️。按钮走
+<code>POST /api/update-all</code> + 轮询
+<code>GET /api/update-status</code>,只接受本地来源(挡跨站触发)。</p>
+<p><strong>每天自动启动</strong>(macOS LaunchAgent,每日 09:30):</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> scripts/com.mind.update-all.plist ~/Library/LaunchAgents/</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">launchctl</span> load ~/Library/LaunchAgents/com.mind.update-all.plist</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">launchctl</span> start com.mind.update-all      <span class="co"># 立即试跑一次;日志见 ~/.mind-update-all.log</span></span></code></pre></div>
+<blockquote>
+<p>按钮、定时、命令行三条路都调<strong>同一个</strong>
+<code>update-all.sh</code>(单一真相)。Linux/无 launchd 可改用
+cron:<code>30 9 * * * cd /path/to/mind &amp;&amp; bash scripts/update-all.sh</code>(睡眠漏跑问题同报告
+cron)。</p>
+</blockquote>
+<h2 id="每周-每月节奏">每周 / 每月节奏</h2>
+<p><strong>每周</strong></p>
+<ul>
+<li><strong>周一</strong>:检查 <code>raw/clippings/</code> 积压 →
+<code>sage-wiki compile</code> →
+<code>bash scripts/auto-archive.sh</code></li>
+<li><strong>周三</strong>:逐篇深度摄入上周的 <code>todo</code> 文章 →
+移入 <code>archive/</code></li>
+<li><strong>周五</strong>:新 flomo 导出 → 增量脚本 + 六类提取 →
+<code>sage-wiki lint</code></li>
+<li><strong>周日/周一</strong>:<code>python3 scripts/weekly-report.py</code>
+合成上周周报,在综述区补一段小结</li>
+<li>亦可开启 <code>compile --watch</code> 让 clippings 全自动化</li>
+</ul>
+<p><strong>每日</strong></p>
+<ul>
+<li><code>python3 scripts/daily-report.py</code> 盘点前一天工作(或交给
+cron);随手在手记区补两句</li>
+</ul>
+<p><strong>每月</strong></p>
+<ul>
+<li>深度健检一次(<code>lint --fix</code> 处理安全项)</li>
+<li>用 Obsidian 图谱观察连接质量成长</li>
+<li>复评 <code>config.yaml</code> 分层模型的性价比</li>
+</ul>
+<h2 id="两套框架何时用">两套框架何时用</h2>
+<ul>
+<li><strong>写作任务</strong> →
+六类素材框架(<code>material/</code>):①原创金句 ②亲历复盘 ③外部权威
+④真实案例 ⑤框架心智模型 ⑥数据趋势</li>
+<li><strong>产品决策</strong> → 五维工作框架(<code>_wiki/</code>
+标签检索):市场/技术/产品/人/框架</li>
+</ul>
+<p>遇到问题先查 <a href="faq.html">FAQ 与避坑</a>。</p>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#使用手册" id="toc-使用手册">使用手册</a>
+<ul>
+<li><a href="#目录与权责速查"
+id="toc-目录与权责速查">目录与权责速查</a></li>
+<li><a href="#五大核心工作流"
+id="toc-五大核心工作流">五大核心工作流</a></li>
+<li><a href="#写作闭环" id="toc-写作闭环">写作闭环</a></li>
+<li><a href="#工作日志日报与周报"
+id="toc-工作日志日报与周报">工作日志:日报与周报</a></li>
+<li><a href="#一键全量更新" id="toc-一键全量更新">一键全量更新</a></li>
+<li><a href="#每周-每月节奏" id="toc-每周-每月节奏">每周 /
+每月节奏</a></li>
+<li><a href="#两套框架何时用"
+id="toc-两套框架何时用">两套框架何时用</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

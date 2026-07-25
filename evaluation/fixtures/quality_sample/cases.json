@@ -1,0 +1,21 @@
+{
+  "schema_version": "eval-quality-1",
+  "_comment": "合成质量样例:required 锁事实与限定语(认知边界句),forbidden 列典型过度推断。真实 case 针对 _wiki/concepts|outputs 落 mind-vault/evaluation/。",
+  "cases": [
+    {
+      "id": "q1-年报卡认知边界",
+      "path": "样例知识卡.md",
+      "required_tokens": [
+        "下降 5.2%",
+        "前瞻目标",
+        "不据此推断转型已经成功",
+        "待核验"
+      ],
+      "forbidden_tokens": [
+        "收入实现增长",
+        "转型已经取得成功",
+        "已成为行业共识"
+      ]
+    }
+  ]
+}

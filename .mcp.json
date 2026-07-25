@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sage-wiki": {
+      "command": "sage-wiki",
+      "args": ["serve", "--project", "."]
+    }
+  }
+}

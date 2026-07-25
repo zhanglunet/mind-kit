@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="第二大脑品牌 Logo 设计思路:以汉字「脑」为骨架的脑图谱字标——「月」旁是肉身之脑,节点图谱是数字第二脑,一条接入线把两者焊在一起。">
+<title>Logo 设计思路 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+<style>
+  /* —— 本页专用:logo 自适应配色 —— */
+  :root{--lg-stroke:#4f46e5;--lg-node:#818cf8}
+  @media (prefers-color-scheme:dark){:root{--lg-stroke:#818cf8;--lg-node:#c7d2fe}}
+  .lgm .s{stroke:var(--lg-stroke)} .lgm .n{fill:var(--lg-node)}
+
+  .logohero{display:flex;flex-wrap:wrap;align-items:center;gap:40px;margin-top:26px}
+  .logohero .mark{flex:0 0 auto}
+  .lockup{display:flex;align-items:center;gap:18px}
+  .lockup .wordmark{font-size:34px;font-weight:800;color:var(--ink-strong);letter-spacing:2px}
+  .lockup .domain{font-size:14px;color:var(--muted);letter-spacing:1px;margin-top:4px}
+
+  .specimen{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:18px}
+  .panel{border:1px solid var(--border);border-radius:var(--radius);padding:26px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .panel.on-light{background:#fff}
+  .panel.on-dark{background:#0b1120;border-color:#1f2937}
+  .panel .plabel{font-size:12px;color:var(--faint)}
+  .panel.on-light .plabel{color:#94a3b8}.panel.on-dark .plabel{color:#64748b}
+  /* 固定配色的样张(不随系统主题走,用于演示两种底) */
+  .lgm-light .s{stroke:#4f46e5}.lgm-light .n{fill:#818cf8}
+  .lgm-dark .s{stroke:#818cf8}.lgm-dark .n{fill:#c7d2fe}
+
+  .sizerow{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap}
+  .sizerow figure{margin:0;text-align:center}
+  .sizerow figcaption{font-size:11px;color:var(--faint);margin-top:6px}
+
+  .swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:18px}
+  .swatch{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .swatch .chip{height:64px}
+  .swatch .meta{padding:10px 12px;font-size:12.5px}
+  .swatch .meta b{display:block;color:var(--ink-strong);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .swatch .meta span{color:var(--muted)}
+
+  .construct{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;margin-top:18px}
+  .construct .fig{flex:1 1 340px;min-width:300px}
+  .construct .notes{flex:1 1 320px;min-width:280px}
+  .construct .notes ol{margin:0;padding-left:20px;line-height:1.9}
+  .construct .notes li b{color:var(--ink-strong)}
+
+  .altgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:18px}
+  .altcard{border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:var(--bg-side)}
+  .altcard .alt-mark{display:flex;justify-content:center;padding:10px 0 16px}
+  .altcard h3{margin:0 0 6px;font-size:15.5px}
+  .altcard .verdict{font-size:13px;color:var(--muted);line-height:1.75}
+  .altcard .verdict b{color:var(--warn)}
+
+  .dodont{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px}
+  .dodont .col2{border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+  .dodont h3{margin:0 0 10px;font-size:15px}
+  .dodont ul{margin:0;padding-left:18px;line-height:1.9;font-size:14px}
+  .dodont .ok h3{color:var(--ok)} .dodont .no h3{color:var(--warn)}
+
+  .navdemo{border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;display:flex;align-items:center;gap:10px;background:var(--bg);font-weight:700;color:var(--ink-strong)}
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="index.html">首页</a>
+    <a href="logo.html" style="color:var(--accent)">品牌</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="prd.html">PRD</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="in">
+  <span class="kicker">品牌 · Logo 设计思路</span>
+  <h1>把「脑」字,<br>写成一张<em>知识图谱</em>。</h1>
+  <div class="logohero">
+    <div class="mark lgm">
+      <svg viewBox="0 0 96 96" width="168" height="168" role="img" aria-label="第二大脑 logo">
+        <g class="s" fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 82 V30 A14 14 0 0 1 28 16 H38 V82"/>
+          <path d="M15 40 H37 M15 58 H37"/>
+          <path d="M40 48 H66"/>
+          <path d="M52 24 L80 72 M80 24 L52 72"/>
+        </g>
+        <g class="n">
+          <circle cx="66" cy="48" r="9"/>
+          <circle cx="52" cy="24" r="6.5"/><circle cx="80" cy="24" r="5.5"/>
+          <circle cx="80" cy="72" r="6.5"/><circle cx="52" cy="72" r="5.5"/>
+        </g>
+      </svg>
+    </div>
+    <div class="lockup">
+      <div>
+        <div class="wordmark">第二大脑</div>
+        <div class="domain">aip.cab · 可复利的个人 Wiki 知识库</div>
+      </div>
+    </div>
+  </div>
+  <p class="metaphor" style="margin-top:26px">一半是你的「月」,一半是知识的图谱;中间那条线,叫接入。</p>
+</div></header>
+
+<section class="section" id="idea">
+  <div class="cap">设计理念</div>
+  <h2>为什么是一个「字标」</h2>
+  <p class="lead">AI 与知识库赛道的 logo 早已挤满了神经元球、电路大脑、双环互扣。要独占一个符号,必须讲一个只有这个品牌才能讲的故事——「第二大脑」是一个中文项目,它的符号资产就藏在汉字里。</p>
+  <div class="cards">
+    <div class="card"><div class="num">01</div><h3>骨架:汉字「脑」</h3><p>以「脑」的间架结构为骨架:左「月」旁 + 右部件。在整个 AI/大脑类 logo 语料里,以汉字为骨架的第二大脑标识几乎查无先例——独占性是设计的第一诉求。</p></div>
+    <div class="card"><div class="num">02</div><h3>「月」= 肉身之脑</h3><p>「月」旁即肉月旁,代表肉身——也就是<b>你</b>,你的经验、直觉与记忆。竖长圆角框、两道贯通的内横、底部开口,是「月」的最简笔画抽象。</p></div>
+    <div class="card"><div class="num">03</div><h3>图谱 = 数字第二脑</h3><p>右部件不再是笔画,而是一张五节点知识图谱:页面沉淀为节点,链接交织成网。交叉的「㐅」正出自「脑」右下「凶」部的笔意——字理有据,不是生造。</p></div>
+    <div class="card"><div class="num">04</div><h3>接入线 = 人机接驳</h3><p>一条水平连线从「月」旁右竖<b>穿出</b>,焊进图谱的枢纽节点:肉身接入数字图谱,两个脑成为一个系统。枢纽是全图最大的节点——每次摄入、查询、健检都汇入这里,知识在此复利。</p></div>
+  </div>
+</section>
+
+<section class="section" id="construct">
+  <div class="cap">构成解析</div>
+  <h2>一笔一画都有出处</h2>
+  <div class="construct">
+    <div class="fig lgm">
+      <svg viewBox="-4 -4 104 104" width="100%" style="max-width:420px" role="img" aria-label="logo 构成图解">
+        <!-- 8 单位网格 -->
+        <g stroke="var(--border)" stroke-width=".5">
+          <path d="M8 0V96M16 0V96M24 0V96M32 0V96M40 0V96M48 0V96M56 0V96M64 0V96M72 0V96M80 0V96M88 0V96"/>
+          <path d="M0 8H96M0 16H96M0 24H96M0 32H96M0 40H96M0 48H96M0 56H96M0 64H96M0 72H96M0 80H96M0 88H96"/>
+        </g>
+        <g class="s" fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 82 V30 A14 14 0 0 1 28 16 H38 V82"/>
+          <path d="M15 40 H37 M15 58 H37"/>
+          <path d="M40 48 H66"/>
+          <path d="M52 24 L80 72 M80 24 L52 72"/>
+        </g>
+        <g class="n">
+          <circle cx="66" cy="48" r="9"/>
+          <circle cx="52" cy="24" r="6.5"/><circle cx="80" cy="24" r="5.5"/>
+          <circle cx="80" cy="72" r="6.5"/><circle cx="52" cy="72" r="5.5"/>
+        </g>
+        <!-- 标注 -->
+        <g font-size="5.4" fill="var(--muted)" font-family="inherit">
+          <text x="9" y="93">「月」= 肉身</text>
+          <text x="42" y="43.5">接入</text>
+          <text x="70" y="60.5">枢纽 r9</text>
+          <text x="58" y="93">图谱 = 第二脑</text>
+        </g>
+        <g stroke="var(--faint)" stroke-width=".8" stroke-dasharray="2 2" fill="none">
+          <circle cx="66" cy="48" r="12.5"/>
+        </g>
+      </svg>
+    </div>
+    <div class="notes">
+      <ol>
+        <li><b>96 网格</b>:全稿建立在 96×96 网格上,关键坐标对齐 0.5 单位,四周留白 ≥10。</li>
+        <li><b>统一笔画</b>:所有描边宽 8、圆头圆角(round cap/join)——既是现代字体的笔画感,也是电路走线的秩序感。</li>
+        <li><b>开底的「月」</b>:底部不封口是「月」区别于「日/目」的辨识特征;内部两横贯通内腔,两端圆头没入左右竖笔,如同真实笔画的连笔。</li>
+        <li><b>接入线</b>:从月旁右竖(x=40)水平焊入枢纽(x=66),线头藏进笔画带内——「接入」这个动词被画了出来,而不是靠文案解释。</li>
+        <li><b>枢纽与叶节点</b>:枢纽 r9 为全图最大;四枚叶节点 6.5/5.5 交错排布,打破四角对称(避免读作染色体/分子图标)。所有节点直径 ≥ 2×描边,保证 16px 下仍是可辨的「点」。</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="color">
+  <div class="cap">色彩</div>
+  <h2>与站点同源的靛蓝体系</h2>
+  <p class="lead">logo 不引入新颜色——直接取自 aip.cab 站点的设计令牌,亮暗两种主题各有一套映射,内嵌媒体查询自动切换。</p>
+  <div class="swatches">
+    <div class="swatch"><div class="chip" style="background:#4f46e5"></div><div class="meta"><b>#4F46E5</b><span>主靛 · 亮色主题笔画</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#818cf8"></div><div class="meta"><b>#818CF8</b><span>浅靛 · 亮色节点 / 暗色笔画</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#c7d2fe"></div><div class="meta"><b>#C7D2FE</b><span>雾靛 · 暗色节点 / 图标节点</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#0b1120"></div><div class="meta"><b>#0B1120</b><span>墨青 · 暗色底</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#ffffff;border-bottom:1px solid var(--border)"></div><div class="meta"><b>#FFFFFF</b><span>纯白 · 容器内字标</span></div></div>
+  </div>
+</section>
+
+<section class="section" id="variants">
+  <div class="cap">变体与尺寸</div>
+  <h2>三个形态,处处可用</h2>
+  <div class="specimen">
+    <div class="panel on-light">
+      <svg class="lgm-light" viewBox="0 0 96 96" width="120" height="120" aria-label="亮色字标">
+        <g class="s" fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 82 V30 A14 14 0 0 1 28 16 H38 V82"/><path d="M15 40 H37 M15 58 H37"/>
+          <path d="M40 48 H66"/><path d="M52 24 L80 72 M80 24 L52 72"/>
+        </g>
+        <g class="n"><circle cx="66" cy="48" r="9"/><circle cx="52" cy="24" r="6.5"/><circle cx="80" cy="24" r="5.5"/><circle cx="80" cy="72" r="6.5"/><circle cx="52" cy="72" r="5.5"/></g>
+      </svg>
+      <span class="plabel">标准字标 · 白底(#4F46E5 / #818CF8)</span>
+    </div>
+    <div class="panel on-dark">
+      <svg class="lgm-dark" viewBox="0 0 96 96" width="120" height="120" aria-label="暗色字标">
+        <g class="s" fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 82 V30 A14 14 0 0 1 28 16 H38 V82"/><path d="M15 40 H37 M15 58 H37"/>
+          <path d="M40 48 H66"/><path d="M52 24 L80 72 M80 24 L52 72"/>
+        </g>
+        <g class="n"><circle cx="66" cy="48" r="9"/><circle cx="52" cy="24" r="6.5"/><circle cx="80" cy="24" r="5.5"/><circle cx="80" cy="72" r="6.5"/><circle cx="52" cy="72" r="5.5"/></g>
+      </svg>
+      <span class="plabel">标准字标 · 深底(#818CF8 / #C7D2FE)</span>
+    </div>
+    <div class="panel on-light">
+      <img src="assets/logo-app.svg" width="120" height="120" alt="App 图标">
+      <span class="plabel">App 图标 / favicon(容器版)</span>
+    </div>
+  </div>
+
+  <h3 style="margin-top:34px">缩放测试</h3>
+  <p style="color:var(--muted);font-size:14px">字标最小用 24px;16px 及以下一律使用容器版图标。</p>
+  <div class="sizerow" style="margin-top:14px">
+    <figure><img src="assets/logo-app.svg" width="96" height="96" alt=""><figcaption>96</figcaption></figure>
+    <figure><img src="assets/logo-app.svg" width="48" height="48" alt=""><figcaption>48</figcaption></figure>
+    <figure><img src="assets/logo-app.svg" width="32" height="32" alt=""><figcaption>32</figcaption></figure>
+    <figure><img src="assets/logo-app.svg" width="16" height="16" alt=""><figcaption>16 · favicon</figcaption></figure>
+    <figure>
+      <div class="navdemo"><img src="assets/logo-app.svg" width="30" height="30" alt="">第二大脑</div>
+      <figcaption>导航条组合</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section" id="process">
+  <div class="cap">探索过程</div>
+  <h2>四个方向,三轮评审</h2>
+  <p class="lead">设计以并行探索展开:四个方向各自成稿,再由「工艺与可缩性 / 品牌契合 / 识别与记忆」三个独立视角交叉评审。字标方向以最高的独占性胜出,并按评审意见完成三处精修:内横贯通、画出接入线、节点半径交错。以下是三张落选稿与落选原因——它们都不坏,只是撞上了各自绕不开的原型。</p>
+  <div class="altgrid">
+    <div class="altcard">
+      <div class="alt-mark">
+        <svg viewBox="0 0 96 96" width="104" height="104" fill="none" aria-label="候选:互联之脑">
+          <path d="M19 45 A26 26 0 0 1 27 26 A26 26 0 0 1 47 16.5 A26 26 0 0 1 69 23.5 A26 26 0 0 1 79 45 A26 26 0 0 1 72.5 63 L63 77 A52 52 0 0 0 31 63.5 A26 26 0 0 1 19 45 Z" stroke="#4f46e5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M42 41 L47 16.5 M42 41 L19 45 M42 41 L72.5 63" stroke="#4f46e5" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="47" cy="16.5" r="7.5" fill="#818cf8"/><circle cx="79" cy="45" r="7.5" fill="#818cf8"/><circle cx="42" cy="41" r="7.5" fill="#818cf8"/>
+          <circle cx="27" cy="26" r="5.5" fill="#818cf8"/><circle cx="69" cy="23.5" r="5.5" fill="#818cf8"/><circle cx="72.5" cy="63" r="5.5" fill="#818cf8"/>
+          <circle cx="63" cy="77" r="5.5" fill="#818cf8"/><circle cx="31" cy="63.5" r="5.5" fill="#818cf8"/><circle cx="19" cy="45" r="5.5" fill="#818cf8"/>
+        </svg>
+      </div>
+      <h3>互联之脑</h3>
+      <p class="verdict">节点连线串成大脑剪影,「图谱即大脑」的双关最贴题。<b>落选:</b>「节点脑」是 AI 赛道最泛滥的原型,独占性趋零;九节点在 16px 下糊成一团,剪影也难以真正读出「脑」。</p>
+    </div>
+    <div class="altcard">
+      <div class="alt-mark">
+        <svg viewBox="0 0 96 96" width="104" height="104" fill="none" aria-label="候选:双脑链扣">
+          <path d="M52 28 H66 A14 14 0 0 1 80 42 V54 A14 14 0 0 1 66 68 H52 A14 14 0 0 1 38 54 V42 A14 14 0 0 1 52 28 Z" stroke="#818cf8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="36" cy="48" r="20" stroke="#4f46e5" stroke-width="8"/>
+          <path d="M56 68 H52 A14 14 0 0 1 38 54 V50" stroke="#818cf8" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="47" cy="48" r="3.5" fill="#4f46e5"/>
+        </svg>
+      </div>
+      <h3>双脑链扣</h3>
+      <p class="verdict">人脑圆环与机器圆角方一上一下真实互扣,工艺经得起数值审计,是工艺评审的第一名。<b>落选:</b>撞「双环互扣」链接原型(卡组织、链条、联名标满街都是),人机故事被通用形式吞没;中央知识点缩小即消失。</p>
+    </div>
+    <div class="altcard">
+      <div class="alt-mark">
+        <svg viewBox="0 0 96 96" width="104" height="104" aria-label="候选:复利回环">
+          <path d="M48 21.5 A26.5 26.5 0 1 1 21.5 48" fill="none" stroke="#4f46e5" stroke-width="7" stroke-linecap="round"/>
+          <line x1="48" y1="48" x2="21.5" y2="48" stroke="#4f46e5" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="48" cy="48" r="6" fill="#4f46e5"/>
+          <circle cx="48" cy="21.5" r="4" fill="#22d3ee"/><circle cx="74.5" cy="48" r="6" fill="#22d3ee"/>
+          <circle cx="48" cy="74.5" r="9" fill="#22d3ee"/><circle cx="21.5" cy="48" r="13.5" fill="#22d3ee"/>
+        </svg>
+      </div>
+      <h3>复利回环</h3>
+      <p class="verdict">节点沿回路按 1.5 倍复利递增,「每转一圈都在增值」有真实几何支撑,综合分最高。<b>落选:</b>开口弧 + 环列圆点强读作 loading 转圈/表盘——「永远在加载」对知识库品牌是有害联想;「脑」与「互联」意象双双缺席。</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="rules">
+  <div class="cap">使用规范</div>
+  <h2>怎么用,怎么不用</h2>
+  <div class="dodont">
+    <div class="col2 ok">
+      <h3>✓ 应当</h3>
+      <ul>
+        <li>优先使用自适应字标 <code>assets/logo.svg</code>(内嵌亮/暗媒体查询)</li>
+        <li>16px 及以下、社交头像、浏览器标签,用容器版 <code>assets/logo-app.svg</code></li>
+        <li>保留净空:四周至少留出一个枢纽直径(约字标宽度的 1/5)</li>
+        <li>暗色底上使用浅靛笔画(#818CF8)+ 雾靛节点(#C7D2FE)</li>
+      </ul>
+    </div>
+    <div class="col2 no">
+      <h3>✗ 不要</h3>
+      <ul>
+        <li>不改配色、不加渐变阴影描金等效果,不旋转、不斜切</li>
+        <li>不把字标放在低对比的彩色底上(容器版除外)</li>
+        <li>不单独使用右侧图谱或单独使用「月」旁(拆开即失去「接入」叙事)</li>
+        <li>不用系统字体的「脑」字替代字标(2026-07 前的旧 favicon 已退役)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="sitefoot" style="margin-top:56px"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="index.html">首页</a>
+  <a href="deploy.html">发布指南</a>
+  <a href="changelog.html">更新日志</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">logo 与本页由多智能体并行设计流程产出:4 方向出稿 × 3 视角评审 × 1 轮收敛精修</span>
+</div></footer>
+
+</body>
+</html>

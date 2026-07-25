@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="第二大脑系统如何运作:三层架构、双库布局、编译流水线、四道防腐机器、查询两条路与隐私边界。">
+<title>系统如何运作 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+<style>
+/* 图示专用:复用站点 token,不引入新配色 */
+.dg{margin:26px 0}
+.dg-cap{font-size:.78em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.box{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-side);padding:14px 16px}
+/* 只有直接子 <b> 是标题;<span> 里的 <b> 必须保持行内,否则句子被拆成好几行 */
+.box > b{display:block;color:var(--ink-strong);margin-bottom:3px;font-size:.95em}
+.box span{color:var(--muted);font-size:.84em;line-height:1.5;display:block}
+.box.accent{border-color:var(--accent);background:var(--accent-soft)}
+.box.warn{border-color:var(--warn)}
+.row{display:grid;gap:14px}
+.row2{grid-template-columns:1fr 1fr}
+.row3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:720px){.row2,.row3{grid-template-columns:1fr}}
+.arrow{text-align:center;color:var(--faint);font-size:.8em;margin:10px 0;line-height:1.4}
+.arrow b{color:var(--accent);font-weight:600}
+/* 流水线 */
+.pipe{counter-reset:s;border-left:2px solid var(--border);margin-left:14px;padding-left:0}
+.pipe li{list-style:none;position:relative;padding:0 0 16px 26px;color:var(--muted);font-size:.9em}
+.pipe li::before{counter-increment:s;content:counter(s);position:absolute;left:-13px;top:0;
+  width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;
+  font-size:.72em;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pipe li b{color:var(--ink-strong);display:block;font-size:1.02em;margin-bottom:2px}
+.pipe li b.hl{display:inline;font-size:1em;margin:0;color:var(--warn)}   /* 行内强调,不另起一行 */
+.pipe li.gate::before{background:var(--warn)}
+/* 领地色带 */
+.zone{border-left:3px solid var(--accent);padding:10px 14px;margin:10px 0;background:var(--bg-side);border-radius:0 8px 8px 0}
+.zone.priv{border-left-color:var(--warn)}
+.zone b{color:var(--ink-strong)}
+.zone code{font-size:.86em}
+.tagline{color:var(--muted);font-size:.86em;margin-top:6px}
+.mach{border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--bg)}
+.mach .id{display:inline-block;font-size:.72em;font-weight:700;color:#fff;background:var(--accent);
+  border-radius:6px;padding:2px 8px;margin-bottom:8px;letter-spacing:.05em}
+.mach h4{margin:0 0 6px;font-size:1em;color:var(--ink-strong)}
+.mach p{margin:0;color:var(--muted);font-size:.86em;line-height:1.6}
+.mach .key{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);
+  color:var(--ink);font-size:.82em}
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="index.html">首页</a>
+    <a href="architecture.html" class="active">系统运作</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="prd.html">PRD</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="in">
+  <span class="kicker">系统全景</span>
+  <h1>系统如何运作</h1>
+  <p class="sub"><b>原始来源只读 · LLM 编译成互联 Wiki · 人从 Wiki 调用</b>。代码与内容分两个仓,四道确定性门禁防止规模化后腐化。</p>
+</div></header>
+
+<section class="section">
+  <div class="cap">01 · 权责边界</div>
+  <h2>三层架构:谁能写什么</h2>
+  <p class="lead">系统不漂移的关键,是把「谁能改哪些文件」写成<b>可版本化的 Schema</b>(<code>CLAUDE.md</code>),而不是靠约定俗成。</p>
+
+  <div class="dg">
+    <div class="box accent"><b>第三层 · Schema(CLAUDE.md)</b><span>系统「宪法」:规定各角色权责边界、目录规范与工作流,约束下面两层</span></div>
+    <div class="arrow">↓ <b>约束</b></div>
+    <div class="row row2">
+      <div class="box"><b>第一层 · Raw(raw/)</b><span>剪藏 / PDF / 笔记导出<br><b style="color:var(--warn)">只读,唯一真相来源</b></span></div>
+      <div class="box"><b>第二层 · Wiki(_wiki/)</b><span>summaries · concepts · entities —— 引擎领地,LLM 只读<br>outputs/ —— LLM 产出写这里</span></div>
+    </div>
+    <div class="arrow">Raw ——<b>编译(只读源,不回写)</b>——▸ Wiki ——<b>调用</b>——▸ 人:选题 / 提问 / 写作 / 决策</div>
+  </div>
+
+  <div class="rules">
+    <div class="rule"><div><b>红线一</b>:<code>_wiki/summaries|concepts|entities</code> 是编译引擎的领地,LLM 只读;产出写到 <code>outputs/</code>。</div></div>
+    <div class="rule"><div><b>红线二</b>:原始来源只读不写;笔记类原始导出永不修改,只编译其增量目录。</div></div>
+    <div class="rule"><div><b>红线三</b>:处理完的 <code>todo</code> 移入 <code>archive/</code>,不回 <code>clippings/</code>——否则重复编译。</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">02 · 存储布局</div>
+  <h2>双库:代码与内容分离</h2>
+  <p class="lead"><b>代码库不含任何个人内容。</b>知识内容在另一个私有仓,经符号链接挂进同一个工作目录。</p>
+
+  <div class="dg">
+    <div class="zone">
+      <b>mind-kit/ —— 代码库</b>
+      <div class="tagline"><code>scripts/ tests/ docs/ prompts/ evaluation/ site/</code> ← 真实文件</div>
+      <div class="tagline"><code>_wiki  material  raw  writing  reports/…</code> ← 全是软链 ↓</div>
+    </div>
+    <div class="arrow">软链指向 ↓</div>
+    <div class="zone priv">
+      <b>mind-vault/ —— 你的内容库(私有)</b>
+      <div class="tagline"><code>_wiki/ material/ raw/ writing/ reports/</code> ← 个人内容本体</div>
+    </div>
+  </div>
+
+  <div class="rules">
+    <div class="rule"><div>克隆代码库后<b>不会有</b> <code>_wiki/</code>、<code>material/</code>、<code>raw/</code> —— 这是设计如此,跑 <code>scripts/init-vault.sh</code> 建自己的。</div></div>
+    <div class="rule"><div>提交个人内容一律走 <code>scripts/vault.sh commit</code>(唯一漏斗,带写集校验门禁);<b>不要</b>在代码库里 <code>git add</code> 个人目录。</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">03 · 主流程</div>
+  <h2>编译流水线:一条命令走完</h2>
+  <p class="lead"><code>scripts/compile.sh</code> 把七件事串成一条命令;更外层的 <code>update-all.sh</code> 还会串上日报、门户与文档站。</p>
+
+  <ol class="pipe">
+    <li><b>sage-wiki compile</b>来源 → summaries / concepts / entities</li>
+    <li><b>build-index.py</b>重建 <code>_wiki/index.md</code> 导航</li>
+    <li><b>sage-wiki lint</b>健检:矛盾 / 孤立页 / 缺失交叉引用 → 记账到 <code>reports/lint/</code></li>
+    <li><b>freshness.py</b>保鲜复核:按半衰期列出「该复核」的页(只提示,不改)</li>
+    <li><b>decision.py check</b>决策队列状态机不变量校验</li>
+    <li><b>build-wiki-site.py</b>生成本地浏览站 <code>browse/wiki/</code>(含关系图)</li>
+    <li class="gate"><b>vault.sh commit</b>产物提交到内容库 —— <b class="hl">此处过写集校验门禁</b></li>
+  </ol>
+
+  <div class="box" style="margin-top:18px"><b>三条路,同一个脚本</b><span><code>update-all.sh</code> 可由 <b>命令行</b> / <b>网页按钮</b> / <b>定时自启</b> 三种方式触发,单一真相、不会各行其是。</span></div>
+</section>
+
+<section class="section">
+  <div class="cap">04 · 抗腐化</div>
+  <h2>四道机器:让它规模化不腐化</h2>
+  <p class="lead">知识库越大越怕漂移与静默腐化。除理念外,系统落了四道<b>确定性可执行</b>的机制——不是提示词里的软约束,而是脚本、测试与门禁。</p>
+
+  <div class="row row2" style="margin:22px 0">
+    <div class="mach"><span class="id">E1</span><h4>本地检索栈</h4>
+      <p>BM25 + 中文 bigram 分词 + RRF 三通道融合 + 双语同义扩展。</p>
+      <span class="key">秒级、<b>不走 LLM</b>;索引按输入指纹<b>自动失效重建</b></span></div>
+    <div class="mach"><span class="id">E2</span><h4>评测与回归</h4>
+      <p>检索 golden case(MRR / Top-1)+ 质量 required/forbidden token 断言。</p>
+      <span class="key"><b>基线只增不减</b>;锁住「认知边界」而非只测召回</span></div>
+    <div class="mach"><span class="id">E3</span><h4>决策队列 + 保鲜</h4>
+      <p>须先确认的动作走状态机;重要页按半衰期到点提示复核。</p>
+      <span class="key"><b>审批与执行分离</b>;保鲜<b>只提示不擅改</b></span></div>
+    <div class="mach"><span class="id">E4</span><h4>写集校验门禁</h4>
+      <p>提交前对<b>变更页</b>跑确定性校验(frontmatter、引号化、保鲜字段、证据链)。</p>
+      <span class="key">只校本次写集(不扫全库);坏页拦在入库前,带逃生舱</span></div>
+  </div>
+
+  <div class="box accent"><b>为什么是「机器」而不是「规范」</b><span>系统宪法里写着一条原则:<br>「只有脚本/测试能确定性执行的规则才算硬门禁;提示词与文档条款只是尽力遵守的软规范。<b>想让某条规范必须遵守,就为它写可执行检查,别指望文字自我执行。</b>」</span></div>
+</section>
+
+<section class="section">
+  <div class="cap">05 · 调用</div>
+  <h2>查询:两条路</h2>
+  <div class="row row2">
+    <div class="box"><b>① 本地检索 · /api/search</b><span><b style="color:var(--ok)">秒级,不走 LLM</b><br>BM25 + bigram + RRF + 同义扩展<br>适合「找页面」</span></div>
+    <div class="box"><b>② 引擎查询 · /api/query</b><span>数十秒,走 LLM<br>综合多页 + 带来源引用<br>适合「要答案」</span></div>
+  </div>
+  <div class="arrow">▾ 有价值的产出</div>
+  <div class="box accent"><b>回写 <code>_wiki/outputs/</code> 并记一条 log</b><span>让探索也复利 —— 别让洞见死在聊天记录里。本地服务 <code>brain-server.py</code> <b>只绑回环地址</b>,提供门户页与这两个 API。</span></div>
+</section>
+
+<section class="section">
+  <div class="cap">06 · 隐私</div>
+  <h2>边界:什么永不上网</h2>
+  <div class="row row2">
+    <div class="box"><b>公开</b><span><code>site/</code> 文档站(部署到公网)<br><code>scripts/ tests/ docs/ prompts/ evaluation/</code></span></div>
+    <div class="box warn"><b>私有 · 永不进代码库</b><span><code>raw/ _wiki/ material/ writing/</code> 内容库<br><code>browse/</code> 本地浏览站(gitignore)<br><code>raw/private/</code> 冷存层,永不读写入库</span></div>
+  </div>
+  <div class="box" style="margin-top:14px"><b>可执行门禁防回流</b><span>代码库有一道测试(<code>test_no_personal_identifiers.py</code>)挡住个人标识回流:用<b>形状匹配</b>(如 <code>ou_</code> + 24 位 hex)而非字面值 —— 把真实标识写进测试文件,等于泄露仍在库里。</span></div>
+</section>
+
+<section class="section">
+  <div class="cap">07 · 开发</div>
+  <h2>纪律:用证据而非声称</h2>
+  <p class="lead">开发遵循 <a href="https://github.com/obra/superpowers">Superpowers</a> 四原则:<b>测试先行 · 系统化优于拍脑袋 · 简单为第一目标 · 用证据而非声称</b>。</p>
+  <div class="row row3">
+    <div class="box"><b>脚本改动强制 pytest-first</b><span>先写会失败的测试(RED)→ 实现到通过(GREEN)→ 重构</span></div>
+    <div class="box"><b>pre-push 钩子</b><span>push 前跑全量 pytest,红则拦;CI 服务端兜底</span></div>
+    <div class="box"><b>收尾必验证</b><span>真跑一遍留证据,而非「应该没问题」</span></div>
+  </div>
+  <div class="docsgrid" style="margin-top:26px">
+    <a class="card" href="install.html"><h3>安装指南</h3><p>30 分钟搭好骨架,含首周验收清单。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="usage.html"><h3>使用手册</h3><p>五大工作流、写作闭环与每周节奏。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="server.html"><h3>服务器部署</h3><p>Linux 从零部署,cron / systemd 方案。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="prd.html"><h3>产品需求文档</h3><p>完整 PRD:需求、数据模型、评测与规模化。</p><span class="go">阅读 →</span></a>
+  </div>
+</section>
+
+<footer class="sitefoot" style="margin-top:56px"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="index.html">首页</a>
+  <a href="logo.html">品牌</a>
+  <a href="changelog.html">更新日志</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容永不上网</span>
+</div></footer>
+
+</body>
+</html>

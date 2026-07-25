@@ -1,0 +1,8 @@
+# 仓库 Python 脚本的第三方依赖(标准库不列)。
+# 安装:pip install -r requirements.txt
+#
+# 说明:scripts/ 下大多数脚本(build-index / daily-report / localize-images /
+# dedup-check / flomo-delta 等)只用标准库,无需安装任何东西。唯一的外部依赖是:
+
+markdown        # scripts/build-wiki-site.py:把 _wiki/ + material/ 渲染成本地浏览站(含关系图)
+                # 不装也不影响编译 —— compile.sh 第 4 步(生成浏览站)是 best-effort,缺它只告警跳过。

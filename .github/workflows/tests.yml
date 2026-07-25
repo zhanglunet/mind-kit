@@ -1,0 +1,29 @@
+name: tests
+
+# 每次 push(任意分支)与 PR 自动跑 pytest —— 脚本改动的 pytest-first 纪律的 CI 强制层。
+# 见 CLAUDE.md「开发纪律」与 tests/README.md。
+on:
+  push:
+  pull_request:
+
+# 同一分支的新 push 取消尚在跑的旧 CI,省额度
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dev deps
+        run: python -m pip install --upgrade pip && pip install -r requirements-dev.txt
+
+      - name: Run pytest
+        run: python -m pytest -q

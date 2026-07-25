@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# pre-push:推送前跑 pytest;测试未过则拦下这次 push(git push --no-verify 可临时跳过)。
+# 由 scripts/install-hooks.sh 经 core.hooksPath 启用。git 以 cwd=仓库根 调用本钩子。
+set -uo pipefail
+
+# git 从 stdin 传入待推 ref:"<local_ref> <local_sha> <remote_ref> <remote_sha>"。
+# 纯删除推送(所有 local_sha 都是 40 个 0)无需跑测试,直接放行;无 stdin 时照常跑。
+only_deletes=1
+have_ref=0
+while read -r _lref lsha _rref _rsha; do
+  have_ref=1
+  case "$lsha" in
+    0000000000000000000000000000000000000000) : ;;   # 删除该 ref
+    *) only_deletes=0 ;;                               # 正常推送(或空行)→ 需跑测试
+  esac
+done
+if [ "$have_ref" -eq 1 ] && [ "$only_deletes" -eq 1 ]; then
+  exit 0
+fi
+
+# 缺 python3 或 pytest:提示但不拦(避免因环境缺失挡住 push)
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "⚠ pre-push:未找到 python3,跳过 push 前测试。" >&2
+  exit 0
+fi
+if ! python3 -m pytest --version >/dev/null 2>&1; then
+  echo "⚠ pre-push:未装 pytest(pip install -r requirements-dev.txt),跳过 push 前测试。" >&2
+  exit 0
+fi
+
+echo "▶ pre-push:运行 pytest…" >&2
+python3 -m pytest -q
+code=$?
+
+if [ "$code" -eq 5 ]; then
+  exit 0   # pytest 退出码 5 = 未收集到测试,不拦
+fi
+if [ "$code" -ne 0 ]; then
+  echo "✗ pre-push:测试未通过(exit $code),已拦下 push。修好,或 'git push --no-verify' 强推。" >&2
+fi
+exit "$code"

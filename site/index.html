@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="第二大脑:一个由 LLM 持续编写与维护的、可复利的个人 Wiki 知识库。Wiki 不是 RAG——知识只编译一次,此后持续保鲜。">
+<title>第二大脑 · 可复利的个人 Wiki 知识库</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="#idea">理念</a>
+    <a href="#arch">架构</a>
+    <a href="#engine">工程</a>
+    <a href="#start">快速开始</a>
+    <a href="architecture.html">系统运作</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="prd.html">PRD</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="in">
+  <span class="kicker">Wiki 不是 RAG · Karpathy「LLM Wiki」方案 × Building a Second Brain</span>
+  <h1>知识只编译一次,<br>此后<em>持续保鲜</em>。</h1>
+  <p class="sub">一个由 LLM 持续编写与维护的、可复利的个人 Wiki 知识库。把"每次提问都从零检索"的 RAG 模式,升级为永久性、结构化、互联的知识资产——每次摄入、查询、健检都让它更值钱。</p>
+  <div class="btns">
+    <a class="btn pri" href="install.html">快速开始 →</a>
+    <a class="btn sec" href="architecture.html">系统运作图解</a>
+    <a class="btn sec" href="prd.html">阅读 PRD</a>
+    <a class="btn sec" href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  </div>
+  <p class="metaphor">打个比方:<b>Obsidian 是 IDE,LLM 是程序员,Wiki 是代码库。</b></p>
+</div></header>
+
+<section class="section" id="pain">
+  <div class="cap">为什么需要它</div>
+  <h2>知识工作者的四个结构性痛点</h2>
+  <div class="cards">
+    <div class="card"><div class="num">01</div><h3>知识不复利</h3><p>RAG 每次提问都在"从零拼图",读过的东西没有沉淀成资产,洞见散落在聊天记录里随对话消失。</p></div>
+    <div class="card"><div class="num">02</div><h3>输入与产出脱节</h3><p>flomo 笔记、剪藏文章、本地 PDF 各成孤岛;真正要写文章或做决策时,无法快速调用积累。</p></div>
+    <div class="card"><div class="num">03</div><h3>整理即负担</h3><p>传统笔记法要求人来分类、打标签、建链接,维护成本随规模上升,"整理"本身变成永远做不完的事。</p></div>
+    <div class="card"><div class="num">04</div><h3>随规模腐化</h3><p>库越大,矛盾、重复、孤立页面越多,却没有机制去发现和修复,知识库逐渐失去可信度。</p></div>
+  </div>
+</section>
+
+<section class="section" id="idea">
+  <div class="cap">核心理念</div>
+  <h2>Wiki 不是 RAG</h2>
+  <p class="lead">每加入一个新来源,LLM 不是索引它,而是读它、提炼它、整合进已有 Wiki——更新实体页、修订摘要、标注矛盾。知识库是一个持续复利的制品(compounding artifact)。</p>
+  <div class="vs">
+    <div class="col">
+      <span class="tag">主流做法 · RAG</span>
+      <h3>检索增强生成</h3>
+      <ul>
+        <li>查询时临时检索原始文档片段,拼一次性答案</li>
+        <li>不留积累,同一问题下次仍从零开始</li>
+        <li>需要向量数据库与 embedding 基础设施</li>
+        <li>结论难以回溯与人工修正</li>
+      </ul>
+    </div>
+    <div class="col win">
+      <span class="tag">本方案 · LLM Wiki</span>
+      <h3>永久性互联知识库</h3>
+      <ul>
+        <li>知识只编译一次,交叉引用已建好,矛盾已标注</li>
+        <li>全部是人类可读的 Markdown,每条结论可回溯来源</li>
+        <li>架构极简:"只有 markdown、全文检索和 grep"</li>
+        <li>定期健检(lint)主动发现并修复矛盾与漂移</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="arch">
+  <div class="cap">系统设计</div>
+  <h2>三层架构,权责分明</h2>
+  <p class="lead">用一份可版本化的 Schema(CLAUDE.md)当"宪法",明确编译引擎、LLM 与人的边界——这是系统不漂移、不越权的关键。</p>
+  <div class="arch">
+    <div class="row"><div class="node schema"><b>第三层 · Schema(CLAUDE.md)</b><span>系统"宪法":规定各角色权责边界、目录规范与工作流,约束下面两层</span></div></div>
+    <div class="flow">↓ 约束</div>
+    <div class="row">
+      <div class="node"><b>第二层 · Wiki(_wiki/)</b><span>LLM 生成并维护:摘要 / 实体页 / 概念页 / 查询产出;人只读与导航</span></div>
+      <div class="node"><b>第一层 · Raw Sources(raw/)</b><span>剪藏、文章、PDF、flomo 导出;不可修改,唯一真相来源</span></div>
+    </div>
+    <div class="flow">Raw --编译(只读源,不回写)--> Wiki --调用--> 人:选题 / 提问 / 写作 / 决策</div>
+  </div>
+  <div class="rules">
+    <div class="rule"><div><b>红线一</b>:LLM 绝不直接改写编译引擎管辖的 summaries / concepts / entities,产出只写到 outputs/。</div></div>
+    <div class="rule"><div><b>红线二</b>:原始来源只读不写;flomo 原始导出永不修改,只编译增量 delta。</div></div>
+    <div class="rule"><div><b>红线三</b>:todo 处理完移入 archive/,不回 clippings/——否则重复编译。</div></div>
+  </div>
+  <p style="margin-top:22px"><a class="btn pri" href="architecture.html">看完整图解:系统如何运作 →</a></p>
+  <p class="lead" style="margin-top:10px">双库布局、七步编译流水线、四道防腐机器、查询两条路与隐私边界,一页看完。</p>
+</section>
+
+<section class="section" id="cap">
+  <div class="cap">能力全景</div>
+  <h2>六大能力 + 两项支撑</h2>
+  <div class="cards">
+    <div class="card"><div class="num">C1</div><h3>摄入 Ingest</h3><p>剪藏自动落地编译;重要文章深度对话式摄入;flomo 只处理增量。</p></div>
+    <div class="card"><div class="num">C2</div><h3>编译 Compile</h3><p>来源编译为结构化互联 Wiki 页,watch 监听、增量幂等、自动更新索引。</p></div>
+    <div class="card"><div class="num">C3</div><h3>查询 Query</h3><p>先读索引再深入相关页,综合出带来源引用的答案;有价值的产出回写复利。</p></div>
+    <div class="card"><div class="num">C4</div><h3>健检 Lint</h3><p>发现矛盾、孤立页、缺失交叉引用与数据缺口;安全项自动修复,抗腐化。</p></div>
+    <div class="card"><div class="num">C5</div><h3>素材 Material</h3><p>双轨框架:六类写作素材抽取 + 五维决策检索,各司其职。</p></div>
+    <div class="card"><div class="num">C6</div><h3>写作 Express</h3><p>写作前提取素材库 → 写作中即时深挖 → 写作后回写,完整闭环。</p></div>
+    <div class="card hl"><div class="num">S1</div><h3>治理 Schema</h3><p>可版本化的权责边界配置,防止 LLM 越权与结构漂移。</p></div>
+    <div class="card hl"><div class="num">S2</div><h3>自动化 Automation</h3><p>目录监听、增量检测、编译后归档;一键「全量更新」串起编译到出站,支持网页触发与每日自启。</p></div>
+  </div>
+</section>
+
+<section class="section" id="engine">
+  <div class="cap">工程质量</div>
+  <h2>让它规模化不腐化的四道机器</h2>
+  <p class="lead">知识库越大越怕漂移与静默腐化。除了理念,系统落了四道**确定性可执行**的机制——不是提示词里的软约束,而是脚本、测试与门禁。</p>
+  <div class="cards">
+    <div class="card"><div class="num">E1</div><h3>本地检索栈</h3><p>BM25 + 中文 bigram 分词 + RRF 多通道融合 + 双语同义扩展,秒级本地检索(不走 LLM),索引按输入指纹自动刷新。</p></div>
+    <div class="card"><div class="num">E2</div><h3>评测与回归</h3><p>检索 golden case(MRR/Top-1)与质量 required/forbidden token 断言锁住认知边界;基线只增不减,改动跑一遍才算数。</p></div>
+    <div class="card"><div class="num">E3</div><h3>决策队列 + 保鲜</h3><p>须先确认的动作走状态机(审批与执行分离,Dataview 单一看板);重要页按半衰期到点提示复核,只提示不擅改。</p></div>
+    <div class="card"><div class="num">E4</div><h3>写集校验门禁</h3><p>提交前对变更页跑确定性校验(frontmatter 键值、引号化、保鲜字段、证据链),坏页拦在入库前;有逃生舱不误伤。</p></div>
+  </div>
+  <p class="metaphor" style="margin-top:22px">开发纪律遵循 <b>Superpowers</b>:测试先行 · 系统化优于拍脑袋 · 简单为第一目标 · 用证据而非声称。脚本改动强制先写会失败的测试,push 前钩子跑全量 pytest。</p>
+</section>
+
+<section class="section" id="track">
+  <div class="cap">双轨框架</div>
+  <h2>写作用六类,决策用五维</h2>
+  <div class="vs">
+    <div class="col">
+      <span class="tag">写作轨 · material/</span>
+      <h3>六类写作素材</h3>
+      <ul>
+        <li>① 原创金句 · ② 亲身经历与决策复盘</li>
+        <li>③ 外部权威与市场信号 · ④ 真实案例</li>
+        <li>⑤ 框架与心智模型 · ⑥ 数据、研究与趋势</li>
+        <li>写作前一键生成主题素材库,直接开写</li>
+      </ul>
+    </div>
+    <div class="col">
+      <span class="tag">决策轨 · 五维标签</span>
+      <h3>五维工作框架</h3>
+      <ul>
+        <li>市场与竞争 · 技术判断 · 产品与用户</li>
+        <li>人与组织 · 框架与心智模型</li>
+        <li>产品 / 竞品 / 融资 / 招聘决策时系统化检索</li>
+        <li>答案聚焦单一维度并跨来源综合</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="start">
+  <div class="cap">上手</div>
+  <h2>三步跑起来</h2>
+  <div class="steps">
+    <div class="step"><div class="t"><b>安装四件套并校验连接</b>Obsidian(存储界面)× sage-wiki(编译引擎)× Claudian(侧栏交互)× Flomo(存量笔记)。后端默认 GLM,可一键切 Kimi。<pre><code>export GLM_API_KEY=...   # 或 KIMI_API_KEY 切 Kimi
+bash scripts/sage-backend.sh   # 看/切后端
+sage-wiki doctor</code></pre></div></div>
+    <div class="step"><div class="t"><b>放入存量,首次编译</b>文章进 raw/clippings/,flomo 导出进 raw/flomo/&lt;日期&gt;/。<pre><code>git init && git add -A && git commit -m init   # 必须先于首次编译
+sage-wiki compile
+python3 scripts/flomo-delta.py raw/flomo/&lt;日期&gt;</code></pre></div></div>
+    <div class="step"><div class="t"><b>建立每周节奏</b>周一编译+归档 · 周三深度摄入 · 周五 flomo 增量+健检。北极星指标:每周从库里实际调用素材/答案 ≥ 5 次。</div></div>
+  </div>
+  <div class="docsgrid">
+    <a class="card" href="architecture.html"><h3>系统运作</h3><p>一页图解:架构、流水线、门禁与隐私边界。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="install.html"><h3>安装指南</h3><p>30 分钟搭好骨架,含首周验收清单。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="usage.html"><h3>使用手册</h3><p>五大工作流、写作闭环与每周节奏。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="faq.html"><h3>FAQ 与避坑</h3><p>12 条风险红线 + 脚本报错排查。</p><span class="go">阅读 →</span></a>
+    <a class="card" href="prd.html"><h3>产品需求文档</h3><p>完整 PRD v1.3:需求、数据模型、评测与规模化。</p><span class="go">阅读 →</span></a>
+  </div>
+</section>
+
+<footer class="sitefoot" style="margin-top:56px"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="architecture.html">系统运作</a>
+  <a href="logo.html">品牌</a>
+  <a href="deploy.html">发布指南</a>
+  <a href="changelog.html">更新日志</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+
+</body>
+</html>

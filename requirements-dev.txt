@@ -1,0 +1,2 @@
+# 开发/测试依赖(运行时不需要)。安装:pip install -r requirements-dev.txt
+pytest          # 脚本改动的 pytest-first 纪律,见 CLAUDE.md「开发纪律」与 tests/README.md

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- 第二大脑本地服务:静态 browse/ + 引擎查询 API(见 scripts/brain-server.py)
+       安装: cp scripts/com.mind.brain-server.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.mind.brain-server.plist
+       卸载: launchctl unload ~/Library/LaunchAgents/com.mind.brain-server.plist && rm ~/Library/LaunchAgents/com.mind.brain-server.plist
+       为什么用 zsh -c source:sage-wiki 查询需要 ~/.zshrc 里的 GLM_API_KEY/KIMI_API_KEY。 -->
+  <key>Label</key><string>com.mind.brain-server</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-c</string>
+    <string>source ~/.zshrc >/dev/null 2>&amp;1; exec /usr/bin/python3 $HOME/second-brain/mind-kit/scripts/brain-server.py</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>$HOME/.mind-brain-server.log</string>
+  <key>StandardErrorPath</key><string>$HOME/.mind-brain-server.log</string>
+</dict>
+</plist>

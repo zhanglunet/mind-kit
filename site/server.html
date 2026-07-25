@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>在 Linux 服务器上安装与使用(给协作者) · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="server.html" class="active">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 在 Linux
+服务器上安装与使用(给协作者)</div>
+<h1 id="在-linux-服务器上安装与使用">在 Linux 服务器上安装与使用</h1>
+<blockquote>
+<p>面向<strong>拿到这个代码库、要在自己 Linux
+服务器上从零跑起来</strong>的人。
+一句话理解这套系统:<strong>代码库(本仓)只有工具,你的知识内容在你自己的另一个私有仓里</strong>——
+两者用软链接拼成一个工作目录。所以你克隆完会发现没有
+<code>_wiki/</code>、<code>material/</code>,这是<strong>设计如此</strong>,第
+3 步会建。</p>
+</blockquote>
+<p>原设计跑在 macOS 桌面(Obsidian + launchd)。本指南给出 Linux
+服务器的等价方案,并标出<strong>哪些能力在无头服务器上用不了</strong>。</p>
+<h2 id="先决条件">0. 先决条件</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>必需</th>
+<th>用途</th>
+<th>装法(Debian/Ubuntu)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python ≥ 3.9</td>
+<td>全部脚本</td>
+<td><code>sudo apt install python3 python3-pip</code></td>
+</tr>
+<tr>
+<td>git</td>
+<td>两个仓</td>
+<td><code>sudo apt install git</code></td>
+</tr>
+<tr>
+<td><strong>sage-wiki</strong></td>
+<td><strong>编译引擎(核心)</strong></td>
+<td><a
+href="https://github.com/xoai/sage-wiki">https://github.com/xoai/sage-wiki</a>(Go,MIT)——按其
+README 装;确保在 <code>PATH</code> 或 <code>~/go/bin/</code></td>
+</tr>
+<tr>
+<td>pandoc</td>
+<td>生成文档站(可选)</td>
+<td><code>sudo apt install pandoc</code></td>
+</tr>
+<tr>
+<td><code>markdown</code> (pip)</td>
+<td>本地浏览站(可选)</td>
+<td>见第 2 步</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>没有 sage-wiki
+就没有编译能力</strong>——这是外部依赖,本仓不含它。本地检索、写集校验、决策队列、保鲜复核、报表等其余能力不受影响。</p>
+</blockquote>
+<h2 id="克隆代码库">1. 克隆代码库</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/second-brain <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> ~/second-brain</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="op">&lt;</span>代码库地址<span class="op">&gt;</span> mind-kit</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mind-kit</span></code></pre></div>
+<p><strong>布局很重要</strong>:代码库与内容库必须是<strong>同级目录</strong>(多个脚本按
+<code>../mind-vault</code> 定位):</p>
+<pre><code>~/second-brain/
+├── mind-kit/     ← 本仓(代码)
+└── mind-vault/   ← 你的内容库(第 3 步创建)</code></pre>
+<h2 id="装依赖-测试">2. 装依赖 + 测试</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements.txt          <span class="co"># 唯一第三方依赖:markdown(仅本地浏览站用)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements-dev.txt      <span class="co"># pytest</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/install-hooks.sh            <span class="co"># 装 pre-push 钩子(push 前自动跑 pytest)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> pytest <span class="at">-q</span>                     <span class="co"># 应全绿</span></span></code></pre></div>
+<p>全绿说明工具链就绪(这一步不需要 sage-wiki,也不需要内容)。</p>
+<h2 id="建你自己的内容库关键">3. 建你自己的内容库(关键)</h2>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/init-vault.sh <span class="at">--dry-run</span>     <span class="co"># 先看计划</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/init-vault.sh               <span class="co"># 建 ../mind-vault + 软链 + git init</span></span></code></pre></div>
+<p>它做三件事:① 在 <code>../mind-vault</code>
+建内容骨架(<code>_wiki</code> 四子目录 / <code>material</code> 六类 /
+<code>raw</code> 各桶 / <code>writing</code> / <code>reports</code>
+三桶)② 种
+<code>index.md</code>/<code>log.md</code>/<code>.gitignore</code> ③
+在代码库里建软链,让 <code>scripts/vault.sh</code> 认出双库。</p>
+<p><strong>幂等且不覆盖已有文件</strong>;遇到同名真实目录会跳过并告警,不会销毁你的数据。</p>
+<p>验证:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/vault.sh repo    <span class="co"># 必须打印 .../mind-vault</span></span></code></pre></div>
+<blockquote>
+<p>⚠️ <strong>这一步不能跳过</strong>。若 <code>_wiki</code>
+软链不存在,<code>vault.sh</code> 会<strong>静默退回单库模式</strong>,
+之后 <code>vault.sh commit</code>
+会把内容提交到<strong>代码库</strong>而不是你的内容库。</p>
+</blockquote>
+<p>给内容库配一个<strong>私有</strong>远端:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">-C</span> ../mind-vault remote add origin <span class="op">&lt;</span>你的私有内容仓地址<span class="op">&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/vault.sh commit <span class="st">&quot;init: 内容库骨架&quot;</span> <span class="kw">&amp;&amp;</span> <span class="fu">bash</span> scripts/vault.sh push</span></code></pre></div>
+<h2 id="配-api-keyglm-kimi">4. 配 API Key(GLM / Kimi)</h2>
+<p>引擎接 OpenAI 兼容的国产编码端点,默认 GLM。<strong>Linux 上多为
+bash,写进 <code>~/.bashrc</code>(不是
+<code>~/.zshrc</code>)</strong>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;export GLM_API_KEY=...&#39;</span>  <span class="op">&gt;&gt;</span> ~/.bashrc     <span class="co"># 默认后端</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;export KIMI_API_KEY=...&#39;</span> <span class="op">&gt;&gt;</span> ~/.bashrc     <span class="co"># 备选后端</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> ~/.bashrc</span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>后端</th>
+<th>env</th>
+<th>端点</th>
+<th>模型</th>
+<th>配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GLM(默认)</td>
+<td><code>GLM_API_KEY</code></td>
+<td><code>open.bigmodel.cn/api/coding/paas/v4</code></td>
+<td><code>glm-4.5-flash</code></td>
+<td><code>config.glm.yaml</code></td>
+</tr>
+<tr>
+<td>Kimi</td>
+<td><code>KIMI_API_KEY</code></td>
+<td><code>api.kimi.com/coding/v1</code></td>
+<td><code>kimi-for-coding</code></td>
+<td><code>config.kimi.yaml</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh          <span class="co"># 看当前后端</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh kimi     <span class="co"># 切换</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor                      <span class="co"># 验证连通</span></span></code></pre></div>
+<blockquote>
+<p>⚠️ <code>scripts/compile.sh</code> 里有一行
+<code>source ~/.zshrc</code>,bash 环境下它静默跳过。 只要 key 已在
+<code>~/.bashrc</code> 并 <code>source</code> 过(或写进 cron
+的环境),不影响使用;
+否则表现为<strong>引擎认证失败</strong>而非明确报错。</p>
+</blockquote>
+<h2 id="跑起来">5. 跑起来</h2>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 放入素材(网页剪藏 md、PDF、笔记导出)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> 你的文章.md ../mind-vault/raw/clippings/</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh          <span class="co"># 编译 → 索引 → lint → 保鲜 → 决策校验 → 提交</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/update-all.sh       <span class="co"># 一键全量:日报 → 编译 → 台账 → 门户 → 文档站</span></span></code></pre></div>
+<p><code>update-all.sh</code> 缺工具的步骤会自动跳过(比如没装 pandoc
+就跳过文档站),不会中断。</p>
+<p><strong>本地查询服务</strong>(提供网页门户与
+<code>/api/search</code>):</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> scripts/brain-server.py          <span class="co"># 默认 127.0.0.1:8788</span></span></code></pre></div>
+<p>服务器无桌面时,用 SSH 端口转发在本地浏览器打开:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-L</span> 8788:127.0.0.1:8788 你@服务器      <span class="co"># 然后本地访问 http://127.0.0.1:8788/browse/index.html</span></span></code></pre></div>
+<blockquote>
+<p>服务只绑回环地址,不对外暴露。<strong>不要</strong>把它绑到
+<code>0.0.0.0</code>——它能触发本机执行(全量更新)。</p>
+</blockquote>
+<h2 id="定时任务用-cron不是-launchd">6. 定时任务:用 cron(不是
+launchd)</h2>
+<p>仓里的 <code>scripts/com.mind.*.plist</code> 是 <strong>macOS launchd
+专用,Linux 上无效</strong>,忽略它们。等价 cron:</p>
+<pre class="cron"><code># 每日 09:30 全量更新
+30 9 * * * cd $HOME/second-brain/mind-kit &amp;&amp; bash scripts/update-all.sh &gt;&gt; $HOME/.mind-update-all.log 2&gt;&amp;1
+# 每日 09:10 日报
+10 9 * * * cd $HOME/second-brain/mind-kit &amp;&amp; python3 scripts/daily-report.py &gt;&gt; $HOME/.mind-report.log 2&gt;&amp;1</code></pre>
+<p>cron 环境没有登录 shell 的变量,<strong>必须在 crontab 顶部显式给 key
+和 PATH</strong>:</p>
+<pre class="cron"><code>PATH=/usr/local/bin:/usr/bin:/bin:/home/你/go/bin
+GLM_API_KEY=...</code></pre>
+<p>常驻 <code>brain-server</code> 用 systemd user
+单元(<code>~/.config/systemd/user/brain-server.service</code>):</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode ini"><code class="sourceCode ini"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[Unit]</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Description</span><span class="ot">=</span><span class="st">mind brain-server</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[Service]</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dt">ExecStart</span><span class="ot">=</span><span class="st">/usr/bin/python3 %h/second-brain/mind-kit/scripts/brain-server.py</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="dt">Restart</span><span class="ot">=</span><span class="st">always</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="dt">Environment</span><span class="ot">=</span><span class="st">GLM_API_KEY=...</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[Install]</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="dt">WantedBy</span><span class="ot">=</span><span class="st">default.target</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">systemctl</span> <span class="at">--user</span> enable <span class="at">--now</span> brain-server</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">loginctl</span> enable-linger <span class="va">$USER</span>      <span class="co"># 让它在你登出后继续跑</span></span></code></pre></div>
+<h2 id="无头服务器上用不了-需自行适配的">7. 无头服务器上用不了 /
+需自行适配的</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>能力</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Obsidian + Claudian 侧栏</td>
+<td>❌ 用不了</td>
+<td>桌面 GUI。CLI 与网页门户不受影响;可把内容库同步到本地机器再用
+Obsidian 打开</td>
+</tr>
+<tr>
+<td><code>subscriptions.py --notify</code></td>
+<td>⚠️ <strong>静默失效</strong></td>
+<td>用 macOS <code>osascript</code> 弹通知;Linux
+上<strong>不报错也不弹</strong>。列表与 <code>--days N</code>
+正常;要通知自行改 <code>notify-send</code> 或邮件</td>
+</tr>
+<tr>
+<td><code>/opt/homebrew/bin</code></td>
+<td>✅ 无害</td>
+<td>几个脚本 PATH 里有它,目录不存在会被忽略</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="日常怎么用">8. 日常怎么用</h2>
+<ul>
+<li><strong>摄入</strong>:文章丢 <code>raw/clippings/</code> →
+<code>bash scripts/compile.sh</code>;重要文章丢 <code>raw/todo/</code>
+走对话式深度摄入(见《使用手册》)</li>
+<li><strong>查询</strong>:门户「问一下第二大脑」,或
+<code>sage-wiki query "问题"</code></li>
+<li><strong>健检</strong>:<code>compile.sh</code> 已内置 lint + 保鲜复核
++ 决策队列校验</li>
+<li><strong>提交内容</strong>:一律走
+<code>bash scripts/vault.sh commit "说明"</code>(<strong>不要</strong>在代码库里
+<code>git add</code> 个人目录——那些路径已 gitignore,<code>git add</code>
+会静默什么都不做)</li>
+</ul>
+<p>更多见 <a href="usage.html">使用手册</a>、<a href="faq.html">FAQ
+与避坑</a>;系统权责边界见仓库根目录 <code>CLAUDE.md</code>。</p>
+<h2 id="更新代码">9. 更新代码</h2>
+<p>本仓是线性历史,直接 pull
+即可(只更新工具代码,<strong>不碰你的内容库</strong>):</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/second-brain/mind-kit <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> pytest <span class="at">-q</span>        <span class="co"># 更新后跑一遍,确认工具链仍正常</span></span></code></pre></div>
+<p>想自动跟进上游更新,加一条 cron:</p>
+<pre class="cron"><code>0 8 * * * cd $HOME/second-brain/mind-kit &amp;&amp; git pull -q &gt;&gt; $HOME/.mind-kit-pull.log 2&gt;&amp;1</code></pre>
+<h2 id="装完自检">10. 装完自检</h2>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> pytest <span class="at">-q</span>                     <span class="co"># 全绿</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/vault.sh repo               <span class="co"># 打印 .../mind-vault(不是代码库!)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/update-all.sh <span class="at">--dry-run</span>     <span class="co"># 看计划,确认哪些步骤会跳过</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor                         <span class="co"># 引擎连通(装了 sage-wiki 才有)</span></span></code></pre></div>
+<p>四条都符合预期就算装好了。想理解各部分怎么串起来,看<a
+href="architecture.html">系统如何运作</a>。</p>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#在-linux-服务器上安装与使用"
+id="toc-在-linux-服务器上安装与使用">在 Linux 服务器上安装与使用</a>
+<ul>
+<li><a href="#先决条件" id="toc-先决条件">0. 先决条件</a></li>
+<li><a href="#克隆代码库" id="toc-克隆代码库">1. 克隆代码库</a></li>
+<li><a href="#装依赖-测试" id="toc-装依赖-测试">2. 装依赖 +
+测试</a></li>
+<li><a href="#建你自己的内容库关键" id="toc-建你自己的内容库关键">3.
+建你自己的内容库(关键)</a></li>
+<li><a href="#配-api-keyglm-kimi" id="toc-配-api-keyglm-kimi">4. 配 API
+Key(GLM / Kimi)</a></li>
+<li><a href="#跑起来" id="toc-跑起来">5. 跑起来</a></li>
+<li><a href="#定时任务用-cron不是-launchd"
+id="toc-定时任务用-cron不是-launchd">6. 定时任务:用 cron(不是
+launchd)</a></li>
+<li><a href="#无头服务器上用不了-需自行适配的"
+id="toc-无头服务器上用不了-需自行适配的">7. 无头服务器上用不了 /
+需自行适配的</a></li>
+<li><a href="#日常怎么用" id="toc-日常怎么用">8. 日常怎么用</a></li>
+<li><a href="#更新代码" id="toc-更新代码">9. 更新代码</a></li>
+<li><a href="#装完自检" id="toc-装完自检">10. 装完自检</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

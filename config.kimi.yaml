@@ -1,0 +1,67 @@
+version: 1
+project: my-second-brain
+description: "我的第二大脑 — AI/科技知识库(Kimi Coding 后端)"
+
+# ── Kimi 后端 profile ──
+# sage-wiki 的 --config flag 在当前 dev build 未接线(传参无效,永远读 <project>/config.yaml),
+# 所以切后端靠替换 config.yaml 本身:用 `bash scripts/sage-backend.sh kimi`(或 glm)切换。
+# 本文件是 Kimi profile;与 GLM 版差异仅在 api / models / compiler 的 token 预算(见下)。
+
+sources:
+  - path: raw/clippings      # Web Clip 和文章库(自动 watch)
+    type: auto
+    watch: true
+  - path: raw/flomo/delta    # flomo 增量文件(watch)
+    type: auto
+    watch: true
+  - path: raw/pdfs           # 本地 PDF(不 watch)
+    type: auto
+    watch: false
+# 注:raw/articles/ 下的历史文章**不作为编译源**,只作文章收藏,
+# 不进 Wiki 概念体系(与 config.yaml 一致)。
+
+# 忽略目录:不发送给 API(与 config.yaml 一致)
+ignore:
+  - raw/archive
+  - raw/todo
+  - raw/flomo
+  - raw/assets
+  - material
+  - writing
+  - reports
+  - docs
+  - site
+  - scripts
+  - .obsidian
+  - .claudian
+  - .claude
+
+output: _wiki
+
+api:
+  provider: openai-compatible
+  base_url: https://api.kimi.com/coding/v1     # Kimi Coding 端点(OpenAI 兼容)
+  api_key: ${KIMI_API_KEY}                     # export KIMI_API_KEY=...(见 ~/.zshrc,不入库)
+
+# kimi-for-coding 是推理模型:token 预算给足,避免思维链耗尽预算返回空(引擎官方提示)。
+# temperature 只允许 1;sage-wiki 对 temperature 用 omitempty,默认不发 → Kimi 用其默认值 1,合规。
+models:
+  summarize: kimi-for-coding
+  extract:   kimi-for-coding
+  write:     kimi-for-coding
+  lint:      kimi-for-coding
+  query:     kimi-for-coding
+
+compiler:
+  max_parallel: 2
+  debounce_seconds: 2
+  summary_max_tokens: 4000         # 比 GLM 版(1500)高:留给 Kimi 推理 token
+  extract_batch_size: 1            # 同 GLM 版:单摘要小批,躲引擎 120s 硬超时(G10)
+  extract_max_tokens: 6000         # 留 Kimi 推理 token 余量
+  article_max_tokens: 6000         # 比 GLM 版(3000)高
+  auto_commit: false               # 同 GLM 版:拆库后个人目录已 gitignore,收尾提交走 scripts/vault.sh
+  auto_lint: true
+
+search:
+  hybrid_weight_bm25: 0.7
+  hybrid_weight_vector: 0.3
