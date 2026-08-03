@@ -19,17 +19,30 @@ if [ "$have_ref" -eq 1 ] && [ "$only_deletes" -eq 1 ]; then
 fi
 
 # 缺 python3 或 pytest:提示但不拦(避免因环境缺失挡住 push)
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "⚠ pre-push:未找到 python3,跳过 push 前测试。" >&2
+# 解析解释器:系统 python3 可能没装 pytest(依赖在 .venv 里),
+# 只看 python3 会让钩子**静默放行** —— 推送门禁形同虚设(真机实测)。
+# 定位优先按**钩子自己所在的仓库**(.githooks/../),而不是 cwd:git 在 worktree /
+# 子模块下调用时 cwd 未必是本仓根,按 cwd 猜会找不到解析库、悄悄退回裸 python3。
+HOOK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+REPO_ROOT="${HOOK_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+if [ -f "$REPO_ROOT/scripts/_pyresolve.sh" ]; then
+  . "$REPO_ROOT/scripts/_pyresolve.sh"
+  PY="$(mind_python "$REPO_ROOT")"
+else
+  PY=python3
+fi
+
+if ! command -v "$PY" >/dev/null 2>&1 && [ ! -x "$PY" ]; then
+  echo "⚠ pre-push:未找到可用 Python($PY),跳过 push 前测试。" >&2
   exit 0
 fi
-if ! python3 -m pytest --version >/dev/null 2>&1; then
+if ! "$PY" -m pytest --version >/dev/null 2>&1; then
   echo "⚠ pre-push:未装 pytest(pip install -r requirements-dev.txt),跳过 push 前测试。" >&2
   exit 0
 fi
 
 echo "▶ pre-push:运行 pytest…" >&2
-python3 -m pytest -q
+"$PY" -m pytest -q
 code=$?
 
 if [ "$code" -eq 5 ]; then

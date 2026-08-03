@@ -2,6 +2,7 @@
 fixture 后端:内嵌语料 + 参考打分器,断言 expected_top1/expected_in_top3/forbidden_top1/
 expect_no_results 并计算 MRR;brain 后端:POST /api/query,断言 expected_cite/forbidden_cite。
 """
+import sys
 import json
 import subprocess
 import threading
@@ -13,7 +14,7 @@ RUNNER = REPO / "scripts" / "evaluate_search.py"
 
 
 def _run(*args):
-    return subprocess.run(["python3", str(RUNNER), *args],
+    return subprocess.run([sys.executable, str(RUNNER), *args],
                           capture_output=True, text=True, cwd=str(REPO))
 
 

@@ -1,0 +1,77 @@
+version: 1
+project: my-second-brain
+description: "我的第二大脑 — AI/科技知识库(DeepSeek 后端)"
+
+# ── DeepSeek 后端 profile ──
+# sage-wiki 的 --config flag 在当前 dev build 未接线(传参无效,永远读 <project>/config.yaml),
+# 所以切后端靠替换 config.yaml 本身:`bash scripts/sage-backend.sh deepseek`。
+# 与其它 profile 差异仅在 api / models / compiler 的 token 预算。
+
+sources:
+  - path: raw/clippings      # Web Clip 和文章库(自动 watch)
+    type: auto
+    watch: true
+  - path: raw/flomo/delta    # flomo 增量文件(watch)
+    type: auto
+    watch: true
+  - path: raw/pdfs           # 本地 PDF(不 watch)
+    type: auto
+    watch: false
+# 注:raw/articles/ 下的历史文章**不作为编译源**,只作文章收藏,
+# 不进 Wiki 概念体系(与 config.yaml 一致)。
+
+# 忽略目录:不发送给 API(与 config.yaml 一致)
+ignore:
+  - raw/archive
+  - raw/todo
+  - raw/flomo
+  - raw/assets
+  - material
+  - writing
+  - reports
+  - docs
+  - site
+  - scripts
+  - .obsidian
+  - .claudian
+  - .claude
+
+output: _wiki
+
+api:
+  provider: openai-compatible
+  base_url: https://api.deepseek.com/v1        # DeepSeek 开放平台(OpenAI 兼容)
+  api_key: ${DEEPSEEK_API_KEY}                 # export DEEPSEEK_API_KEY=...(写 ~/.bashrc,不入库)
+  extra_params:
+    thinking:
+      type: disabled     # v4 两个型号都支持思维模式。**必须显式关掉**:
+                         # GLM 上实测过同一个坑——概念抽取时 CoT 吃掉 >8K 字符撑爆
+                         # token 预算(finish_reason=length),返回空结果。
+                         # 文档没写默认值,所以不能靠"默认应该是关的"。
+
+# 分层依据是**调用频次**,不是"哪个更强":
+#   summarize / extract 每篇剪藏都要调(高频)→ flash,便宜快,且要躲引擎 120s 硬超时;
+#   write / lint 在编译链路里,同样受 120s 约束 → 也走 flash;
+#   query 是交互式问答(飞书机器人 / 查询工作流),低频、不走编译超时、答案质量直接可见 → pro。
+# 想全部用 flash 省钱,把 query 那行改掉即可;反之亦然。
+models:
+  summarize: deepseek-v4-flash    # 摘要(高频)
+  extract:   deepseek-v4-flash    # 素材抽取(高频)
+  write:     deepseek-v4-flash    # 写 Wiki 文章
+  lint:      deepseek-v4-flash    # 健检
+  query:     deepseek-v4-pro      # 查询(交互式,低频)
+
+compiler:
+  max_parallel: 2                  # 保守起步,观察无 429 再往上调
+  debounce_seconds: 2
+  summary_max_tokens: 1500         # 与 GLM 版同档:thinking 已关,不需要给 CoT 留余量
+  extract_batch_size: 1            # 同其它 profile:单摘要小批,躲引擎 120s 硬超时(G10)
+  extract_max_tokens: 8000
+  article_max_tokens: 3000
+  auto_commit: false               # 同其它 profile:拆库后个人目录已 gitignore,
+                                   # 收尾提交走 scripts/vault.sh commit 落到内容库
+  auto_lint: true
+
+search:
+  hybrid_weight_bm25: 0.7
+  hybrid_weight_vector: 0.3

@@ -113,5 +113,6 @@ second-brain/
 - 孤立页面(无入链)/ 缺失交叉引用
 - 重要概念被多处提及但没有独立页面
 - 可联网补充的数据缺口 / 下一步值得深挖的问题
-- **保鲜复核**(P1-3):`python3 scripts/freshness.py` 按半衰期列出"值得复核"页(compile.sh 已自动追加进 lint 报告);复核后 `--confirm <路径>` 登记确认。**只提示不自动改**。给 `_wiki/outputs/`、`material/` 的重要页面加 `volatility: high|medium|low`(半衰期 30/90/365 天,`half_life_days` 可显式覆盖)+ `last_confirmed: 日期` 即纳入追踪;不加字段则不参与
+- **保鲜复核**(P1-3):`python3 scripts/freshness.py` 按半衰期列出"值得复核"页(compile.sh 已自动追加进 lint 报告);复核后 `--confirm <路径>` 登记确认。**只提示不自动改**。给 `_wiki/outputs/`、`material/` 的重要页面加 `volatility: high|medium|low`(半衰期 30/90/365 天,`half_life_days` 可显式覆盖)+ `last_confirmed: 日期` 即纳入追踪;不加字段则不参与(加了之后 `okf.py --fix` 会顺带算出 OKF 的 `stale_after`)
 - 决策队列不变量:`python3 scripts/decision.py check`(compile.sh 已自动跑)
+- **OKF 合规**(Open Knowledge Format v0.2):`python3 scripts/okf.py --check` 体检、`--fix` 幂等注入(compile.sh 已自动跑:`--fix` 在重建 index 之前,`--check` 记进 lint 报告)。硬性要求只有两条——每页有合法 frontmatter、`type` 非空;`type` 由目录 + 已有键**确定性**推出(概念页直接取 `entity_type`),**只加不改**,`entity_type` / `类别` / `decision_type` 等原键一律保留。这是引擎领地(`_wiki/{summaries,concepts,entities}`)唯一的门禁——`validate_write_set.py` 的 `LLM_SCOPE` 不含这三个目录。**注意**:引擎重写页面会抹掉注入的键,靠下一轮编译自愈,所以别手动补 `type`,跑 `--fix` 就行

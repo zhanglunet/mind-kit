@@ -7,6 +7,7 @@
 - 引擎领地(_wiki/{summaries,concepts,entities})显式给到也跳过(报 skipped);log.md 只查 UTF-8。
 - 全过 exit 0;有错 exit 1。
 """
+import sys
 import json
 import subprocess
 from datetime import date, timedelta
@@ -17,7 +18,7 @@ CLI = REPO / "scripts" / "validate_write_set.py"
 
 
 def _run(vault: Path, *args):
-    return subprocess.run(["python3", str(CLI), "--vault", str(vault), *args],
+    return subprocess.run([sys.executable, str(CLI), "--vault", str(vault), *args],
                           capture_output=True, text=True, cwd=str(REPO))
 
 
