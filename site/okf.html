@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="本库对照 Open Knowledge Format v0.2 的合规改造:取证、type 确定性映射、编译流水线接线、stale_after 保鲜与引擎领地门禁。">
+<title>OKF 合规改造 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+<style>
+/* 图示专用:复用站点 token,不引入新配色 */
+.dg{margin:26px 0}
+.dg-cap{font-size:.78em;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.box{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-side);padding:14px 16px}
+.box > b{display:block;color:var(--ink-strong);margin-bottom:3px;font-size:.95em}
+.box span{color:var(--muted);font-size:.84em;line-height:1.5;display:block}
+.box.accent{border-color:var(--accent);background:var(--accent-soft)}
+.box.warn{border-color:var(--warn)}
+.row{display:grid;gap:14px}
+.row2{grid-template-columns:1fr 1fr}
+.row3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:720px){.row2,.row3{grid-template-columns:1fr}}
+.arrow{text-align:center;color:var(--faint);font-size:.8em;margin:10px 0;line-height:1.4}
+.arrow b{color:var(--accent);font-weight:600}
+
+/* 流水线:六步,其中两步是本次新增 */
+.pipe{counter-reset:s;border-left:2px solid var(--border);margin-left:14px;padding-left:0}
+.pipe li{list-style:none;position:relative;padding:0 0 16px 26px;color:var(--muted);font-size:.9em}
+.pipe li::before{counter-increment:s;content:counter(s);position:absolute;left:-13px;top:0;
+  width:24px;height:24px;border-radius:50%;background:var(--border);color:var(--muted);
+  font-size:.72em;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pipe li b{color:var(--ink-strong);display:block;font-size:1.02em;margin-bottom:2px}
+.pipe li.new::before{background:var(--accent);color:#fff}
+.pipe li.new b{color:var(--accent)}
+.pipe li.gate::before{background:var(--warn);color:#fff}
+
+/* 结论横幅 */
+.verdict{border:1px solid var(--accent);background:var(--accent-soft);border-radius:var(--radius);
+  padding:18px 22px;margin:26px 0}
+/* 只有直接子 <b> 是标题;<span> 里的 <b> 必须保持行内,否则句子被拆成好几行 */
+.verdict > b{color:var(--ink-strong);display:block;font-size:1.06em;margin-bottom:4px}
+.verdict span{color:var(--muted);font-size:.9em;line-height:1.6;display:block}
+
+/* 差异块:改造前 / 改造后 */
+.diff{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.84em;
+  background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;
+  line-height:1.7;overflow-x:auto}
+.diff .add{color:var(--ok);font-weight:600}
+.diff .dim{color:var(--faint)}
+
+/* 半衰期时间轴 */
+.tl{border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;background:var(--bg-side)}
+.tl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:.86em;color:var(--muted);margin:6px 0}
+.tl-row code{font-size:.9em}
+.tl-key{color:var(--ink-strong);font-weight:600;min-width:120px}
+
+/* 取值分布条 */
+.dist{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.chip{border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:.82em;color:var(--muted);background:var(--bg-side)}
+.chip b{color:var(--accent);font-weight:700}
+
+/* 如实记录的负面结论 */
+.honest{border-left:3px solid var(--warn);background:var(--bg-side);border-radius:0 8px 8px 0;
+  padding:14px 18px;margin:22px 0}
+.honest b{color:var(--ink-strong)}
+.honest p{margin:.4em 0;color:var(--muted);font-size:.9em;line-height:1.65}
+
+/* ── 四层一图 ───────────────────────────
+   单张内联 SVG。用 class + CSS 上色(不写死 fill),这样浅/深主题自动跟随站点 token。
+   窄屏时容器横向滚动,不压缩图形——图压扁了就读不了。 */
+.fig{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-side);
+  padding:14px;margin:26px 0;overflow-x:auto}
+.fig svg{display:block;min-width:900px;width:100%;height:auto}
+.fig:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fig-note{font-size:.82em;color:var(--faint);margin-top:10px;text-align:center}
+
+/* 左侧层轨 */
+.sg-railline{stroke:var(--border);stroke-width:1}
+.sg-rail{fill:var(--ink-strong);font-size:14px;font-weight:700}
+.sg-rails{fill:var(--faint);font-size:10.5px;letter-spacing:.06em}
+/* 卡片 */
+.sg-box{fill:var(--bg);stroke:var(--border);stroke-width:1;rx:8}
+.sg-box.eng{fill:var(--accent-soft);stroke:var(--accent)}
+.sg-box.gate{stroke:var(--warn);stroke-width:1.5}
+.sg-box.dead{fill:none;stroke:var(--faint);stroke-dasharray:5 4}
+.sg-cont{fill:none;stroke:var(--border);stroke-width:1;stroke-dasharray:4 4;rx:12}
+.sg-t{fill:var(--ink-strong);font-size:12.5px;font-weight:600}
+.sg-s{fill:var(--muted);font-size:10.5px}
+.sg-mono{fill:var(--ink-strong);font-size:11.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.sg-dim{fill:var(--faint);font-size:10.5px}
+/* 连线 */
+.fl{stroke:var(--faint);stroke-width:1.4;fill:none}
+.fl.ac{stroke:var(--accent);stroke-width:1.8}
+.fl.wa{stroke:var(--warn);stroke-width:1.8}
+.fl.ok{stroke:var(--ok);stroke-width:1.6}
+.fl.dead{stroke:var(--faint);stroke-dasharray:5 4}
+.sg-lab{fill:var(--accent);font-size:10.5px;font-weight:600}
+.sg-lab.wa{fill:var(--warn)}
+.sg-lab.dim{fill:var(--faint);font-weight:400}
+.sg-sep{stroke:var(--border);stroke-width:1;stroke-dasharray:2 5}
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="index.html">首页</a>
+    <a href="architecture.html">系统运作</a>
+    <a href="okf.html" class="active">OKF 合规</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="prd.html">PRD</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="in">
+  <span class="kicker">规范对齐</span>
+  <h1>对照 OKF,<br>差距只有<em>一个字段</em>。</h1>
+  <p class="sub">逐条取证下来,291 页知识页里有 241 页缺 <code>type</code>。补一个键即可——<b>不必为"合规"重构知识库</b>。</p>
+</div></header>
+
+<section class="section">
+  <div class="cap">00 · 全景</div>
+  <h2>四层一图:<code>okf.py</code> 站在哪一环</h2>
+  <p class="lead">来源只读 → 引擎编译 → 流水线补齐并体检 → 各消费者读取。<b>这张图真正要说的是最后一层</b>:哪些字段有人读,哪些没有。</p>
+
+  <div class="fig" role="region" aria-label="OKF 四层架构图(可横向滚动)" tabindex="0">
+  <svg viewBox="0 0 1160 700" role="img" aria-labelledby="okf-fig-t okf-fig-d" xmlns="http://www.w3.org/2000/svg">
+    <title id="okf-fig-t">OKF 合规改造四层架构图</title>
+    <desc id="okf-fig-d">四层:来源层(raw 只读)→ 引擎层(sage-wiki compile 写出 summaries、concepts、entities)→ 合规层(compile.sh 流水线依次跑 okf.py --fix 注入 type 与 stale_after、build-index.py 重建索引、lint 记账含 okf.py --check 体检;注入必须早于建索引,且每轮自愈)→ 消费层(entity_type、类别、dimension、stale_after 各有实际消费者,而 okf.py 注入的 type 目前没有任何程序读取)。</desc>
+    <defs>
+      <marker id="a-dim" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" fill="currentColor"/></marker>
+      <marker id="a-ac" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-ac"/></marker>
+      <marker id="a-wa" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-wa"/></marker>
+      <marker id="a-ok" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-ok"/></marker>
+      <style>
+        .mk-ac{fill:var(--accent)} .mk-wa{fill:var(--warn)} .mk-ok{fill:var(--ok)}
+        #a-dim path{fill:var(--faint)}
+      </style>
+    </defs>
+
+    <line class="sg-railline" x1="150" y1="16" x2="150" y2="684"/>
+
+    <!-- ══ L1 来源层 ══ -->
+    <text class="sg-rail" x="12" y="46">来源层</text>
+    <text class="sg-rails" x="12" y="64">RAW · 只读</text>
+    <rect class="sg-box" x="172" y="26" width="200" height="44"/>
+    <text class="sg-mono" x="192" y="54">raw/clippings</text>
+    <rect class="sg-box" x="388" y="26" width="200" height="44"/>
+    <text class="sg-mono" x="408" y="54">raw/todo</text>
+    <rect class="sg-box" x="604" y="26" width="200" height="44"/>
+    <text class="sg-mono" x="624" y="54">raw/flomo/delta</text>
+    <rect class="sg-box" x="820" y="26" width="200" height="44"/>
+    <text class="sg-mono" x="840" y="54">raw/pdfs</text>
+    <path class="fl" marker-end="url(#a-dim)" d="M596,70 L596,104"/>
+    <text class="sg-lab dim" x="610" y="92">编译(只读源,不回写)</text>
+    <line class="sg-sep" x1="150" y1="118" x2="1148" y2="118"/>
+
+    <!-- ══ L2 引擎层 ══ -->
+    <text class="sg-rail" x="12" y="176">引擎层</text>
+    <text class="sg-rails" x="12" y="194">SAGE-WIKI 领地</text>
+    <text class="sg-t" x="172" y="146">sage-wiki compile</text>
+    <rect class="sg-box eng" x="172" y="158" width="272" height="52"/>
+    <text class="sg-mono" x="192" y="180">_wiki/summaries/</text>
+    <text class="sg-s" x="192" y="198">8 页</text>
+    <rect class="sg-box eng" x="460" y="158" width="272" height="52"/>
+    <text class="sg-mono" x="480" y="180">_wiki/concepts/</text>
+    <text class="sg-s" x="480" y="198">211 页 · 带 entity_type</text>
+    <rect class="sg-box eng" x="748" y="158" width="272" height="52"/>
+    <text class="sg-mono" x="768" y="180">_wiki/entities/</text>
+    <text class="sg-s" x="768" y="198">0 页(尚未产出)</text>
+    <text class="sg-lab wa" x="1032" y="184">人不要手改</text>
+    <path class="fl ac" marker-end="url(#a-ac)" d="M596,210 L596,250"/>
+    <line class="sg-sep" x1="150" y1="264" x2="1148" y2="264"/>
+
+    <!-- ══ L3 合规层 ══ -->
+    <text class="sg-rail" x="12" y="360">合规层</text>
+    <text class="sg-rails" x="12" y="378">COMPILE.SH</text>
+    <text class="sg-rails" x="12" y="394">流水线</text>
+    <rect class="sg-cont" x="164" y="284" width="864" height="150"/>
+
+    <rect class="sg-box gate" x="184" y="310" width="228" height="72"/>
+    <text class="sg-mono" x="202" y="336">① okf.py --fix</text>
+    <text class="sg-s" x="202" y="354">注入 type</text>
+    <text class="sg-s" x="202" y="371">与 stale_after</text>
+
+    <path class="fl wa" marker-end="url(#a-wa)" d="M412,352 L494,352"/>
+    <text class="sg-lab wa" x="453" y="334" text-anchor="middle">顺序不可换</text>
+
+    <rect class="sg-box" x="496" y="310" width="240" height="72"/>
+    <text class="sg-mono" x="514" y="336">② build-index.py</text>
+    <text class="sg-s" x="514" y="354">重建 _wiki/index.md</text>
+    <text class="sg-s" x="514" y="371">——它读 frontmatter 生成</text>
+
+    <path class="fl" marker-end="url(#a-dim)" d="M736,352 L780,352"/>
+
+    <rect class="sg-box gate" x="782" y="310" width="226" height="72"/>
+    <text class="sg-mono" x="800" y="336">③ okf.py --check</text>
+    <text class="sg-s" x="800" y="354">合规体检 → lint 报告</text>
+    <text class="sg-s" x="800" y="371">引擎领地的唯一门禁</text>
+
+    <path class="fl ok" marker-end="url(#a-ok)" d="M184,398 C120,398 120,232 168,220"/>
+    <text class="sg-lab dim" x="196" y="414">自愈:引擎重写会抹掉注入的键,下一轮 ① 再补回来(幂等,不产生空 diff)</text>
+    <line class="sg-sep" x1="150" y1="452" x2="1148" y2="452"/>
+
+    <!-- ══ L4 消费层 ══ -->
+    <text class="sg-rail" x="12" y="560">消费层</text>
+    <text class="sg-rails" x="12" y="578">谁真的在读</text>
+    <text class="sg-rails" x="12" y="594">这些字段</text>
+
+    <text class="sg-mono" x="172" y="486">entity_type</text>
+    <path class="fl ok" marker-end="url(#a-ok)" d="M300,482 L392,482"/>
+    <text class="sg-s" x="404" y="486">build-index.py:71 · build-wiki-site.py:107</text>
+
+    <text class="sg-mono" x="172" y="516">类别</text>
+    <path class="fl ok" marker-end="url(#a-ok)" d="M300,512 L392,512"/>
+    <text class="sg-s" x="404" y="516">build-wiki-site.py:230(浏览站分组配色)</text>
+
+    <text class="sg-mono" x="172" y="546">dimension</text>
+    <path class="fl ok" marker-end="url(#a-ok)" d="M300,542 L392,542"/>
+    <text class="sg-s" x="404" y="546">Dataview 五维决策看板</text>
+
+    <text class="sg-mono" x="172" y="576">stale_after</text>
+    <path class="fl ok" marker-end="url(#a-ok)" d="M300,572 L392,572"/>
+    <text class="sg-s" x="404" y="576">freshness.py → lint 报告的「值得复核」</text>
+
+    <text class="sg-mono" x="172" y="622">type</text>
+    <text class="sg-dim" x="172" y="638">okf.py 注入的那个</text>
+    <path class="fl dead" marker-end="url(#a-dim)" d="M300,618 L392,618"/>
+    <rect class="sg-box dead" x="400" y="598" width="330" height="40"/>
+    <text class="sg-lab dim" x="420" y="623">✗ 暂无消费者</text>
+    <text class="sg-dim" x="746" y="616">全库 grep 过:脚本、索引、检索、</text>
+    <text class="sg-dim" x="746" y="632">三个看板,没有一处读它</text>
+  </svg>
+  </div>
+  <p class="fig-note">窄屏可左右滑动查看完整图形</p>
+
+  <div class="honest">
+    <p><b>这张图要说的其实是最后两行。</b></p>
+    <p>前三层是机制,末层是账。<code>okf.py</code> 注入的 <code>type</code>,<b>目前全库没有任何程序在读</b>——<code>build-index.py</code> / <code>build-wiki-site.py</code> / <code>indexlib</code> / <code>searchlib</code> / 三个 Dataview 看板,读的都是 <code>entity_type</code>、<code>类别</code>、<code>dimension</code>、<code>decision_type</code>,没有一个读 <code>type</code>。</p>
+    <p>所以对「要不要补齐」这个问题,诚实的回答是:<b>补它今天产出为零</b>;真正划算的是顺带做成的 <code>okf.py --check</code>(引擎领地此前零校验)与 <code>stale_after</code> 链路——而那两件<b>都不需要 OKF</b>。留着 <code>type</code> 的唯一理由是成本≈0 的互操作期权。已在 dev-log 记了 <b>2026-11-03 复核点</b>:届时仍无消费者就考虑撤回注入,免得它成为一段伪装成特性的死代码。</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">01 · 规范</div>
+  <h2>Open Knowledge Format 是什么</h2>
+  <p class="lead"><a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">OKF</a> 是 Google Cloud Knowledge Catalog 提出的<b>中立知识格式</b>:markdown 正文 + YAML frontmatter 表示一条知识,一个目录就是一个 bundle。它刻意做得薄。</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>硬性要求</th><th>本次改造</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>每个非保留 <code>.md</code> 有合法 YAML frontmatter</td><td>✅ 管</td></tr>
+      <tr><td>2</td><td>每个 frontmatter 的 <code>type</code> 非空</td><td>✅ 管</td></tr>
+      <tr><td>3</td><td><code>index.md</code> / <code>log.md</code> 结构符合 §8-9</td><td>❌ 另议(见第 7 节)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="row row2">
+    <div class="box"><b>保留文件名只有两个</b><span><code>index.md</code> 与 <code>log.md</code>,它们<b>不得</b>有 frontmatter——本库早就是这么用的</span></div>
+    <div class="box accent"><b>消费者必须容忍未知键</b><span>这条是低成本对齐的关键:本库自有的 <code>entity_type</code>、<code>类别</code>、<code>decision_type</code> 全都可以原样留着,不构成不合规</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">02 · 取证</div>
+  <h2>取证:对照下来差多少</h2>
+  <p class="lead">先克隆内容库实测,不是读代码猜。</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>目录</th><th>页数</th><th>已有 <code>type</code></th><th>现状字段</th></tr></thead>
+    <tbody>
+      <tr><td><code>_wiki/concepts/</code></td><td>211</td><td>0</td><td><code>entity_type: concept|technique|claim</code></td></tr>
+      <tr><td><code>_wiki/summaries/</code></td><td>8</td><td>0</td><td><code>source</code> / <code>source_type</code> / <code>compiled_at</code></td></tr>
+      <tr><td><code>_wiki/outputs/</code></td><td>15</td><td>10</td><td>部分页已有</td></tr>
+      <tr><td><code>material/</code></td><td>35</td><td>19</td><td>中文键 <code>类别</code></td></tr>
+      <tr><td><code>reports/</code></td><td>21</td><td>21</td><td>全有(生成时就写)</td></tr>
+      <tr><td><code>_wiki/entities/</code></td><td>0</td><td>—</td><td>引擎尚未产出</td></tr>
+      <tr><td><b>合计</b></td><td><b>291</b></td><td><b>50</b></td><td><b>缺 241</b></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="verdict">
+    <b>不需要改目录、不需要改文件名、不需要动任何现有键。</b>
+    <span>形态上本库与 OKF 高度重合:bundle 就是目录、<code>index.md</code> / <code>log.md</code> 早就是保留文件、未知键本来就到处都是。若不取证而按直觉"对齐规范",很容易走成改名重构——那会砸掉三个现成消费者(见第 4 节)。</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">03 · 工具</div>
+  <h2><code>okf.py</code>:体检与注入</h2>
+  <p class="lead">两个互斥模式:只读体检,与幂等注入。</p>
+
+  <pre><code>python3 scripts/okf.py --check    # 只读体检,发现不合规页 → 非零退出
+python3 scripts/okf.py --fix      # 幂等注入缺失字段
+python3 scripts/okf.py --check --json</code></pre>
+
+  <div class="dg">
+    <div class="dg-cap">作用面(bundle 边界)</div>
+    <div class="row row3">
+      <div class="box accent"><b>纳入</b><span><code>_wiki/</code><br><code>material/</code><br><code>reports/</code></span></div>
+      <div class="box"><b>排除</b><span><code>_wiki/under_review/</code> 查询原始产物,确认后才提升入库<br><code>writing/</code> 写作成稿,不是知识页<br><code>raw/ browse/ site/ docs/ scripts/</code></span></div>
+      <div class="box warn"><b>跳过</b><span><code>index.md</code><br><code>log.md</code><br>OKF 保留文件,按规范<b>不得</b>有 frontmatter</span></div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="num">原则一</div><h3>确定性映射,不用 LLM</h3><p><code>type</code> 的值从目录 + 已有键推出,同样输入永远同样输出。</p></div>
+    <div class="card"><div class="num">原则二</div><h3>幂等</h3><p>已有目标键就一个字节都不写。不幂等的话每轮编译都改文件——git 每天一堆空 diff,还会触发引擎的 reconcile churn。</p></div>
+    <div class="card"><div class="num">原则三</div><h3>只加不改</h3><p>已有 <code>type</code> 的页一律不碰(reports 全部、outputs 十来页)。</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">04 · 映射</div>
+  <h2><code>type</code> 从哪来:确定性映射</h2>
+  <p class="lead">目录决定大类,已有键提供更细的值。概念页那一行是关键:<code>entity_type</code> 本来就是 OKF 的 <code>type</code> 语义,搬过来即可。</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>路径</th><th><code>type</code></th><th>取值来源</th></tr></thead>
+    <tbody>
+      <tr><td>任意目录下的 <code>CHANGELOG.md</code> / <code>README.md</code></td><td><code>changelog</code> / <code>readme</code></td><td>文件名(<b>最先判</b>)</td></tr>
+      <tr><td><code>_wiki/concepts/</code></td><td><code>concept</code> / <code>technique</code> / <code>claim</code></td><td><b>直接搬 <code>entity_type</code></b>,缺失才回落 <code>concept</code></td></tr>
+      <tr><td><code>_wiki/summaries/</code></td><td><code>summary</code></td><td>目录</td></tr>
+      <tr><td><code>_wiki/entities/</code></td><td><code>entity</code></td><td>目录</td></tr>
+      <tr><td><code>_wiki/outputs/decisions/</code></td><td><code>decision</code></td><td>目录(比 <code>outputs/</code> 更具体,先判)</td></tr>
+      <tr><td><code>_wiki/outputs/</code></td><td><code>output</code></td><td>目录</td></tr>
+      <tr><td><code>material/</code></td><td><code>material</code></td><td>目录</td></tr>
+      <tr><td><code>reports/</code></td><td><code>report</code></td><td>目录</td></tr>
+      <tr><td>其余</td><td><code>note</code></td><td>兜底</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="dg">
+    <div class="dg-cap">注入后的真实分布 —— 值是真传导了,不是一律拍成 concept</div>
+    <div class="dist">
+      <span class="chip"><b>143</b> concept</span>
+      <span class="chip"><b>38</b> technique</span>
+      <span class="chip"><b>35</b> material</span>
+      <span class="chip"><b>30</b> claim</span>
+      <span class="chip"><b>21</b> report</span>
+      <span class="chip"><b>14</b> output</span>
+      <span class="chip"><b>8</b> summary</span>
+      <span class="chip"><b>1</b> decision</span>
+      <span class="chip"><b>1</b> changelog</span>
+    </div>
+  </div>
+
+  <div class="dg">
+    <div class="dg-cap">一页改造前后 —— 只多一行</div>
+    <div class="diff">
+<span class="dim">  ---</span>
+<span class="add">+ type: concept</span>
+<span class="dim">  concept: 某个概念
+  entity_type: concept
+  aliases: ["别名一", "别名二"]
+  confidence: medium
+  created_at: 2026-07-19T01:47:22Z
+  ---</span>
+    </div>
+  </div>
+
+  <div class="row row2">
+    <div class="box accent"><b>原键一个不动</b><span><code>entity_type</code> 有两个现成消费者(建索引、生成浏览站),<code>类别</code> 有 Obsidian 属性面板在读,<code>decision_type</code> 是决策队列状态机的输入。改名等于<b>为了合规砸自家管线</b>。</span></div>
+    <div class="box warn"><b>辅助文件必须排在目录判断之前</b><span>首版放在末尾,<code>material/README.md</code> 被 <code>material/</code> 前缀吃掉、拿到 <code>type: material</code>。测试抓到后追到"分支排序"这个根因,而不是给 README 打特例补丁。</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">05 · 接线</div>
+  <h2>接进编译流水线</h2>
+  <p class="lead">编译<b>流水线</b>从五步变六步,<code>okf.py</code> 占两个位置。顺序不是审美。</p>
+
+  <div class="dg">
+    <ol class="pipe">
+      <li><b>sage-wiki compile</b>引擎写出 summaries / concepts / entities</li>
+      <li class="new"><b>okf.py --fix ← 新增</b>注入 type / stale_after。<b style="display:inline;color:var(--warn)">必须在这里</b></li>
+      <li><b>build-index.py</b>重建 <code>_wiki/index.md</code>——它<b style="display:inline">读 frontmatter 生成</b></li>
+      <li class="gate"><b>lint 记账 + okf.py --check ← 新增</b>sage-wiki lint · 保鲜检查 · 决策队列不变量 · OKF 合规体检</li>
+      <li><b>build-wiki-site.py</b>本地浏览站(best-effort,失败不中断)</li>
+      <li><b>vault.sh commit</b>写集校验 → 提交编译产物</li>
+    </ol>
+  </div>
+
+  <div class="verdict">
+    <b>为什么第 2 步必须早于第 3 步</b>
+    <span><code>index.md</code> 由 <code>build-index.py</code> 读 frontmatter 生成。注入若发生在它之后,索引拿到的就是<b>上一轮的旧字段</b>。这条已经用测试钉死,免得日后有人调换。</span>
+  </div>
+
+  <pre><code>assert i_fix &lt; i_idx, "注入必须在重建 index 之前,否则索引读到旧 frontmatter"
+assert i_chk &gt; i_idx, "体检应在 lint 记账阶段(index 之后)"</code></pre>
+
+  <div class="row row2">
+    <div class="box"><b>自愈,不是一次性改造</b><span>源文件一变,引擎会整页重写、抹掉注入的键——但下一步就是 <code>--fix</code>,每轮自动重放。<b>所以别手动补 <code>type</code>,跑 <code>--fix</code> 就行。</b></span></div>
+    <div class="box"><b>为什么允许触碰引擎领地</b><span>Schema 规定 <code>_wiki/{summaries,concepts,entities}</code> 由编译引擎全权负责、人不要手改。<code>okf.py</code> 不是"手改",它是流水线的一环,在引擎写完之后确定性地补齐字段。</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">06 · 保鲜</div>
+  <h2><code>stale_after</code>:把保鲜机制接上 OKF</h2>
+  <p class="lead">OKF 有个 <code>stale_after</code> 键表示"此页何时应视为过期"。本库早就有等价机制(半衰期保鲜),只是没写成 OKF 的形状——现在把两者接上。</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>声明</th><th>半衰期</th><th>适用</th></tr></thead>
+    <tbody>
+      <tr><td><code>volatility: high</code></td><td>30 天</td><td>行业信号、新闻流蒸馏、在办事项的行动清单</td></tr>
+      <tr><td><code>volatility: medium</code></td><td>90 天</td><td>厂商/监管对比、随底层页漂移的综合产物、工具实践</td></tr>
+      <tr><td><code>volatility: low</code></td><td>365 天</td><td>变化很慢的判断</td></tr>
+      <tr><td><code>half_life_days: N</code></td><td>N 天</td><td>显式覆盖,优先于 <code>volatility</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="dg">
+    <div class="dg-cap">一页的保鲜时钟</div>
+    <div class="tl">
+      <div class="tl-row"><span class="tl-key">人工确认</span><code>last_confirmed: 2026-07-16</code> —— 确认"此页仍代表现状"的日期</div>
+      <div class="arrow">↓ <b>+ 半衰期</b></div>
+      <div class="tl-row"><span class="tl-key">写回 OKF 键</span><code>stale_after: 2026-08-15</code> —— <code>okf.py --fix</code> 算出</div>
+      <div class="arrow">↓ <b>每轮 lint 复算</b></div>
+      <div class="tl-row"><span class="tl-key">衰减函数</span><code>0.5 ^ (距今天数 / 半衰期)</code></div>
+      <div class="tl-row"><span class="tl-key">≤ 0.50</span>列入 lint 报告的"值得复核"</div>
+      <div class="tl-row"><span class="tl-key">≤ 0.25</span>标急</div>
+    </div>
+  </div>
+
+  <p><b>不追踪的页不塞这个键。</b>没声明 <code>volatility</code> / <code>half_life_days</code> 的页面一律不碰,与既有语义一致:不加字段就不参与追踪。</p>
+
+  <div class="honest">
+    <p><b>⚠️ 一条如实的记录</b></p>
+    <p>这套保鲜机制代码早就在、lint 里也跑着,但<b>上线后很长时间零采用</b>——全库没有一页声明过这三个字段,所以 <code>stale_after</code> 首次跑出来是 <b>0 页</b>。后来挑了 5 页真会过时的产出页打标(2 页 high、3 页 medium),链路才真正跑起来。</p>
+    <p>这是本项目反复撞见的那条:<b>约束写在文档里等于没有约束</b>;想让规范被遵守,就为它写可执行检查。</p>
+  </div>
+
+  <div class="row row2">
+    <div class="box"><b>只挑真会过时的页,不搞全量打标</b><span>复盘类页面记录的是已发生的事,不会过时;ingest 摘要是快照式存档;看板由脚本生成。保鲜报表的价值在于<b>短到有人看</b>,全量打标等于没打。</span></div>
+    <div class="box"><b><code>last_confirmed</code> 取写作日期,不是打标当天</b><span>字段语义是"上次<b>人工确认</b>此页仍代表现状"。没逐条核对过就盖当天,等于伪造一次人工确认,还会把首次复核平白推迟一个半衰期。</span></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">07 · 门禁</div>
+  <h2>门禁:引擎领地从零到有</h2>
+  <p class="lead">改造之前,写集校验的作用面里<b>没有</b>引擎领地——引擎写出什么都没人看。</p>
+
+  <pre><code># validate_write_set.py 改造前的作用面
+LLM_SCOPE = ("_wiki/outputs/", "material/", "writing/", "reports/")
+#            ↑ _wiki/summaries、concepts、entities 不在里面 = 零门禁</code></pre>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th></th><th>改造前</th><th>改造后</th></tr></thead>
+    <tbody>
+      <tr><td>引擎领地校验</td><td>无</td><td><code>okf.py --check</code>(非零退出)</td></tr>
+      <tr><td>合规页 / 总页</td><td>50 / 291</td><td><b>291 / 291</b></td></tr>
+      <tr><td>幂等复跑改动</td><td>—</td><td><b>0 页</b></td></tr>
+      <tr><td><code>stale_after</code> 覆盖</td><td>无此键</td><td>已声明保鲜的页自动写回</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="dg">
+    <div class="dg-cap">验收数据(真实内容库,非合成数据)</div>
+    <pre><code>体检(改造前)  291 页,241 页待补     退出码=1
+注入            291 页扫描,241 页更新
+体检(改造后)  291 页,0 页待补        退出码=0
+幂等第二遍      291 页扫描,0 页更新
+写集校验        0 败</code></pre>
+  </div>
+
+  <div class="box warn"><b>没做的部分</b><span>OKF §8-9 规定了 <code>index.md</code> / <code>log.md</code> 的结构。本库这两个文件各有现成生成器和现成格式,强行对齐要动生成器、收益不明,留待另议。<b>这是刻意的取舍,不是遗漏。</b></span></div>
+
+  <p style="margin-top:30px"><a class="btn pri" href="architecture.html">看系统全景:系统如何运作 →</a> <a class="btn sec" href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">OKF 规范原文</a></p>
+</section>
+
+<footer class="sitefoot" style="margin-top:56px"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="index.html">首页</a>
+  <a href="architecture.html">系统运作</a>
+  <a href="install.html">安装指南</a>
+  <a href="changelog.html">更新日志</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+
+</body>
+</html>

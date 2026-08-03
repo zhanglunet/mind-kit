@@ -8,6 +8,7 @@
 - board:幂等生成唯一用户入口页(Dataview 聚合)。
 全部经 subprocess 跑 CLI,--vault 指向 tmp 目录,不碰真实仓库。
 """
+import sys
 import json
 import re
 import subprocess
@@ -18,7 +19,7 @@ CLI = REPO / "scripts" / "decision.py"
 
 
 def _run(vault: Path, *args):
-    return subprocess.run(["python3", str(CLI), *args, "--vault", str(vault)],
+    return subprocess.run([sys.executable, str(CLI), *args, "--vault", str(vault)],
                           capture_output=True, text=True, cwd=str(REPO))
 
 

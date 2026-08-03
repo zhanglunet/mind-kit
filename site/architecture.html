@@ -46,6 +46,37 @@
 .mach p{margin:0;color:var(--muted);font-size:.86em;line-height:1.6}
 .mach .key{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);
   color:var(--ink);font-size:.82em}
+
+/* ── 四层一图 ───────────────────────────
+   与 okf.html 同一套图示语汇(单张内联 SVG、左侧层轨、CSS class 上色)。
+   刻意共用:两页并排看时读者不用重新学一套符号。 */
+.fig{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-side);
+  padding:14px;margin:26px 0;overflow-x:auto}
+.fig svg{display:block;min-width:940px;width:100%;height:auto}
+.fig:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fig-note{font-size:.82em;color:var(--faint);margin-top:10px;text-align:center}
+.sg-railline{stroke:var(--border);stroke-width:1}
+.sg-rail{fill:var(--ink-strong);font-size:14px;font-weight:700}
+.sg-rails{fill:var(--faint);font-size:10.5px;letter-spacing:.06em}
+.sg-box{fill:var(--bg);stroke:var(--border);stroke-width:1;rx:8}
+.sg-box.eng{fill:var(--accent-soft);stroke:var(--accent)}
+.sg-box.llm{stroke:var(--ok);stroke-width:1.4}
+.sg-box.path{stroke:var(--accent);stroke-width:1.4}
+.sg-t{fill:var(--ink-strong);font-size:12.5px;font-weight:600}
+.sg-s{fill:var(--muted);font-size:10.5px}
+.sg-mono{fill:var(--ink-strong);font-size:11.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.sg-dim{fill:var(--faint);font-size:10.5px}
+.fl{stroke:var(--faint);stroke-width:1.4;fill:none}
+.fl.ac{stroke:var(--accent);stroke-width:1.8}
+.fl.ok{stroke:var(--ok);stroke-width:1.6}
+.fl.back{stroke:var(--ok);stroke-width:1.6;stroke-dasharray:6 4}
+.sg-lab{fill:var(--accent);font-size:10.5px;font-weight:600}
+.sg-lab.wa{fill:var(--warn)}
+.sg-lab.ok{fill:var(--ok)}
+.sg-lab.dim{fill:var(--faint);font-weight:400}
+.sg-sep{stroke:var(--border);stroke-width:1;stroke-dasharray:2 5}
+.sg-gate{fill:var(--warn);font-size:10px;font-weight:700}
 </style>
 </head>
 <body>
@@ -55,6 +86,7 @@
   <div class="navlinks">
     <a href="index.html">首页</a>
     <a href="architecture.html" class="active">系统运作</a>
+    <a href="okf.html">OKF 合规</a>
     <a href="install.html">安装指南</a>
     <a href="usage.html">使用手册</a>
     <a href="faq.html">FAQ</a>
@@ -67,6 +99,133 @@
   <h1>系统如何运作</h1>
   <p class="sub"><b>原始来源只读 · LLM 编译成互联 Wiki · 人从 Wiki 调用</b>。代码与内容分两个仓,四道确定性门禁防止规模化后腐化。</p>
 </div></header>
+
+<section class="section">
+  <div class="cap">00 · 全景</div>
+  <h2>四层一图:一篇文章怎么变成可调用的知识</h2>
+  <p class="lead">下面各节分头讲权责、布局、流水线与门禁;这一张先把<b>数据怎么流</b>说完。</p>
+
+  <div class="fig" role="region" aria-label="系统四层数据流图(可横向滚动)" tabindex="0">
+  <svg viewBox="0 0 1160 720" role="img" aria-labelledby="arch4-t arch4-d" xmlns="http://www.w3.org/2000/svg">
+    <title id="arch4-t">第二大脑四层数据流图</title>
+    <desc id="arch4-d">四层:来源层(raw 目录,只读,唯一真相)→ 加工层(两条路:sage-wiki 引擎自动批量编译,与 LLM 对话式深度 ingest)→ 知识层(引擎领地的 summaries、concepts、entities 由 OKF 体检把关;LLM 领地的 outputs、material、reports 由写集校验、决策队列、保鲜三道门禁把关;两者都在私有内容库)→ 调用层(索引导航、本地浏览站、秒级本地检索、走 LLM 的引擎查询),其中有价值的查询产出回流写入 outputs 形成知识复利。</desc>
+    <defs>
+      <marker id="b-dim" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z"/></marker>
+      <marker id="b-ac" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-ac"/></marker>
+      <marker id="b-ok" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-ok"/></marker>
+      <style>
+        .mk-ac{fill:var(--accent)} .mk-ok{fill:var(--ok)}
+        #b-dim path{fill:var(--faint)}
+      </style>
+    </defs>
+
+    <line class="sg-railline" x1="150" y1="16" x2="150" y2="704"/>
+
+    <!-- ══ L1 来源层 ══ -->
+    <text class="sg-rail" x="12" y="44">来源层</text>
+    <text class="sg-rails" x="12" y="62">RAW · 只读</text>
+    <text class="sg-rails" x="12" y="78">唯一真相</text>
+    <rect class="sg-box" x="172" y="24" width="130" height="42"/>
+    <text class="sg-mono" x="185" y="50">raw/clippings</text>
+    <rect class="sg-box" x="310" y="24" width="130" height="42"/>
+    <text class="sg-mono" x="323" y="50">raw/flomo/delta</text>
+    <rect class="sg-box" x="448" y="24" width="130" height="42"/>
+    <text class="sg-mono" x="461" y="50">raw/pdfs</text>
+    <text class="sg-dim" x="172" y="84">三者都在 config.yaml 的 sources 里,引擎自动编译</text>
+    <rect class="sg-box" x="686" y="24" width="260" height="42"/>
+    <text class="sg-mono" x="704" y="50">raw/todo</text>
+    <text class="sg-dim" x="686" y="84">只有这一个走人工深度处理</text>
+    <path class="fl ac" marker-end="url(#b-ac)" d="M375,92 L375,116"/>
+    <path class="fl ac" marker-end="url(#b-ac)" d="M816,92 L816,116"/>
+    <line class="sg-sep" x1="150" y1="126" x2="1148" y2="126"/>
+
+    <!-- ══ L2 加工层 ══ -->
+    <text class="sg-rail" x="12" y="172">加工层</text>
+    <text class="sg-rails" x="12" y="190">两条路</text>
+    <rect class="sg-box path" x="172" y="140" width="408" height="64"/>
+    <text class="sg-t" x="192" y="166">① sage-wiki compile</text>
+    <text class="sg-s" x="192" y="186">引擎自动、批量;靠 manifest hash 增量,只读源不回写</text>
+    <rect class="sg-box path" x="612" y="140" width="408" height="64"/>
+    <text class="sg-t" x="632" y="166">② LLM 对话式 ingest</text>
+    <text class="sg-s" x="632" y="186">人在环:先讨论要点,再按六类框架抽取</text>
+    <path class="fl ac" marker-end="url(#b-ac)" d="M376,204 L376,246"/>
+    <path class="fl ac" marker-end="url(#b-ac)" d="M816,204 L816,246"/>
+    <line class="sg-sep" x1="150" y1="260" x2="1148" y2="260"/>
+
+    <!-- ══ L3 知识层 ══ -->
+    <text class="sg-rail" x="12" y="336">知识层</text>
+    <text class="sg-rails" x="12" y="354">内容库 · 私有</text>
+    <text class="sg-rails" x="12" y="370">永不进代码库</text>
+
+    <rect class="sg-box eng" x="172" y="280" width="408" height="96"/>
+    <text class="sg-t" x="192" y="306">引擎领地 —— LLM 只读</text>
+    <text class="sg-mono" x="192" y="330">_wiki/summaries/  concepts/  entities/</text>
+    <text class="sg-s" x="192" y="352">源文件一变,引擎整页重写;人手改会被覆盖</text>
+    <text class="sg-gate" x="192" y="398">门禁 · OKF 合规体检</text>
+    <text class="sg-dim" x="316" y="398">okf.py --check(此前这三个目录零校验)</text>
+
+    <rect class="sg-box llm" x="612" y="280" width="408" height="96"/>
+    <text class="sg-t" x="632" y="306">LLM 领地 —— 产出写这里</text>
+    <text class="sg-mono" x="632" y="330">_wiki/outputs/   material/   reports/</text>
+    <text class="sg-s" x="632" y="352">分析报告 · 六类写作素材 · 日报周报</text>
+    <text class="sg-gate" x="632" y="398">门禁 · 写集校验 / 决策队列 / 保鲜</text>
+    <text class="sg-dim" x="632" y="416">提交前只校本次写集;须先确认的动作走状态机;按半衰期提示复核</text>
+
+    <path class="fl" marker-end="url(#b-dim)" d="M376,412 L376,452"/>
+    <path class="fl" marker-end="url(#b-dim)" d="M816,432 L816,452"/>
+    <line class="sg-sep" x1="150" y1="466" x2="1148" y2="466"/>
+
+    <!-- ══ L4 调用层 ══ -->
+    <text class="sg-rail" x="12" y="556">调用层</text>
+    <text class="sg-rails" x="12" y="574">人</text>
+
+    <rect class="sg-box" x="172" y="486" width="196" height="70"/>
+    <text class="sg-t" x="190" y="512">index.md 导航</text>
+    <text class="sg-s" x="190" y="532">build-index.py</text>
+    <text class="sg-s" x="190" y="548">按类型分组重建</text>
+
+    <rect class="sg-box" x="384" y="486" width="196" height="70"/>
+    <text class="sg-t" x="402" y="512">本地浏览站</text>
+    <text class="sg-s" x="402" y="532">browse/wiki/(含关系图)</text>
+    <text class="sg-s" x="402" y="548">gitignore,永不上网</text>
+
+    <rect class="sg-box" x="612" y="486" width="196" height="70"/>
+    <text class="sg-t" x="630" y="512">① 本地检索</text>
+    <text class="sg-s" x="630" y="532">秒级,不走 LLM</text>
+    <text class="sg-s" x="630" y="548">适合「找页面」</text>
+
+    <rect class="sg-box llm" x="824" y="486" width="196" height="70"/>
+    <text class="sg-t" x="842" y="512">② 引擎查询</text>
+    <text class="sg-s" x="842" y="532">数十秒,走 LLM</text>
+    <text class="sg-s" x="842" y="548">综合多页 + 来源引用</text>
+
+    <path class="fl back" marker-end="url(#b-ok)" d="M1020,522 C1090,522 1090,300 1024,300"/>
+    <text class="sg-lab ok" x="632" y="596">有价值的产出回流写入 outputs/ 并记一条 log</text>
+    <text class="sg-dim" x="632" y="614">—— 这条回流才是「知识复利」的实现;没有它,这就只是个搜索引擎</text>
+
+    <!-- 图例 -->
+    <line class="sg-sep" x1="150" y1="644" x2="1148" y2="644"/>
+    <rect class="sg-box eng" x="172" y="662" width="26" height="16"/>
+    <text class="sg-dim" x="206" y="675">引擎领地(LLM 只读)</text>
+    <rect class="sg-box llm" x="366" y="662" width="26" height="16"/>
+    <text class="sg-dim" x="400" y="675">LLM 可写</text>
+    <text class="sg-gate" x="500" y="675">橙字</text>
+    <text class="sg-dim" x="540" y="675">= 确定性门禁(脚本,不是提示词)</text>
+    <path class="fl back" d="M812,670 L856,670"/>
+    <text class="sg-dim" x="866" y="675">回流:让探索也复利</text>
+  </svg>
+  </div>
+  <p class="fig-note">窄屏可左右滑动查看完整图形</p>
+
+  <div class="rules">
+    <div class="rule"><div><b>两条加工路,不是一条</b>:剪藏走引擎批量编译,重要文章走对话式 ingest(先讨论再抽取)。两者落在<b>不同领地</b>、权限也不同——这是第 1 节三条红线的由来。</div></div>
+    <div class="rule"><div><b>门禁挂在写入点上,不是挂在嘴上</b>:引擎领地由 OKF 体检把关,LLM 领地由写集校验、决策队列、保鲜三道把关。都是脚本,不是提示词(第 4 节)。</div></div>
+    <div class="rule"><div><b>调用层有一条回流箭头</b>:查询产出不是聊完就散,有价值的写回 <code>outputs/</code>。这条回流才是「知识复利」的实现。</div></div>
+  </div>
+</section>
 
 <section class="section">
   <div class="cap">01 · 权责边界</div>

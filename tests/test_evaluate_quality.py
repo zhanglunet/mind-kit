@@ -2,6 +2,7 @@
 case = {path, required_tokens[], forbidden_tokens[]};required 缺失或 forbidden 出现即失败;
 文件缺失默认失败,--allow-missing 降级为跳过(容器里 vault 软链缺席时用)。
 """
+import sys
 import json
 import subprocess
 from pathlib import Path
@@ -11,7 +12,7 @@ RUNNER = REPO / "scripts" / "evaluate_quality.py"
 
 
 def _run(*args):
-    return subprocess.run(["python3", str(RUNNER), *args],
+    return subprocess.run([sys.executable, str(RUNNER), *args],
                           capture_output=True, text=True, cwd=str(REPO))
 
 

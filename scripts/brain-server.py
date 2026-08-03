@@ -41,7 +41,22 @@ def _update_log_path():
     return VAULT / "browse" / ".update-all.log"
 
 
-def _run_update_all():
+def _try_flock():
+    """非阻塞拿 VAULT/.update-all.lock 文件锁 → fd 或 None。
+
+    _update_lock 只护本进程;还有别的触发方(如定时任务、其他常驻进程)会跑
+    update-all,跨进程互斥只能靠文件锁——各方约定同一个锁文件。"""
+    import fcntl
+    fd = os.open(VAULT / ".update-all.lock", os.O_CREAT | os.O_RDWR)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return fd
+    except OSError:
+        os.close(fd)
+        return None
+
+
+def _run_update_all(lock_fd):
     """后台执行 update-all.sh,输出落日志,完成后回填状态。单飞由 start_update_all 加锁保证。"""
     script = os.environ.get("MIND_UPDATE_SCRIPT") or str(VAULT / "scripts" / "update-all.sh")
     log = _update_log_path()
@@ -59,19 +74,25 @@ def _run_update_all():
                 f.write(f"\n# 启动失败:{e}\n")
         except OSError:
             pass
+    finally:
+        os.close(lock_fd)                 # 释放跨进程锁(进程崩溃时 OS 自动释放)
     with _update_lock:
         _update.update(running=False, returncode=rc,
                        finished_at=datetime.now().isoformat(timespec="seconds"))
 
 
 def start_update_all():
-    """尝试启动全量更新;返回 'started'(新起)或 'running'(已在跑,不重入)。"""
+    """尝试启动全量更新;返回 'started'(新起)或 'running'(已在跑,不重入)。
+    双重互斥:线程锁护本进程状态;文件锁护跨进程(别的触发方在跑同样算 running)。"""
     with _update_lock:
         if _update["running"]:
             return "running"
+        lock_fd = _try_flock()
+        if lock_fd is None:
+            return "running"              # 别的进程在跑
         _update.update(running=True, returncode=None, finished_at=None,
                        started_at=datetime.now().isoformat(timespec="seconds"))
-    threading.Thread(target=_run_update_all, daemon=True).start()
+    threading.Thread(target=_run_update_all, args=(lock_fd,), daemon=True).start()
     return "started"
 
 
