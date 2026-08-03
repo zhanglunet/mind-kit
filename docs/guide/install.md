@@ -47,52 +47,35 @@ pip install -r requirements.txt
 
 `scripts/` 下绝大多数脚本只用 Python 标准库,**唯一的第三方依赖是 `markdown`**(供 `scripts/build-wiki-site.py` 生成本地浏览站)。不装也不影响编译:`compile.sh` 第 4 步(生成浏览站)是 best-effort,缺 `markdown` 时只告警跳过、不中断编译与提交。
 
-## 2. 设置 API Key(GLM / DeepSeek / Kimi)
+## 2. 设置 API Key(GLM / Kimi)
 
-编译引擎 `sage-wiki` 接的是 **OpenAI 兼容**的国产端点,默认 **GLM**,可一键切换。密钥写进 shell profile(如 `~/.zshrc`),**不要落进任何仓库文件**:
+编译引擎 `sage-wiki` 接的是 **OpenAI 兼容**的国产编码端点,默认 **GLM**,可一键切 **Kimi**。密钥写进 shell profile(如 `~/.zshrc`),**不要落进任何仓库文件**:
 
 ```bash
-export GLM_API_KEY=...        # GLM(默认后端)
-export DEEPSEEK_API_KEY=...   # DeepSeek
-export KIMI_API_KEY=...       # Kimi
+export GLM_API_KEY=...     # GLM(默认后端)
+export KIMI_API_KEY=...    # Kimi(备选后端)
 ```
 
-各 profile 已内置端点与模型,无需手填:
+两个 profile 已内置端点与模型,无需手填:
 
 | 后端 | env 变量 | 端点(OpenAI 兼容) | 模型 | 配置文件 |
 |---|---|---|---|---|
 | **GLM**(默认) | `GLM_API_KEY` | `open.bigmodel.cn/api/coding/paas/v4` | `glm-4.5-flash` | `config.glm.yaml` |
-| **DeepSeek** | `DEEPSEEK_API_KEY` | `api.deepseek.com/v1` | `deepseek-v4-flash` / `-pro` | `config.deepseek.yaml` |
 | **Kimi** | `KIMI_API_KEY` | `api.kimi.com/coding/v1` | `kimi-for-coding` | `config.kimi.yaml` |
 
 **切换后端**(sage-wiki dev build 的 `--config` 未接线,只能替换活动 `config.yaml`):
 
 ```bash
-bash scripts/sage-backend.sh            # 看当前后端 + 可用清单
-bash scripts/sage-backend.sh deepseek   # 切到 DeepSeek
-bash scripts/sage-backend.sh glm        # 切回 GLM
+bash scripts/sage-backend.sh          # 看当前后端
+bash scripts/sage-backend.sh kimi     # 切到 Kimi
+bash scripts/sage-backend.sh glm      # 切回 GLM
 ```
-
-可用后端由仓库根实际存在的 `config.*.yaml` 决定——自己加一个 profile 就自动出现在清单里,不必改脚本。
-
-> **切换会让 `config.yaml` 在 git 里显示为已修改**,这是正常的(活动配置就是那个文件);
-> `git checkout config.yaml` 可还原成仓库默认的 GLM。
-
-> **思维模式一律显式关掉**(profile 里的 `extra_params.thinking.type: disabled`)。
-> GLM 与 DeepSeek v4 都支持"思考",而概念抽取时思维链会吃掉 8K+ 字符撑爆 token 预算,
-> 返回 `finish_reason=length` 的空结果。别指望"默认应该是关的"——文档往往不写默认值。
 
 `.gitignore` 已排除 `.env`、`*.key` 等常见密钥文件,但最稳妥的方式是密钥根本不落盘(只在环境变量)。
 
 ## 3. 安装四件套
 
-1. **sage-wiki**(编译引擎):[https://github.com/xoai/sage-wiki](https://github.com/xoai/sage-wiki)(Go 实现,MIT)。
-   主包在 `cmd/` 下,**装的时候别漏**(漏了会报 `no non-test Go files`):
-   ```bash
-   go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest
-   export PATH="$HOME/go/bin:$PATH"   # 写进 ~/.bashrc;cron 的 PATH 也要带上
-   ```
-   提供 CLI / MCP server / watch 监听。装完确保 `command -v sage-wiki` 有输出。
+1. **sage-wiki**(编译引擎):[https://github.com/xoai/sage-wiki](https://github.com/xoai/sage-wiki)(Go 实现,MIT)——按其 README 安装,提供 CLI / MCP server / watch 监听。装完确保在 `PATH` 或 `~/go/bin/`。
 2. **Claude Code CLI**:`npm install -g @anthropic-ai/claude-code`,之后在 vault 根目录运行 `claude` 即可。
 3. **Obsidian**:把本仓库目录作为 Vault 打开。
 4. **Claudian 插件**(主交互界面):建议通过 BRAT 插件安装以获得自动更新;它在 Obsidian 侧栏内嵌 Claude Code,复用同一份 `CLAUDE.md` 与 `.mcp.json`。

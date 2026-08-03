@@ -259,22 +259,3 @@ def test_eval_traffic_not_logged(tmp_path, monkeypatch):
         assert logged_calls == ["知识复利"], "正常流量仍应记账"
     finally:
         srv.shutdown()
-
-
-def test_update_all_respects_cross_process_flock(tmp_path, monkeypatch):
-    """跨进程互斥:飞书机器人(另一个进程)持 .update-all.lock 时,本服务不得再起一轮。
-
-    _update_lock 是 threading.Lock,只护本进程;机器人的「编译」命令与门户按钮
-    并发触发会跑两个 update-all——文件锁才是共同语言(feishu_botlib 同一个锁文件)。
-    """
-    import fcntl
-    import os as _os
-    m = _load()
-    monkeypatch.setattr(m, "VAULT", tmp_path)
-    monkeypatch.setenv("MIND_UPDATE_SCRIPT", _stub(tmp_path, "exit 0"))
-    fd = _os.open(tmp_path / ".update-all.lock", _os.O_CREAT | _os.O_RDWR)
-    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)   # 模拟机器人进程在跑
-    try:
-        assert m.start_update_all() == "running", "文件锁被占必须视同进行中"
-    finally:
-        _os.close(fd)

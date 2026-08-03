@@ -74,25 +74,6 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def make_snippet(content: str, limit: int = 120) -> str:
-    """给人看的一行摘要:跳过 frontmatter 与标题行,取真正的正文。
-
-    别用 content[:120] —— 库里页面普遍以 10+ 行 frontmatter 开头,那样摘出来的
-    全是「类别:/来源:/tags」这类机器字段(还会把 frontmatter 里的 token 一起带出去,
-    2026-07-26 实测泄进过飞书聊天窗口)。召回不受影响:分词仍吃全文。
-    """
-    text = content or ""
-    if text.startswith("---"):                      # YAML frontmatter:掐到第二个 ---
-        end = text.find("\n---", 3)
-        if end != -1:
-            text = text[end + 4:]
-    lines = [ln.strip() for ln in text.splitlines()]
-    body = [ln for ln in lines if ln and not ln.startswith("#")]
-    if not body:                                    # 只有 frontmatter/标题 → 退回原文压平
-        body = [ln.strip() for ln in (content or "").splitlines() if ln.strip()] or ["(空页)"]
-    return " ".join(body)[:limit]
-
-
 def build_index(docs) -> dict:
     """从 [{path,title,content}] 构建内存索引。
     每文档词袋 = 标题词×2(标题加权)+ 正文词;附逐文件 sha256 清单(P1-1e)与整体指纹。"""
@@ -107,7 +88,7 @@ def build_index(docs) -> dict:
             "tf": tf, "len": sum(tf.values()),
             "title_tokens": set(tokenize(title)),
             "raw": (title + "\n" + content).lower(),
-            "snippet": make_snippet(content),
+            "snippet": content[:120],
         })
         files[d["path"]] = _sha256(content)
         h.update(d["path"].encode("utf-8")); h.update(b"\0")

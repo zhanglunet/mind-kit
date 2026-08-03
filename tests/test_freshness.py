@@ -7,7 +7,6 @@
 - 无保鲜字段的页面静默跳过(不报错、不出现在报告);
 - --confirm <相对路径> 显式盖 last_confirmed=今天,其余内容原样保留。
 """
-import sys
 import json
 import subprocess
 from datetime import date, timedelta
@@ -18,7 +17,7 @@ CLI = REPO / "scripts" / "freshness.py"
 
 
 def _run(vault: Path, *args):
-    return subprocess.run([sys.executable, str(CLI), "--vault", str(vault), *args],
+    return subprocess.run(["python3", str(CLI), "--vault", str(vault), *args],
                           capture_output=True, text=True, cwd=str(REPO))
 
 

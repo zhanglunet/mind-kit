@@ -2,66 +2,6 @@
 
 本文件记录本代码库(脚本、配置、文档)的重要变更。知识内容的时序记录在你自己内容库的 `_wiki/log.md`。
 
-## v1.3 — 2026-08-03
-
-对齐 Open Knowledge Format;修掉一批「失败伪装成成功」的缺陷——
-它们的共同点是出错时**看起来仍然是绿的**,所以比崩溃更危险。
-
-### 新增:OKF 合规(Open Knowledge Format v0.2)
-
-[OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) 是
-「用 markdown + YAML frontmatter 表示知识」的中立格式。本项目的形态与它高度重合
-(bundle=目录、保留 `index.md`/`log.md`、容忍未知键),**硬性要求只有两条**:
-每页有合法 frontmatter、`type` 非空。
-
-- 新增 `scripts/okf.py`:`--check` 只读体检(不合规非零退出)/ `--fix` 幂等注入
-- `type` 由目录 + 已有键**确定性**推出,不用 LLM:概念页直接取 `entity_type`
-  (值域 concept / technique / claim 如实传导,不是一律拍成 concept)
-- **只加不改**:已有 `type` 的页一字节不碰;`entity_type`、`类别`、`decision_type`
-  等原有键一律保留——它们各有现成消费者,改名等于为合规砸自家管线
-- `compile.sh` 从五步变六步:`--fix` 在重建 index **之前**(索引读 frontmatter 生成,
-  注入晚了就读到上一轮旧字段),`--check` 进 lint 记账;顺序由测试钉死
-- **补上引擎领地的门禁**:`validate_write_set.py` 的作用面不含
-  `_wiki/{summaries,concepts,entities}`,此前那三个目录零校验
-- `stale_after`:把既有的半衰期保鲜(`volatility` / `half_life_days` + `last_confirmed`)
-  映射成 OKF 键,由 `--fix` 自动算出
-
-文档:`docs/guide/okf.md`(文字版)+ 文档站「OKF 合规」图解页,含对比表与流水线图示。
-
-### 别假设 `python3` 就是对的解释器
-
-真机上 43 个测试同时变红,同一个根因:系统 `python3` 可能是 EOL 的 3.6,
-而依赖装在 `.venv` 里。
-
-- 新增 `scripts/_pyresolve.sh`:解析顺序 `<repo>/.venv/bin/python` → `$MIND_PYTHON`
-  → `python3`(版本够才用)→ 扫 `python3.13…3.9` → 大声告警后回落
-- 所有 `scripts/*.sh` 统一走它;新增门禁 `tests/test_interpreter_hygiene.py`,
-  裸调 `python3` 会被拦下
-
-### 修复:失败必须长得像失败
-
-| 位置 | 出错时会发生什么 | 此前看起来像 |
-|---|---|---|
-| `vault.sh` 提交 | git 没有身份配置、钩子拒绝……提交失败 | **「无改动可提交」** |
-| `update-all.sh` 互斥锁 | 系统没有 `flock(1)`(macOS 就没有) | 继续跑,像是拿到了锁 |
-| 隐私门禁 | `git ls-files` 出错返回空清单 | 扫过了,零命中 |
-| 隐私门禁 | 非 ASCII 文件名被 quotepath 转义、读不到 | 中文名文件是干净的 |
-| 发布门禁 | 公开版树只 `git init` 没 `git add` | 扫了 0 个文件却报通过 |
-
-`vault.sh` 那条最要命:`git commit` 对「没东西可提交」和「提交出错」返回**同一个非零码**,
-老写法 `commit || echo "无改动可提交"` 把两者混为一谈——表现是编译流水线报成功,
-而产物根本没入库。现在先用 `git diff --cached --quiet` 判断暂存区空不空,再决定这次非零是哪一种。
-
-### 其他
-
-- `update-all.sh`:内容库的拉取/推送做进编排(此前只写在文档里,靠人记得手动跑);
-  跨进程锁改成可移植实现(无 `flock` 时用 `mkdir` + PID 存活检查,而不是跳过互斥)
-- 新增 **DeepSeek** 编译后端(`config.deepseek.yaml`);`sage-backend.sh` 改为
-  从磁盘上实际存在的 `config.*.yaml` 发现后端,不再三处维护硬编码清单
-- 文档站的「两份载体」门禁改成表驱动:每个手工页都自动检查
-  文字版/可视化版都在、主题一致、章节数一致、**首页与模板导航可达**
-  (手工页不过 pandoc,漏挂导航就是个只有知道 URL 才进得去的孤儿页)
-
 ## v1.2 — 2026-07-25
 
 新增一页「系统如何运作」总览;发布门禁堵掉一个真实存在的盲区。

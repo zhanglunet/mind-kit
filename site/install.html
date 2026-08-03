@@ -13,7 +13,6 @@
   <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
   <div class="navlinks">
     <a href="architecture.html">系统运作</a>
-    <a href="okf.html">OKF 合规</a>
     <a href="install.html" class="active">安装指南</a>
     <a href="usage.html">使用手册</a>
     <a href="faq.html">FAQ</a>
@@ -112,17 +111,15 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="
 生成本地浏览站)。不装也不影响编译:<code>compile.sh</code> 第 4
 步(生成浏览站)是 best-effort,缺 <code>markdown</code>
 时只告警跳过、不中断编译与提交。</p>
-<h2 id="设置-api-keyglm-deepseek-kimi">2. 设置 API Key(GLM / DeepSeek /
-Kimi)</h2>
+<h2 id="设置-api-keyglm-kimi">2. 设置 API Key(GLM / Kimi)</h2>
 <p>编译引擎 <code>sage-wiki</code> 接的是 <strong>OpenAI
-兼容</strong>的国产端点,默认 <strong>GLM</strong>,可一键切换。密钥写进
-shell profile(如
+兼容</strong>的国产编码端点,默认 <strong>GLM</strong>,可一键切
+<strong>Kimi</strong>。密钥写进 shell profile(如
 <code>~/.zshrc</code>),<strong>不要落进任何仓库文件</strong>:</p>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">GLM_API_KEY</span><span class="op">=</span>...        <span class="co"># GLM(默认后端)</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DEEPSEEK_API_KEY</span><span class="op">=</span>...   <span class="co"># DeepSeek</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">KIMI_API_KEY</span><span class="op">=</span>...       <span class="co"># Kimi</span></span></code></pre></div>
-<p>各 profile 已内置端点与模型,无需手填:</p>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">GLM_API_KEY</span><span class="op">=</span>...     <span class="co"># GLM(默认后端)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">KIMI_API_KEY</span><span class="op">=</span>...    <span class="co"># Kimi(备选后端)</span></span></code></pre></div>
+<p>两个 profile 已内置端点与模型,无需手填:</p>
 <div class="table-wrap">
 <table>
 <colgroup>
@@ -150,13 +147,6 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <td><code>config.glm.yaml</code></td>
 </tr>
 <tr class="even">
-<td><strong>DeepSeek</strong></td>
-<td><code>DEEPSEEK_API_KEY</code></td>
-<td><code>api.deepseek.com/v1</code></td>
-<td><code>deepseek-v4-flash</code> / <code>-pro</code></td>
-<td><code>config.deepseek.yaml</code></td>
-</tr>
-<tr class="odd">
 <td><strong>Kimi</strong></td>
 <td><code>KIMI_API_KEY</code></td>
 <td><code>api.kimi.com/coding/v1</code></td>
@@ -169,51 +159,31 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <p><strong>切换后端</strong>(sage-wiki dev build 的
 <code>--config</code> 未接线,只能替换活动 <code>config.yaml</code>):</p>
 <div class="sourceCode" id="cb5"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh            <span class="co"># 看当前后端 + 可用清单</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh deepseek   <span class="co"># 切到 DeepSeek</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh glm        <span class="co"># 切回 GLM</span></span></code></pre></div>
-<p>可用后端由仓库根实际存在的 <code>config.*.yaml</code>
-决定——自己加一个 profile 就自动出现在清单里,不必改脚本。</p>
-<blockquote>
-<p><strong>切换会让 <code>config.yaml</code> 在 git
-里显示为已修改</strong>,这是正常的(活动配置就是那个文件);
-<code>git checkout config.yaml</code> 可还原成仓库默认的 GLM。</p>
-</blockquote>
-<blockquote>
-<p><strong>思维模式一律显式关掉</strong>(profile 里的
-<code>extra_params.thinking.type: disabled</code>)。 GLM 与 DeepSeek v4
-都支持”思考”,而概念抽取时思维链会吃掉 8K+ 字符撑爆 token 预算, 返回
-<code>finish_reason=length</code>
-的空结果。别指望”默认应该是关的”——文档往往不写默认值。</p>
-</blockquote>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh          <span class="co"># 看当前后端</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh kimi     <span class="co"># 切到 Kimi</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh glm      <span class="co"># 切回 GLM</span></span></code></pre></div>
 <p><code>.gitignore</code> 已排除 <code>.env</code>、<code>*.key</code>
 等常见密钥文件,但最稳妥的方式是密钥根本不落盘(只在环境变量)。</p>
 <h2 id="安装四件套">3. 安装四件套</h2>
 <ol type="1">
-<li><p><strong>sage-wiki</strong>(编译引擎):<a
+<li><strong>sage-wiki</strong>(编译引擎):<a
 href="https://github.com/xoai/sage-wiki">https://github.com/xoai/sage-wiki</a>(Go
-实现,MIT)。 主包在 <code>cmd/</code>
-下,<strong>装的时候别漏</strong>(漏了会报
-<code>no non-test Go files</code>):</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> install github.com/xoai/sage-wiki/cmd/sage-wiki@latest</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PATH</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/go/bin:</span><span class="va">$PATH</span><span class="st">&quot;</span>   <span class="co"># 写进 ~/.bashrc;cron 的 PATH 也要带上</span></span></code></pre></div>
-<p>提供 CLI / MCP server / watch 监听。装完确保
-<code>command -v sage-wiki</code> 有输出。</p></li>
-<li><p><strong>Claude Code
+实现,MIT)——按其 README 安装,提供 CLI / MCP server / watch
+监听。装完确保在 <code>PATH</code> 或 <code>~/go/bin/</code>。</li>
+<li><strong>Claude Code
 CLI</strong>:<code>npm install -g @anthropic-ai/claude-code</code>,之后在
-vault 根目录运行 <code>claude</code> 即可。</p></li>
-<li><p><strong>Obsidian</strong>:把本仓库目录作为 Vault 打开。</p></li>
-<li><p><strong>Claudian 插件</strong>(主交互界面):建议通过 BRAT
+vault 根目录运行 <code>claude</code> 即可。</li>
+<li><strong>Obsidian</strong>:把本仓库目录作为 Vault 打开。</li>
+<li><strong>Claudian 插件</strong>(主交互界面):建议通过 BRAT
 插件安装以获得自动更新;它在 Obsidian 侧栏内嵌 Claude Code,复用同一份
-<code>CLAUDE.md</code> 与 <code>.mcp.json</code>。</p></li>
+<code>CLAUDE.md</code> 与 <code>.mcp.json</code>。</li>
 </ol>
 <p>再装四个 Obsidian 插件:<strong>Web Clipper</strong>(剪藏落地到
 <code>raw/clippings/</code>)、<strong>Templater</strong>、<strong>Dataview</strong>(五维标签检索)、<strong>BRAT</strong>;附件目录设为
 <code>raw/assets/</code>。</p>
 <h2 id="校验配置与连接">4. 校验配置与连接</h2>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor        <span class="co"># 验证 API 连接与配置</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor        <span class="co"># 验证 API 连接与配置</span></span></code></pre></div>
 <p><code>config.yaml</code>
 骨架已配置好来源目录、忽略清单与模型(当前单一
 <code>glm-4.5-flash</code>,不分层),<code>doctor</code>
@@ -240,8 +210,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 管线保留但当前未启用)</li>
 </ul>
 <h2 id="首次编译与验证">6. 首次编译与验证</h2>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh        <span class="co"># 全流水线:编译 → 重建 index → lint → 生成本地浏览站 → 提交</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh        <span class="co"># 全流水线:编译 → 重建 index → lint → 生成本地浏览站 → 提交</span></span></code></pre></div>
 <blockquote>
 <p>日常编译一律走 <code>bash scripts/compile.sh</code>(而非裸
 <code>sage-wiki compile</code>):dev build 不自动维护
@@ -285,9 +255,8 @@ href="architecture.html">系统如何运作</a>。</p>
 <li><a href="#前置要求" id="toc-前置要求">0. 前置要求</a></li>
 <li><a href="#获取-vault-骨架" id="toc-获取-vault-骨架">1. 获取 Vault
 骨架</a></li>
-<li><a href="#设置-api-keyglm-deepseek-kimi"
-id="toc-设置-api-keyglm-deepseek-kimi">2. 设置 API Key(GLM / DeepSeek /
-Kimi)</a></li>
+<li><a href="#设置-api-keyglm-kimi" id="toc-设置-api-keyglm-kimi">2.
+设置 API Key(GLM / Kimi)</a></li>
 <li><a href="#安装四件套" id="toc-安装四件套">3. 安装四件套</a></li>
 <li><a href="#校验配置与连接" id="toc-校验配置与连接">4.
 校验配置与连接</a></li>

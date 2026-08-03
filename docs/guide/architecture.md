@@ -147,5 +147,4 @@ raw/clippings/ 新增文章
 
 - [安装指南](install.md) · [使用手册](usage.md) · [FAQ 与避坑](faq.md)
 - [在 Linux 服务器上安装与使用](setup-linux-server.md)
-- [OKF 合规改造](okf.md) —— 对照 Open Knowledge Format 的取证、映射、接线与门禁
 - 完整需求与设计依据见 PRD

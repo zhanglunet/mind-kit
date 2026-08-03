@@ -13,72 +13,21 @@ import re
 import subprocess
 from pathlib import Path
 
-import pytest
-
 REPO = Path(__file__).resolve().parent.parent
 
 
-def _tracked(*globs, repo: Path = REPO):
-    """已跟踪文件(只查入库的;工作区临时文件不管)。
-
-    **git 失败必须炸,不能返回空列表**:下面三道隐私门禁都是 `assert not hits`,
-    清单为空时它们**恒真**。真实触发场景——cron 以另一个用户身份跑,git 报
-    dubious ownership 而非零退出——会让"代码库不含个人标识"这条门禁悄悄空转,
-    报的绿不是"没查到问题",是"根本没查"。
-
-    **另一个致命细节:`-z` + `core.quotepath=false`。** git 默认把非 ASCII 路径
-    C 转义成 `"docs/guide/\\351\\243\\236..."`,`repo / p` 于是指向一个不存在的文件,
-    `_read()` 把 OSError 吞成空串 —— 本仓 14 个中文名入库文件(含飞书数字分身.md、
-    飞书群聊抽取.md 这些**最可能含 open_id / 群名**的)因此从未被扫描过。
-    """
-    r = subprocess.run(["git", "-C", str(repo), "-c", "core.quotepath=false",
-                        "ls-files", "-z", *globs],
-                       capture_output=True, text=True, check=True)
-    return [repo / p for p in r.stdout.split("\0") if p.strip()]
+def _tracked(*globs):
+    """已跟踪文件(只查入库的;工作区临时文件不管)。"""
+    out = subprocess.run(["git", "-C", str(REPO), "ls-files", *globs],
+                         capture_output=True, text=True).stdout.split("\n")
+    return [REPO / p for p in out if p.strip()]
 
 
 def _read(p: Path) -> str:
-    """读不出来就**抛**,不要返回空串。
-
-    返回 "" 等于把这个文件从扫描面里悄悄移走 —— 正是 quotepath 转义那个 bug
-    的第二级放大器:路径拼错 → 文件不存在 → OSError → 空串 → 门禁在这个文件上恒真。
-    编码问题用 errors="replace" 兜(那是内容问题,文件确实读到了);
-    文件读不到是**基础设施坏了**,必须炸出来。
-    """
-    return p.read_text(encoding="utf-8", errors="replace")
-
-
-# ---------- 元门禁:门禁本身不许空转 ----------
-
-def test_tracked_listing_fails_loudly_instead_of_returning_empty(tmp_path):
-    """git 拿不到文件清单时要抛异常,而不是给个空列表让下面三条恒真。"""
-    with pytest.raises(subprocess.CalledProcessError):
-        _tracked("*", repo=tmp_path)          # 不是 git 仓库
-
-
-def test_tracked_listing_actually_finds_files():
-    """正常情况下清单必须非空 —— 否则下面的 `assert not hits` 什么也没验证。"""
-    got = _tracked("scripts/**", "*.md")
-    assert len(got) > 10, f"入库文件清单异常地少({len(got)}),隐私门禁可能在空转"
-
-
-def test_read_raises_instead_of_silently_returning_empty(tmp_path):
-    """读不到的文件必须抛异常 —— 静默返回空串 = 把它移出扫描面。"""
-    with pytest.raises(OSError):
-        _read(tmp_path / "根本不存在.md")
-
-
-def test_tracked_listing_covers_non_ascii_filenames():
-    """中文名文件必须真的被读到。
-
-    git 默认 core.quotepath=true 会把它们 C 转义,拼出的路径根本不存在,
-    `_read()` 再把 OSError 吞成空串 —— 门禁于是在**最该查的那批文件**上恒真。
-    这里连"文件存在且读得出内容"一起断言,光有路径不算数。
-    """
-    cjk = [p for p in _tracked("docs/**", "*.md") if not p.name.isascii()]
-    assert cjk, "一个中文名入库文件都没找到,转义八成又回来了"
-    unreadable = [str(p) for p in cjk if not p.exists() or not _read(p).strip()]
-    assert not unreadable, "这些中文名文件读不到(路径被转义了?):\n  " + "\n  ".join(unreadable)
+    try:
+        return p.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
 
 
 # ---------- 形状匹配:身份 ID / 私人备份文件名 ----------

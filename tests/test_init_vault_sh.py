@@ -44,7 +44,6 @@ def _fake_repo(tmp_path: Path) -> Path:
     (repo / "reports" / "README.md").write_text("报告\n", encoding="utf-8")
     import shutil
     shutil.copy(VAULT_SH, repo / "scripts" / "vault.sh")
-    shutil.copy(REPO / "scripts" / "_pyresolve.sh", repo / "scripts" / "_pyresolve.sh")
     subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
     subprocess.run(["git", "-C", str(repo), "config", "user.email", "t@t"], check=True)
     subprocess.run(["git", "-C", str(repo), "config", "user.name", "t"], check=True)

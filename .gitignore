@@ -30,10 +30,6 @@ Thumbs.db
 .claudian/
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
-# 运行期跨进程互斥锁(update-all.sh),不入库
-# flock 用文件、无 flock 的平台(macOS)用目录
-.update-all.lock
-.update-all.lock.d/
 
 # === Python 运行缓存 ===
 __pycache__/
@@ -122,8 +118,3 @@ _wiki/under_review/
 /evaluation/round*
 /evaluation/*-real.json
 /evaluation/local/
-# 飞书机器人运行态(去重台账 .seen-events / 线程记忆),不入库
-/.bot-state/
-
-# Python venv(vm-setup.sh 建在仓库内,给 cron 一个确定的解释器路径)
-.venv/

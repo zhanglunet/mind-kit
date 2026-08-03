@@ -4,11 +4,6 @@
 # 需要 pandoc;首页 site/index.html 为手工设计,本脚本不改动它。
 set -euo pipefail
 
-# 解释器解析:系统 python3 可能是 EOL 的 3.6(真机实测),依赖在 .venv 里。
-. "$(dirname "${BASH_SOURCE[0]}")/_pyresolve.sh"
-MIND_PY="$(mind_python "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
-
-
 VAULT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="$VAULT/site"
 TPL="$VAULT/scripts/site-template.html"
@@ -17,7 +12,7 @@ command -v pandoc >/dev/null || { echo "错误:需要 pandoc(brew install pandoc
 mkdir -p "$SITE"
 
 wrap_tables() {  # 给宽表格加横向滚动容器
-  "$MIND_PY" - "$1" <<'EOF'
+  python3 - "$1" <<'EOF'
 import sys
 p = sys.argv[1]
 s = open(p, encoding='utf-8').read()
@@ -55,7 +50,7 @@ echo "  ✓ site/prd.html(pandoc 从 PRD.md 渲染)"
 # 指南 Markdown 内的 .md 互链改为 .html
 # 规则:同名 .html 存在就改写(手工页如 architecture.html 也算),否则原样留着——
 # 由 tests/test_site_docs.py 的死链门禁把漏网的揪出来,不靠这里维护一份易过期的白名单。
-"$MIND_PY" - "$SITE" <<'EOF'
+python3 - "$SITE" <<'EOF'
 import re, sys, pathlib
 site = pathlib.Path(sys.argv[1])
 RENAME = {'setup-linux-server.md': 'server.html'}   # 文件名与页面名不一致的特例

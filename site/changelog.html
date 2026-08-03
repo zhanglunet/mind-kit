@@ -13,7 +13,6 @@
   <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
   <div class="navlinks">
     <a href="architecture.html">系统运作</a>
-    <a href="okf.html">OKF 合规</a>
     <a href="install.html">安装指南</a>
     <a href="usage.html">使用手册</a>
     <a href="faq.html">FAQ</a>
@@ -30,115 +29,6 @@
 <h1 id="更新日志">更新日志</h1>
 <p>本文件记录本代码库(脚本、配置、文档)的重要变更。知识内容的时序记录在你自己内容库的
 <code>_wiki/log.md</code>。</p>
-<h2 id="v1.3-2026-08-03">v1.3 — 2026-08-03</h2>
-<p>对齐 Open Knowledge Format;修掉一批「失败伪装成成功」的缺陷——
-它们的共同点是出错时<strong>看起来仍然是绿的</strong>,所以比崩溃更危险。</p>
-<h3 id="新增okf-合规open-knowledge-format-v0.2">新增:OKF 合规(Open
-Knowledge Format v0.2)</h3>
-<p><a
-href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">OKF</a>
-是 「用 markdown + YAML frontmatter
-表示知识」的中立格式。本项目的形态与它高度重合 (bundle=目录、保留
-<code>index.md</code>/<code>log.md</code>、容忍未知键),<strong>硬性要求只有两条</strong>:
-每页有合法 frontmatter、<code>type</code> 非空。</p>
-<ul>
-<li>新增 <code>scripts/okf.py</code>:<code>--check</code>
-只读体检(不合规非零退出)/ <code>--fix</code> 幂等注入</li>
-<li><code>type</code> 由目录 + 已有键<strong>确定性</strong>推出,不用
-LLM:概念页直接取 <code>entity_type</code> (值域 concept / technique /
-claim 如实传导,不是一律拍成 concept)</li>
-<li><strong>只加不改</strong>:已有 <code>type</code>
-的页一字节不碰;<code>entity_type</code>、<code>类别</code>、<code>decision_type</code>
-等原有键一律保留——它们各有现成消费者,改名等于为合规砸自家管线</li>
-<li><code>compile.sh</code> 从五步变六步:<code>--fix</code> 在重建 index
-<strong>之前</strong>(索引读 frontmatter 生成,
-注入晚了就读到上一轮旧字段),<code>--check</code> 进 lint
-记账;顺序由测试钉死</li>
-<li><strong>补上引擎领地的门禁</strong>:<code>validate_write_set.py</code>
-的作用面不含
-<code>_wiki/{summaries,concepts,entities}</code>,此前那三个目录零校验</li>
-<li><code>stale_after</code>:把既有的半衰期保鲜(<code>volatility</code>
-/ <code>half_life_days</code> + <code>last_confirmed</code>) 映射成 OKF
-键,由 <code>--fix</code> 自动算出</li>
-</ul>
-<p>文档:<code>docs/guide/okf.md</code>(文字版)+ 文档站「OKF
-合规」图解页,含对比表与流水线图示。</p>
-<h3 id="别假设-python3-就是对的解释器">别假设 <code>python3</code>
-就是对的解释器</h3>
-<p>真机上 43 个测试同时变红,同一个根因:系统 <code>python3</code> 可能是
-EOL 的 3.6, 而依赖装在 <code>.venv</code> 里。</p>
-<ul>
-<li>新增 <code>scripts/_pyresolve.sh</code>:解析顺序
-<code>&lt;repo&gt;/.venv/bin/python</code> → <code>$MIND_PYTHON</code> →
-<code>python3</code>(版本够才用)→ 扫 <code>python3.13…3.9</code> →
-大声告警后回落</li>
-<li>所有 <code>scripts/*.sh</code> 统一走它;新增门禁
-<code>tests/test_interpreter_hygiene.py</code>, 裸调
-<code>python3</code> 会被拦下</li>
-</ul>
-<h3 id="修复失败必须长得像失败">修复:失败必须长得像失败</h3>
-<div class="table-wrap">
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>位置</th>
-<th>出错时会发生什么</th>
-<th>此前看起来像</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>vault.sh</code> 提交</td>
-<td>git 没有身份配置、钩子拒绝……提交失败</td>
-<td><strong>「无改动可提交」</strong></td>
-</tr>
-<tr class="even">
-<td><code>update-all.sh</code> 互斥锁</td>
-<td>系统没有 <code>flock(1)</code>(macOS 就没有)</td>
-<td>继续跑,像是拿到了锁</td>
-</tr>
-<tr class="odd">
-<td>隐私门禁</td>
-<td><code>git ls-files</code> 出错返回空清单</td>
-<td>扫过了,零命中</td>
-</tr>
-<tr class="even">
-<td>隐私门禁</td>
-<td>非 ASCII 文件名被 quotepath 转义、读不到</td>
-<td>中文名文件是干净的</td>
-</tr>
-<tr class="odd">
-<td>发布门禁</td>
-<td>公开版树只 <code>git init</code> 没 <code>git add</code></td>
-<td>扫了 0 个文件却报通过</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><code>vault.sh</code> 那条最要命:<code>git commit</code>
-对「没东西可提交」和「提交出错」返回<strong>同一个非零码</strong>,
-老写法 <code>commit || echo "无改动可提交"</code>
-把两者混为一谈——表现是编译流水线报成功, 而产物根本没入库。现在先用
-<code>git diff --cached --quiet</code>
-判断暂存区空不空,再决定这次非零是哪一种。</p>
-<h3 id="其他">其他</h3>
-<ul>
-<li><code>update-all.sh</code>:内容库的拉取/推送做进编排(此前只写在文档里,靠人记得手动跑);
-跨进程锁改成可移植实现(无 <code>flock</code> 时用 <code>mkdir</code> +
-PID 存活检查,而不是跳过互斥)</li>
-<li>新增 <strong>DeepSeek</strong>
-编译后端(<code>config.deepseek.yaml</code>);<code>sage-backend.sh</code>
-改为 从磁盘上实际存在的 <code>config.*.yaml</code>
-发现后端,不再三处维护硬编码清单</li>
-<li>文档站的「两份载体」门禁改成表驱动:每个手工页都自动检查
-文字版/可视化版都在、主题一致、章节数一致、<strong>首页与模板导航可达</strong>
-(手工页不过 pandoc,漏挂导航就是个只有知道 URL 才进得去的孤儿页)</li>
-</ul>
 <h2 id="v1.2-2026-07-25">v1.2 — 2026-07-25</h2>
 <p>新增一页「系统如何运作」总览;发布门禁堵掉一个真实存在的盲区。</p>
 <h3 id="新增系统如何运作">新增:《系统如何运作》</h3>
@@ -262,8 +152,6 @@ REFACTOR);pre-push 钩子跑全量 pytest;GitHub Actions 服务端兜底</li>
 <ul>
 <li><a href="#更新日志" id="toc-更新日志">更新日志</a>
 <ul>
-<li><a href="#v1.3-2026-08-03" id="toc-v1.3-2026-08-03">v1.3 —
-2026-08-03</a></li>
 <li><a href="#v1.2-2026-07-25" id="toc-v1.2-2026-07-25">v1.2 —
 2026-07-25</a></li>
 <li><a href="#v1.1-2026-07-25" id="toc-v1.1-2026-07-25">v1.1 —
