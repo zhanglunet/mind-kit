@@ -48,36 +48,36 @@
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>必需</th>
 <th>用途</th>
 <th>装法(Debian/Ubuntu)</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Python ≥ 3.9</td>
 <td>全部脚本</td>
 <td><code>sudo apt install python3 python3-pip</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td>git</td>
 <td>两个仓</td>
 <td><code>sudo apt install git</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>sage-wiki</strong></td>
 <td><strong>编译引擎(核心)</strong></td>
 <td><a
 href="https://github.com/xoai/sage-wiki">https://github.com/xoai/sage-wiki</a>(Go,MIT)——按其
 README 装;确保在 <code>PATH</code> 或 <code>~/go/bin/</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td>pandoc</td>
 <td>生成文档站(可选)</td>
 <td><code>sudo apt install pandoc</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>markdown</code> (pip)</td>
 <td>本地浏览站(可选)</td>
 <td>见第 2 步</td>
@@ -148,7 +148,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 <col style="width: 20%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>后端</th>
 <th>env</th>
 <th>端点</th>
@@ -157,14 +157,14 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>GLM(默认)</td>
 <td><code>GLM_API_KEY</code></td>
 <td><code>open.bigmodel.cn/api/coding/paas/v4</code></td>
 <td><code>glm-4.5-flash</code></td>
 <td><code>config.glm.yaml</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td>Kimi</td>
 <td><code>KIMI_API_KEY</code></td>
 <td><code>api.kimi.com/coding/v1</code></td>
@@ -241,27 +241,27 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href=
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>能力</th>
 <th>状态</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Obsidian + Claudian 侧栏</td>
 <td>❌ 用不了</td>
 <td>桌面 GUI。CLI 与网页门户不受影响;可把内容库同步到本地机器再用
 Obsidian 打开</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>subscriptions.py --notify</code></td>
 <td>⚠️ <strong>静默失效</strong></td>
 <td>用 macOS <code>osascript</code> 弹通知;Linux
 上<strong>不报错也不弹</strong>。列表与 <code>--days N</code>
 正常;要通知自行改 <code>notify-send</code> 或邮件</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>/opt/homebrew/bin</code></td>
 <td>✅ 无害</td>
 <td>几个脚本 PATH 里有它,目录不存在会被忽略</td>

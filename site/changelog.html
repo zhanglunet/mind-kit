@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>������������ · 第二大脑</title>
+<title>更新日志 · 第二大脑</title>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
 </head>
@@ -26,7 +26,7 @@
 
 <div class="doc-layout">
   <main class="doc-main">
-    <div class="crumb"><a href="index.html">首页</a> / ������������</div>
+    <div class="crumb"><a href="index.html">首页</a> / 更新日志</div>
 <h1 id="更新日志">更新日志</h1>
 <p>本文件记录本代码库(脚本、配置、文档)的重要变更。知识内容的时序记录在你自己内容库的
 <code>_wiki/log.md</code>。</p>
@@ -43,26 +43,26 @@
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>层</th>
 <th>内容</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>来源层</td>
 <td><code>raw/*</code>,只读,唯一真相</td>
 </tr>
-<tr class="even">
+<tr>
 <td>加工层</td>
 <td><strong>两条路</strong>:① <code>sage-wiki compile</code> 引擎批量 ②
 LLM 对话式 ingest 人在环</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>知识层</td>
 <td>引擎领地(LLM 只读)与 LLM 领地,各自的门禁标在写入点上</td>
 </tr>
-<tr class="even">
+<tr>
 <td>调用层</td>
 <td>索引 / 浏览站 / 本地检索 /
 引擎查询,<strong>含一条回流箭头</strong></td>
@@ -161,34 +161,34 @@ EOL 的 3.6, 而依赖装在 <code>.venv</code> 里。</p>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>位置</th>
 <th>出错时会发生什么</th>
 <th>此前看起来像</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>vault.sh</code> 提交</td>
 <td>git 没有身份配置、钩子拒绝……提交失败</td>
 <td><strong>「无改动可提交」</strong></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>update-all.sh</code> 互斥锁</td>
 <td>系统没有 <code>flock(1)</code>(macOS 就没有)</td>
 <td>继续跑,像是拿到了锁</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>隐私门禁</td>
 <td><code>git ls-files</code> 出错返回空清单</td>
 <td>扫过了,零命中</td>
 </tr>
-<tr class="even">
+<tr>
 <td>隐私门禁</td>
 <td>非 ASCII 文件名被 quotepath 转义、读不到</td>
 <td>中文名文件是干净的</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>发布门禁</td>
 <td>公开版树只 <code>git init</code> 没 <code>git add</code></td>
 <td>扫了 0 个文件却报通过</td>

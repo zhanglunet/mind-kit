@@ -107,13 +107,24 @@ def test_vault_commit_skip_validate_escape_hatch(tmp_path):
 # ═══ 真机暴露:提交失败被报成「无改动」 ═══════════════════════
 
 def _commit_without_identity(repo: Path):
-    """在**无 git 身份**的环境下提交(真机 VM 上就是这样)。"""
+    """在**无 git 身份**的环境下提交(真机 VM 上就是这样)。
+
+    只清空配置还不够:git 在 hostname 可解析的机器上会自动猜出身份
+    (user.useConfigOnly 默认 false),提交照样成功——Mac 上这条测试就因此假失败。
+    写一个只含 useConfigOnly=true 的临时 global 配置,把「无身份 → 提交必败」
+    变成与机器无关的确定行为。
+    """
     import os
     import sys
+    import tempfile
+    noident = tempfile.NamedTemporaryFile(
+        "w", prefix="git-noident-", suffix=".conf", delete=False)
+    noident.write("[user]\n\tuseConfigOnly = true\n")
+    noident.close()
     env = {k: v for k, v in os.environ.items()
            if not k.startswith(("GIT_AUTHOR", "GIT_COMMITTER"))}
     env["MIND_PYTHON"] = sys.executable
-    env["GIT_CONFIG_GLOBAL"] = os.devnull
+    env["GIT_CONFIG_GLOBAL"] = noident.name
     env["GIT_CONFIG_SYSTEM"] = os.devnull
     for key in ("user.email", "user.name"):
         subprocess.run(["git", "-C", str(repo), "config", "--unset", key], env=env)
