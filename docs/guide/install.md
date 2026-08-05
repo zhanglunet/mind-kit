@@ -87,6 +87,7 @@ bash scripts/sage-backend.sh glm        # 切回 GLM
 ## 3. 安装四件套
 
 1. **sage-wiki**(编译引擎):[https://github.com/xoai/sage-wiki](https://github.com/xoai/sage-wiki)(Go 实现,MIT)。
+   **要 ≥ 0.2.6**,理由见下一节。
    主包在 `cmd/` 下,**装的时候别漏**(漏了会报 `no non-test Go files`):
    ```bash
    go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest
@@ -98,6 +99,42 @@ bash scripts/sage-backend.sh glm        # 切回 GLM
 4. **Claudian 插件**(主交互界面):建议通过 BRAT 插件安装以获得自动更新;它在 Obsidian 侧栏内嵌 Claude Code,复用同一份 `CLAUDE.md` 与 `.mcp.json`。
 
 再装四个 Obsidian 插件:**Web Clipper**(剪藏落地到 `raw/clippings/`)、**Templater**、**Dataview**(五维标签检索)、**BRAT**;附件目录设为 `raw/assets/`。
+
+### 3.1 sage-wiki 要 ≥ 0.2.6(装完先验一下,一分钟)
+
+**0.2.6 之前的 `sage-wiki init` 会毁用户文件**:`.gitignore` 被整个改写成一行
+`.sage/`,`.manifest.json` 被清成空壳。上游 #127 已修 —— 改为**追加** `.sage/`、
+`.manifest.json` 存在即跳过,另给 `--force` 供明确重写(`config.yaml` 任何情况下
+都保留)。同一版还修了另一条:此前 `sage-wiki init <目录>` **会忽略位置参数、
+照样初始化当前目录**,可能打到完全不相干的仓库。
+
+真机上栽过一次,两条后果不对称,值得记住:
+
+- `.manifest.json` 被清空后,紧接着的 `compile` 看到空清单,**把整个知识库从头
+  重编了一遍**(全额 API 费用)——它至少"自愈"了,只是花了钱。
+- `.gitignore` 被清空后**没有任何东西会重建它**。于是密钥形状(`.env` / `*.key`)、
+  个人内容目录的忽略规则全部消失,**六天**没人发现,靠一次偶然的 `git status` 才看见。
+
+**别靠版本号判断** —— 从源码 `go build` 出来的二进制会报
+`sage-wiki dev (commit none, built unknown)`,看不出新旧。用**行为**验:
+
+```bash
+T=$(mktemp -d) && cd "$T" \
+  && printf '# 我的规则\n/secret\n' > .gitignore \
+  && printf '{"version":2,"sources":{"a.md":{}},"concepts":{"x":{}}}\n' > .manifest.json \
+  && sage-wiki init >/dev/null 2>&1
+echo "=== .gitignore ===";     cat .gitignore       # ✅ 三行(原两行 + .sage/) ❌ 只剩 .sage/ 一行
+echo "=== .manifest.json ==="; cat .manifest.json   # ✅ 仍含 a.md 与 x         ❌ 变成空壳
+cd ~ && rm -rf "$T"
+```
+
+任一项 ❌ 就升级:`go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest`,
+升完把上面这段**再跑一遍**确认。升级前顺手 `cp .manifest.json ~/manifest.bak`,
+一秒的事,省得万一还要重编一轮。
+
+> **规矩:已初始化的仓库里永远不要跑 `sage-wiki init`。** 要改配置就直接改
+> `config.yaml`(init 无条件保留它),或用 `scripts/sage-backend.sh` 切后端。
+> `init` 只用于全新目录。
 
 ## 4. 校验配置与连接
 

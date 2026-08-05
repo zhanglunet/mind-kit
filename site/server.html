@@ -48,36 +48,37 @@
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>必需</th>
 <th>用途</th>
 <th>装法(Debian/Ubuntu)</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Python ≥ 3.9</td>
 <td>全部脚本</td>
 <td><code>sudo apt install python3 python3-pip</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>git</td>
 <td>两个仓</td>
 <td><code>sudo apt install git</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong>sage-wiki</strong></td>
 <td><strong>编译引擎(核心)</strong></td>
 <td><a
 href="https://github.com/xoai/sage-wiki">https://github.com/xoai/sage-wiki</a>(Go,MIT)——按其
-README 装;确保在 <code>PATH</code> 或 <code>~/go/bin/</code></td>
+README 装;确保在 <code>PATH</code> 或 <code>~/go/bin/</code>。<strong>要
+≥ 0.2.6</strong>,见下</td>
 </tr>
-<tr>
+<tr class="even">
 <td>pandoc</td>
 <td>生成文档站(可选)</td>
 <td><code>sudo apt install pandoc</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>markdown</code> (pip)</td>
 <td>本地浏览站(可选)</td>
 <td>见第 2 步</td>
@@ -88,6 +89,16 @@ README 装;确保在 <code>PATH</code> 或 <code>~/go/bin/</code></td>
 <blockquote>
 <p><strong>没有 sage-wiki
 就没有编译能力</strong>——这是外部依赖,本仓不含它。本地检索、写集校验、决策队列、保鲜复核、报表等其余能力不受影响。</p>
+</blockquote>
+<blockquote>
+<p>⚠️ <strong>sage-wiki 要 ≥ 0.2.6</strong>:更早的版本里
+<code>sage-wiki init</code> 会把 <code>.gitignore</code> 整个改写成一行
+<code>.sage/</code>、把 <code>.manifest.json</code> 清成空壳(上游 #127
+已修)。 <strong>别看版本号</strong>——源码构建出来的会报
+<code>dev (commit none, built unknown)</code>; 装完按 <a
+href="install.html">install.md §3.1</a> 那段跑一次行为验证(一分钟)。
+另外记住一条规矩:<strong>已初始化的仓库里永远不要跑
+<code>sage-wiki init</code></strong>。</p>
 </blockquote>
 <h2 id="克隆代码库">1. 克隆代码库</h2>
 <div class="sourceCode" id="cb1"><pre
@@ -148,7 +159,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 <col style="width: 20%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>后端</th>
 <th>env</th>
 <th>端点</th>
@@ -157,14 +168,14 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>GLM(默认)</td>
 <td><code>GLM_API_KEY</code></td>
 <td><code>open.bigmodel.cn/api/coding/paas/v4</code></td>
 <td><code>glm-4.5-flash</code></td>
 <td><code>config.glm.yaml</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>Kimi</td>
 <td><code>KIMI_API_KEY</code></td>
 <td><code>api.kimi.com/coding/v1</code></td>
@@ -223,7 +234,7 @@ GLM_API_KEY=...</code></pre>
 class="sourceCode ini"><code class="sourceCode ini"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[Unit]</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Description</span><span class="ot">=</span><span class="st">mind brain-server</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[Service]</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dt">ExecStart</span><span class="ot">=</span><span class="st">/usr/bin/python3 %h/second-brain/mind-kit/scripts/brain-server.py</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dt">ExecStart</span><span class="ot">=</span><span class="st">%h/second-brain/mind-kit/.venv/bin/python %h/second-brain/mind-kit/scripts/brain-server.py</span></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="dt">Restart</span><span class="ot">=</span><span class="st">always</span></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="dt">Environment</span><span class="ot">=</span><span class="st">GLM_API_KEY=...</span></span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[Install]</span></span>
@@ -241,27 +252,27 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href=
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>能力</th>
 <th>状态</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Obsidian + Claudian 侧栏</td>
 <td>❌ 用不了</td>
 <td>桌面 GUI。CLI 与网页门户不受影响;可把内容库同步到本地机器再用
 Obsidian 打开</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>subscriptions.py --notify</code></td>
 <td>⚠️ <strong>静默失效</strong></td>
 <td>用 macOS <code>osascript</code> 弹通知;Linux
 上<strong>不报错也不弹</strong>。列表与 <code>--days N</code>
 正常;要通知自行改 <code>notify-send</code> 或邮件</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>/opt/homebrew/bin</code></td>
 <td>✅ 无害</td>
 <td>几个脚本 PATH 里有它,目录不存在会被忽略</td>

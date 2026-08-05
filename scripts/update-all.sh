@@ -59,6 +59,24 @@ vault_push() {
 sage_ok()   { command -v sage-wiki >/dev/null 2>&1 || [ -x "$HOME/go/bin/sage-wiki" ]; }
 pandoc_ok() { command -v pandoc    >/dev/null 2>&1; }   # brew bin 已在上文补进 PATH,无需 -x 兜底(兜底会绕过 PATH 判定,破坏测试封闭性)
 
+# 前置检查函数可以设 SKIP_WHY 来**自报跳过理由**;不设则回落成「未装 <工具名>」。
+# 存在的理由:同一步可能因不同原因跳过,而**理由说错比不说更糟** ——
+# 关掉开关却报「未装 pandoc」,会把人支去装一个已经装好的东西(2026-08-04 实测教训)。
+SKIP_WHY=""
+
+# 文档站:site/*.html 是提交进仓的生成物(Cloudflare 从 GitHub main 的 site/ 部署 aip.cab)。
+# 两台机器 pandoc 版本不同 → 渲染出的 HTML 有差异 → 谁跑谁把代码仓弄脏,git pull 天天被拦。
+# 而 VM 上那批 HTML **没有任何消费者**。故给机器级开关:VM 的 crontab 里设 MIND_BUILD_SITE=0。
+site_step_ok() {
+  if [ "${MIND_BUILD_SITE:-1}" != "1" ]; then
+    SKIP_WHY="本机不生成文档站(MIND_BUILD_SITE=${MIND_BUILD_SITE})"
+    return 1
+  fi
+  # 缺 pandoc 不设 SKIP_WHY:回落到既有的「缺/未装 <工具名>」措辞,不动原有提示
+  pandoc_ok || return 1
+  return 0
+}
+
 # 计划表:每行「标签|命令|前置检查函数(空=总可跑)|工具名」。dry-run 与真跑共用同一份定义。
 # 步序讲究:日报先跑(其产物随后被 compile 的 vault 提交一并收);compile 是核心(编译+
 # index+lint+保鲜+决策+浏览站+提交);订阅/门户/文档站在内容更新后再生成快照。
@@ -70,7 +88,7 @@ plan_lines() {
     "推送内容库·核心|vault_push|||core"                           \
     "订阅台账|"$MIND_PY" scripts/build-subscriptions-site.py|||"  \
     "门户入口|"$MIND_PY" scripts/build-portal.py|||"              \
-    "文档站|bash scripts/build-site.sh|pandoc_ok|pandoc|"
+    "文档站|bash scripts/build-site.sh|site_step_ok|pandoc|"
 }
 
 if [ "$DRY" = 1 ]; then
@@ -80,15 +98,69 @@ if [ "$DRY" = 1 ]; then
   while IFS='|' read -r label cmd check tool kind; do
     i=$((i + 1))
     if [ -n "$check" ]; then
+      SKIP_WHY=""
       if "$check"; then status="$tool 就绪"
       elif [ "$kind" = "core" ]; then status="**缺核心工具 $tool → 本次将判失败(非零退出)**"
-      else status="缺 $tool,将跳过"; fi
+      else status="${SKIP_WHY:-缺 $tool},将跳过"; fi
     else status="就绪"; fi
     printf '  %d. [%s] %s · %s\n' "$i" "$label" "$cmd" "$status"
   done < <(plan_lines)
   [ "$DO_PULL" = 1 ] || echo "(加 --pull 可把「拉取最新代码」列为第 0 步)"
   exit 0
 fi
+
+# ── 隐私兜底网的运行时自检(开跑前的硬前置)────────────────────────────
+# 2026-08-04 真机事故:VM 上的 .gitignore 被**整个覆盖**,129 行只剩一行 `.sage/`
+# (幸存的正是 sage-wiki 自己的缓存目录)。被抹掉的包括密钥形状(.env / *.key /
+# secrets.*)、raw/private 冷存层,以及全部个人内容软链 —— CLAUDE.md 里
+# 「那些路径在 .gitignore 里,`git add` 会静默什么都不干」那条兜底,当场失效。
+#
+# 仓库侧已有门禁(tests/test_no_personal_identifiers.py),但它只护得住**仓库里的
+# 版本**,护不住**运行中的机器**被第三方工具改写。所以每轮开跑前先问 git 一句。
+#
+# 两个刻意的边界:
+#  · 只问软链。双库布局下 _wiki/material/… 是指向内容库的软链,必须被忽略;
+#    单库模式下它们是真目录、本来就该入库,那种仓这里一条都不查。
+#  · 问 `git check-ignore`,不读 .gitignore 文本。规则写成什么样不重要,
+#    **git 此刻到底忽不忽略**才是事实(顺带覆盖 .git/info/exclude 与全局 excludes)。
+SHIELD_LINKS="_wiki material raw writing reports/daily reports/weekly reports/lint"
+# 密钥形状用探针路径来问(check-ignore 不要求文件真实存在),被覆盖时一并报出来
+SHIELD_SECRETS=".env probe.key probe.pem secrets.json credentials.json"
+
+check_privacy_shield() {
+  [ "${MIND_SKIP_SHIELD_CHECK:-}" = "1" ] && return 0
+  # 不在 git 工作树里(临时副本、解压出来的一份)就无从问起 —— 静默放行。
+  # 把"问不到"当成"破了"会让所有非 git 副本永久红,这条检查很快就被整段注释掉。
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
+
+  local naked="" p
+  for p in $SHIELD_LINKS; do
+    [ -L "$p" ] || continue
+    git check-ignore -q "$p" || naked="$naked $p"
+  done
+  for p in $SHIELD_SECRETS; do
+    git check-ignore -q "$p" || naked="$naked $p"
+  done
+  [ -n "$naked" ] || return 0
+
+  cat >&2 <<EOF
+
+✗ 隐私兜底网破了:git 已**不再忽略**这些路径 —— $naked
+  这台机器上的 .gitignore 疑似被覆盖(2026-08-04 VM 上出过一次:129 行只剩 \`.sage/\`)。
+  在这种状态下跑编译,任何一次 \`git add -A\` 都会把个人内容/密钥真的加进代码仓,
+  所以本轮**开跑前就停住**,不做任何步骤。
+
+  先修再跑:
+    git -C "$PWD" checkout -- .gitignore          # 仓库里那份是好的,拿回来
+    git -C "$PWD" status --porcelain              # 看有没有个人内容已经被 add 进去
+    git -C "$PWD" ls-files | grep -E '^(_wiki|material|raw|writing|reports/(daily|weekly|lint))' # 必须没有输出
+
+  确要跳过(你清楚后果):MIND_SKIP_SHIELD_CHECK=1 bash scripts/update-all.sh
+EOF
+  return 1
+}
+
+check_privacy_shield || exit 3
 
 # 跨进程互斥:门户按钮(brain-server)、飞书机器人、cron 三条路都会跑本脚本,
 # 约定同一把锁。**dry-run 在上面已提前 exit,不受此锁影响。**
@@ -143,13 +215,14 @@ if [ "$DO_PULL" = 1 ]; then
 fi
 
 while IFS='|' read -r label cmd check tool kind; do
+  SKIP_WHY=""
   if [ -n "$check" ] && ! "$check"; then
     if [ "$kind" = "core" ]; then
       # 核心工具缺失绝不算"跳过成功":那样 cron 天天报绿,而 Wiki 悄悄停摆。
       printf '\n✗ [%s] 缺核心工具 %s —— 编译能力缺失,本次判失败\n' "$label" "$tool"
       fails=$((fails + 1))
     else
-      printf '\n⚠ [%s] 跳过:未装 %s\n' "$label" "$tool"; skipped=$((skipped + 1))
+      printf '\n⚠ [%s] 跳过:%s\n' "$label" "${SKIP_WHY:-未装 $tool}"; skipped=$((skipped + 1))
     fi
     continue
   fi

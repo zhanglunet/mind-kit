@@ -199,10 +199,15 @@ def test_auxiliary_files_get_meaningful_types(tmp_path):
 
 
 def test_compile_pipeline_wires_okf_in_the_right_order():
-    """`--fix` 必须在重建 index 之前,`--check` 在 lint 记账里。
+    """`--fix` 在重建 index 之前,`--check` 在 lint 记账里。
 
-    顺序不是审美:index.md 由 build-index.py 读 frontmatter 生成,注入若发生在它之后,
-    索引看到的就是上一轮的旧字段。这条钉住顺序,免得日后有人调换。
+    **2026-08-04 更正**:本条原来的理由写错了 —— 说的是"否则索引读到旧 frontmatter"。
+    实测 `build-index.py` 只读 entity_type / concept / sources / source / 标题|title
+    (:71 :72 :74 :85 :94),**并不读** okf 注入的 type / stale_after,
+    所以先后顺序目前对索引内容没有影响。
+
+    测试保留,但理由改成**防御性**的:一旦索引哪天开始消费 type,顺序反了就会读到
+    上一轮的旧字段 —— 那种 bug 极难察觉,不如现在就把顺序钉死。
     """
     src = (REPO / "scripts" / "compile.sh").read_text(encoding="utf-8")
     i_fix = src.find("okf.py --fix")
@@ -210,5 +215,5 @@ def test_compile_pipeline_wires_okf_in_the_right_order():
     i_chk = src.find("okf.py --check")
     assert i_fix >= 0, "compile.sh 未接入 okf.py --fix"
     assert i_chk >= 0, "compile.sh 未接入 okf.py --check"
-    assert i_fix < i_idx, "注入必须在重建 index 之前,否则索引读到旧 frontmatter"
+    assert i_fix < i_idx, "注入应在重建 index 之前(防御性约定,见本函数 docstring)"
     assert i_chk > i_idx, "体检应在 lint 记账阶段(index 之后)"

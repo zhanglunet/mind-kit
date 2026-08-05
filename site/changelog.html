@@ -30,6 +30,140 @@
 <h1 id="更新日志">更新日志</h1>
 <p>本文件记录本代码库(脚本、配置、文档)的重要变更。知识内容的时序记录在你自己内容库的
 <code>_wiki/log.md</code>。</p>
+<h2 id="v1.5-2026-08-05">v1.5 — 2026-08-05</h2>
+<p>主题是<strong>「兜底存在,但没人验它还在不在」</strong>。这一版把三层此前只靠人眼的东西
+变成了会自己叫的检查:定时任务失败的通知层、隐私忽略规则的运行时自检、
+编译流水线里两处被吞掉的失败。外加两条如实更正。</p>
+<h3
+id="新增scriptsnotify-on-failure.sh-失败通知层">新增:<code>scripts/notify-on-failure.sh</code>
+—— 失败通知层</h3>
+<p><code>update-all.sh</code> / <code>compile.sh</code>
+的非零退出码此前<strong>没有任何消费者</strong>:cron 把 stdout/stderr
+全量重定向进日志,失败只体现在日志文本里,而日志没人看。
+「失败要能被看见」在编排层与编译层都做到了,通知层一直是空的。</p>
+<p>用法是把原命令整条包进来:</p>
+<pre class="cron"><code>30 9 * * * cd $MIND &amp;&amp; bash scripts/notify-on-failure.sh \
+             bash scripts/update-all.sh &gt;&gt; $HOME/.mind-update-all.log 2&gt;&amp;1</code></pre>
+<p>渠道由 <code>MIND_NOTIFY_CMD</code> 指定(任意接收 stdin 的命令,如
+<code>mail -s "mind 定时任务失败" you@example.com</code>);<strong>不配就静默跳过</strong>。</p>
+<p>四条契约各对应一种「通知反而帮倒忙」的方式,都有测试钉着:</p>
+<ol type="1">
+<li><strong>只在失败时发</strong>。天天一条「一切正常」很快没人看,真出事那条跟着被忽略。</li>
+<li><strong>退出码原样透传</strong>。<code>cmd || notify</code>
+会把整体退出码变成 notify 的 —— 通知发成功整条 cron
+就”成功”了,原始失败反被通知掩盖。这是最容易写错的一处。</li>
+<li><strong>发卡自己失败也不许改写退出码</strong>,否则两个故障互相掩盖。</li>
+<li><strong>未配置就静默跳过</strong>,不改退出码。没配通知的机器不该每天刷一屏
+「通知发不出去」把真日志淹掉。</li>
+</ol>
+<p>装上第一天就抓到一条<strong>「装上以来从没成功过」</strong>的定时任务
+—— 这类静默失效 正是它要解决的。</p>
+<h3
+id="新增update-all.sh-开跑前自检隐私兜底网">新增:<code>update-all.sh</code>
+开跑前自检隐私兜底网</h3>
+<p>真机事故:<code>.gitignore</code> 被整个覆盖成一行,129
+行规则全没了,<strong>六天无人察觉</strong>。 后果是 CLAUDE.md
+那条「个人目录已 gitignore,<code>git add</code>
+会静默什么都不干」当场失效。</p>
+<p>现在 <code>update-all.sh</code>
+在拿锁之前先验一遍:个人内容软链与常见密钥形状 (<code>.env</code> /
+<code>*.key</code> / <code>*.pem</code> / <code>secrets.json</code> /
+<code>credentials.json</code>)<strong>是不是真的还被 git
+忽略</strong>。破了就红着退 3 并说清怎么复原;确要跳过用
+<code>MIND_SKIP_SHIELD_CHECK=1</code>。</p>
+<p>关键在于<strong>查事实而不是查形式</strong>:用
+<code>git check-ignore</code> 问 git 的实际判定, 而不是读
+<code>.gitignore</code> 的文本找关键字 —— 后者在规则被覆盖、被更晚的
+<code>!</code> 反选、或落在另一个 ignore 文件里时全都会误判。</p>
+<h3 id="新增安装指南写上-sage-wiki-版本下限与行为验证">新增:安装指南写上
+sage-wiki 版本下限与<strong>行为验证</strong></h3>
+<p>上面那次 <code>.gitignore</code> 事故查到根因是 <strong>0.2.6 之前的
+<code>sage-wiki init</code></strong>: 它把 <code>.gitignore</code>
+整个改写成一行 <code>.sage/</code>、把 <code>.manifest.json</code>
+清成空壳 (上游 #127 已修)。两条后果不对称,值得记住:</p>
+<ul>
+<li><code>.manifest.json</code> 被清空 → 下一次 <code>compile</code>
+看到空清单,<strong>把整库从头重编</strong> (全额 API
+费用)。至少它”自愈”了,只是花了钱。</li>
+<li><code>.gitignore</code> 被清空 →
+<strong>没有任何东西会重建它</strong>,静默六天。</li>
+</ul>
+<p><a href="install.html">安装指南</a> §3.1 与 <a
+href="server.html">Linux 服务器指南</a> 各加了一节。
+<strong>别看版本号</strong> —— 源码构建出来的二进制一律报
+<code>dev (commit none, built unknown)</code>,
+看不出新旧;文里给的是一段一分钟的<strong>行为验证</strong>脚本(造两个文件、跑一次
+<code>init</code>、
+看它有没有毁掉),以及一条规矩:<strong>已初始化的仓库里永远不要跑
+<code>sage-wiki init</code></strong>。</p>
+<h3 id="修复compile.sh-两处被吞掉的失败">修复:<code>compile.sh</code>
+两处被吞掉的失败</h3>
+<p>第 3 步 <code>build-index.py</code> 与第 4 步 lint 主管线既无
+<code>||</code> 兜底也无退出码检查: <code>build-index</code>
+挂掉只打一行 traceback,流水线照走到「✔ 流水线完成」退 0,
+索引悄悄停在上一轮版本而 <strong>cron 天天报绿</strong>。</p>
+<p>改成<strong>能做的做完,但如实报失败</strong>:不中止(中止会丢掉本轮编译产物
+—— 第 6 步才提交), 改为记账 → 继续 → 末尾非零退出。</p>
+<p>两处细节是刻意的:</p>
+<ul>
+<li>lint 那条管线要取
+<code>PIPESTATUS[0]</code>(引擎自己的退出码)。直接看 <code>$?</code>
+拿到的是 末尾 <code>grep -v</code> 的 —— 它在一行都不剩时返回
+1,会把「干净」误报成失败。</li>
+<li><strong>记账类步骤仍是 best-effort</strong>:保鲜复核 / 决策不变量 /
+OKF 体检报的是
+<em>内容发现</em>(有页待补、有条目违规),不是基础设施故障。算进失败的话,cron
+会因为
+「知识库里有几页没写完」天天告警,那种告警很快没人看,真故障跟着被淹没。</li>
+</ul>
+<h3
+id="修复setup-linux-server.md-里-brain-server-的解释器">修复:<code>setup-linux-server.md</code>
+里 brain-server 的解释器</h3>
+<p>systemd 片段写的是 <code>ExecStart=/usr/bin/python3</code>,而依赖装在
+<code>.venv</code> 里 —— 在系统 python
+较旧的发行版上照抄会起不来(实测过同型故障)。已改为
+<code>.venv/bin/python</code>,并把解释器门禁从
+<code>scripts/*.service</code> <strong>扩展到文档里的 内联 unit
+片段</strong>。</p>
+<h3 id="门禁登录二维码也算凭据">门禁:登录二维码也算凭据</h3>
+<p><code>.gitignore</code> 补 <code>*-qr.png</code> /
+<code>*-qrcode.png</code> —— 有些 CLI 的 <code>auth login</code> 会在
+<strong>仓库根</strong>生成登录二维码,扫一下就能登进账号,和密钥同级但长得不像密钥。
+另加两条测试:八个密钥形状逐个用 <code>git check-ignore</code>
+验、个人内容目录<strong>实际 是否被 git 跟踪</strong>(查事实,不查
+<code>.gitignore</code> 文本)。</p>
+<h3 id="更正-①v1.3-里一条顺序约束的理由写错了">更正 ①:v1.3
+里一条顺序约束的理由写错了</h3>
+<p>v1.3 说 <code>okf.py --fix</code> 必须早于
+<code>build-index.py</code>,理由是「索引若在注入前重建, 会读到上一轮的旧
+frontmatter」。<strong>这个理由不成立。</strong></p>
+<p><code>build-index.py</code> 实际只读 <code>entity_type</code> /
+<code>concept</code> / <code>sources</code> / <code>source</code> /
+<code>标题|title</code>,<strong>并不读</strong> <code>okf.py</code>
+注入的 <code>type</code> / <code>stale_after</code> —— 两步的先后
+目前对索引内容没有任何影响。</p>
+<p>顺序仍然保留、测试仍然钉着,但理由改成<strong>防御性</strong>的:一旦索引哪天开始消费
+<code>type</code>, 顺序反了会读到旧字段,而那种 bug 极难察觉。</p>
+<p>代码、测试断言、文档与文档站图示已全部改准。<strong>把约定说成事实是本项目自己反复
+批评的毛病,这次犯在自己身上,如实更正。</strong></p>
+<h3 id="更正-②有一道补齐了的门禁补的是一个不存在的配置键">更正
+②:有一道”补齐了的门禁”,补的是一个不存在的配置键</h3>
+<p>这次栽的地方在一份<strong>不随公开版发布</strong>的部署脚本里(生成一段第三方工具的配置片段),
+但教训是通用的,值得写进来。</p>
+<p>上一轮改动声称「片段里的 <code>exclude</code>
+列表比文档声明的硬门禁少收敛一项,已补齐,
+并加测试锁住两处一致」。<strong>这条是错的。</strong>
+那个键<strong>在上游工具里根本不存在</strong> ——
+片段里那段收敛配置从来没有生效过,它只是<strong>长得像</strong>一道门禁。当时读的是文档措辞
+而不是工具的实际命令行接口,于是给一个永远不会被读取的键”补齐”了一项,
+又写了一条测试<strong>把两份都错的配置焊死成一致</strong>。</p>
+<p>由此得到一条比这个 bug
+本身更值得记住的话:<strong>测试能钉住一致性,钉不住正确性。</strong>
+一条断言「A 与 B 相等」的测试,在 A、B 同时错时会绿得格外理直气壮 ——
+这正是本项目那条「Prompt
+不是检查器」的反面:<strong>看起来像检查器的东西,也未必是。</strong></p>
+<p>处理:删掉那条把错误焊死的测试(删除处留了理由注释),片段里换成指向工具真实
+命令行接口的说明,并按那个接口真正把该关的关掉。</p>
 <h2 id="v1.4-2026-08-03">v1.4 — 2026-08-03</h2>
 <p><strong>纯文档发布,无代码行为变化。</strong> 两页各补一张全景信息图,
 顺带把一条不太好看的查证结论摆到明面上。</p>
@@ -43,26 +177,26 @@
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>层</th>
 <th>内容</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>来源层</td>
 <td><code>raw/*</code>,只读,唯一真相</td>
 </tr>
-<tr>
+<tr class="even">
 <td>加工层</td>
 <td><strong>两条路</strong>:① <code>sage-wiki compile</code> 引擎批量 ②
 LLM 对话式 ingest 人在环</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>知识层</td>
 <td>引擎领地(LLM 只读)与 LLM 领地,各自的门禁标在写入点上</td>
 </tr>
-<tr>
+<tr class="even">
 <td>调用层</td>
 <td>索引 / 浏览站 / 本地检索 /
 引擎查询,<strong>含一条回流箭头</strong></td>
@@ -161,34 +295,34 @@ EOL 的 3.6, 而依赖装在 <code>.venv</code> 里。</p>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>位置</th>
 <th>出错时会发生什么</th>
 <th>此前看起来像</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><code>vault.sh</code> 提交</td>
 <td>git 没有身份配置、钩子拒绝……提交失败</td>
 <td><strong>「无改动可提交」</strong></td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>update-all.sh</code> 互斥锁</td>
 <td>系统没有 <code>flock(1)</code>(macOS 就没有)</td>
 <td>继续跑,像是拿到了锁</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>隐私门禁</td>
 <td><code>git ls-files</code> 出错返回空清单</td>
 <td>扫过了,零命中</td>
 </tr>
-<tr>
+<tr class="even">
 <td>隐私门禁</td>
 <td>非 ASCII 文件名被 quotepath 转义、读不到</td>
 <td>中文名文件是干净的</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>发布门禁</td>
 <td>公开版树只 <code>git init</code> 没 <code>git add</code></td>
 <td>扫了 0 个文件却报通过</td>
@@ -258,8 +392,8 @@ Markdown</strong>,内容不受影响</li>
 git pull --ff-only  → fatal: Not possible to fast-forward, aborting</code></pre>
 <p>现在发布采用<strong>线性追加</strong>——新版本接在上一版之后,使用者直接
 <code>git pull</code> 即可快进更新:</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mind-kit <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mind-kit <span class="kw">&amp;&amp;</span> <span class="fu">git</span> pull</span></code></pre></div>
 <p>想让服务器自动跟进上游更新,加一条 cron:</p>
 <pre class="cron"><code>0 8 * * * cd $HOME/second-brain/mind-kit &amp;&amp; git pull -q</code></pre>
 <blockquote>
@@ -338,6 +472,8 @@ REFACTOR);pre-push 钩子跑全量 pytest;GitHub Actions 服务端兜底</li>
 <ul>
 <li><a href="#更新日志" id="toc-更新日志">更新日志</a>
 <ul>
+<li><a href="#v1.5-2026-08-05" id="toc-v1.5-2026-08-05">v1.5 —
+2026-08-05</a></li>
 <li><a href="#v1.4-2026-08-03" id="toc-v1.4-2026-08-03">v1.4 —
 2026-08-03</a></li>
 <li><a href="#v1.3-2026-08-03" id="toc-v1.3-2026-08-03">v1.3 —

@@ -16,11 +16,17 @@ title: 在 Linux 服务器上安装与使用(给协作者)
 |---|---|---|
 | Python ≥ 3.9 | 全部脚本 | `sudo apt install python3 python3-pip` |
 | git | 两个仓 | `sudo apt install git` |
-| **sage-wiki** | **编译引擎(核心)** | [https://github.com/xoai/sage-wiki](https://github.com/xoai/sage-wiki)(Go,MIT)——按其 README 装;确保在 `PATH` 或 `~/go/bin/` |
+| **sage-wiki** | **编译引擎(核心)** | [https://github.com/xoai/sage-wiki](https://github.com/xoai/sage-wiki)(Go,MIT)——按其 README 装;确保在 `PATH` 或 `~/go/bin/`。**要 ≥ 0.2.6**,见下 |
 | pandoc | 生成文档站(可选) | `sudo apt install pandoc` |
 | `markdown` (pip) | 本地浏览站(可选) | 见第 2 步 |
 
 > **没有 sage-wiki 就没有编译能力**——这是外部依赖,本仓不含它。本地检索、写集校验、决策队列、保鲜复核、报表等其余能力不受影响。
+
+> ⚠️ **sage-wiki 要 ≥ 0.2.6**:更早的版本里 `sage-wiki init` 会把 `.gitignore`
+> 整个改写成一行 `.sage/`、把 `.manifest.json` 清成空壳(上游 #127 已修)。
+> **别看版本号**——源码构建出来的会报 `dev (commit none, built unknown)`;
+> 装完按 [install.md §3.1](install.md) 那段跑一次行为验证(一分钟)。
+> 另外记住一条规矩:**已初始化的仓库里永远不要跑 `sage-wiki init`**。
 
 ## 1. 克隆代码库
 
@@ -151,7 +157,7 @@ GLM_API_KEY=...
 [Unit]
 Description=mind brain-server
 [Service]
-ExecStart=/usr/bin/python3 %h/second-brain/mind-kit/scripts/brain-server.py
+ExecStart=%h/second-brain/mind-kit/.venv/bin/python %h/second-brain/mind-kit/scripts/brain-server.py
 Restart=always
 Environment=GLM_API_KEY=...
 [Install]

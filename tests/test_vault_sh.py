@@ -159,3 +159,68 @@ def test_genuinely_no_changes_still_exits_zero(tmp_path):
     r = _commit(repo)                  # 第二次才是真正的"无改动"
     assert r.returncode == 0, "无改动是正常情况:" + r.stdout + r.stderr
     assert "无改动" in (r.stdout + r.stderr), r.stdout + r.stderr
+
+
+# ---------- 内容库不会被陈旧本地覆盖 ----------
+#
+# 2026-08-03 的事故里,publish-kit 用一个**落后的本地树**覆盖了公开仓。
+# 那条路能翻车,是因为它每次重建整棵树再追加提交,git 自身的保护用不上。
+# 内容库这条不一样:`vault.sh push` 是普通 push,非快进由 **git 自己**拒绝。
+#
+# 这条测试把该性质**钉住**:只要哪天有人给它加上 --force(或 +refspec 强推),
+# 陈旧本地就能覆盖内容库,这条会立刻变红。不是补一道新门禁,是防止现有保护被拆掉。
+
+
+def _repo_with_advanced_remote(tmp_path):
+    """合成内容库 + 一个**已被别处推进过**的 origin(模拟另一台机器先提交了)。"""
+    repo = _mk_repo(tmp_path)
+    bare = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True)
+    branch = subprocess.run(["git", "-C", str(repo), "rev-parse", "--abbrev-ref", "HEAD"],
+                            capture_output=True, text=True, check=True).stdout.strip()
+    subprocess.run(["git", "-C", str(repo), "remote", "add", "origin", str(bare)], check=True)
+    subprocess.run(["git", "-C", str(repo), "push", "-q", "-u", "origin", branch], check=True)
+
+    # 另一台机器:克隆 → 提交 → 推。此后本仓落后 origin 一个提交。
+    other = tmp_path / "other"
+    subprocess.run(["git", "clone", "-q", str(bare), str(other)], check=True)
+    (other / "别处写的.md").write_text("---\ntype: note\n---\n别处的新内容\n", encoding="utf-8")
+    for c in (["add", "-A"],
+              ["-c", "user.email=o@o", "-c", "user.name=o", "commit", "-qm", "别处的提交"],
+              ["push", "-q", "origin", branch]):
+        subprocess.run(["git", "-C", str(other)] + c, check=True)
+
+    remote_tip = subprocess.run(["git", "-C", str(bare), "rev-parse", branch],
+                                capture_output=True, text=True, check=True).stdout.strip()
+    return repo, bare, branch, remote_tip
+
+
+def test_stale_local_cannot_overwrite_content_repo(tmp_path):
+    """本地落后 origin 时:push 必须失败,且远端一个字节都不许变。"""
+    repo, bare, branch, remote_tip = _repo_with_advanced_remote(tmp_path)
+    # 本地再造一个提交 → 与 origin 分叉(最容易诱发"想强推"的场景)
+    (repo / "本地写的.md").write_text("---\ntype: note\n---\n本地内容\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-qm", "本地提交"], check=True)
+
+    r = subprocess.run(["bash", str(repo / "scripts" / "vault.sh"), "push"],
+                       cwd=str(repo), capture_output=True, text=True)
+    assert r.returncode != 0, "本地与 origin 分叉时 push 必须失败:" + (r.stdout + r.stderr)[-400:]
+
+    after = subprocess.run(["git", "-C", str(bare), "rev-parse", branch],
+                           capture_output=True, text=True, check=True).stdout.strip()
+    assert after == remote_tip, "被拒的 push 不许改动远端 —— 若这里变了,说明成了强推"
+
+
+def test_content_repo_push_is_never_forced(tmp_path):
+    """行为层再钉一次:即使远端领先,push 也只能被拒,不能"推成功"。
+
+    与上一条的区别:这条本地**没有**新提交(纯落后)。纯落后时 git 会说
+    "Everything up-to-date"式的成功还是拒绝?——它必须**不改变远端**。
+    """
+    repo, bare, branch, remote_tip = _repo_with_advanced_remote(tmp_path)
+    subprocess.run(["bash", str(repo / "scripts" / "vault.sh"), "push"],
+                   cwd=str(repo), capture_output=True, text=True)
+    after = subprocess.run(["git", "-C", str(bare), "rev-parse", branch],
+                           capture_output=True, text=True, check=True).stdout.strip()
+    assert after == remote_tip, "本地落后时 push 绝不能把远端倒回去"

@@ -77,6 +77,9 @@
 .sg-lab.dim{fill:var(--faint);font-weight:400}
 .sg-sep{stroke:var(--border);stroke-width:1;stroke-dasharray:2 5}
 .sg-gate{fill:var(--warn);font-size:10px;font-weight:700}
+.sg-box.warn-b{stroke:var(--warn)}
+.sg-box.gate2{stroke:var(--ok);stroke-width:1.4}
+.sg-box.dead{fill:none;stroke:var(--faint);stroke-dasharray:5 4}
 </style>
 </head>
 <body>
@@ -336,7 +339,123 @@
 </section>
 
 <section class="section">
-  <div class="cap">07 · 开发</div>
+  <div class="cap">07 · 运行时</div>
+  <h2>运行时:两端如何分工</h2>
+  <p class="lead">前面各节讲的是<b>数据怎么流</b>;这一节讲<b>谁在什么时候跑</b>。</p>
+
+  <div class="fig" role="region" aria-label="运行时两端分工图(可横向滚动)" tabindex="0">
+  <svg viewBox="0 0 1160 660" role="img" aria-labelledby="rt-t rt-d" xmlns="http://www.w3.org/2000/svg">
+    <title id="rt-t">运行时:编辑端与服务器端的分工</title>
+    <desc id="rt-d">左侧编辑端(笔记本)只做人工编辑、剪藏与提交,每日定时任务只剩两条 pull,不跑编译;中间是两个 git 仓库充当同步总线,代码库单向只读拉取、内容库双向;右侧服务器端 7×24,每日一次 update-all.sh 七步编排(拉内容库、日报、编译、推内容库、订阅台账、门户入口、文档站,其中三步标为核心,文档站在服务器端跳过),另有 systemd 常驻的本地门户与对话入口以及每日异地备份;底部是仅有的两个对外出口:文档站从代码库 main 的 site 目录部署,公开发布仓经三道门禁,本地门户只绑回环地址走 SSH 隧道。</desc>
+    <defs>
+      <marker id="c-ac" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-ac"/></marker>
+      <marker id="c-ok" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z" class="mk-ok"/></marker>
+      <marker id="c-dim" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto">
+        <path d="M0,0L8,4L0,8z"/></marker>
+      <style>.mk-ac{fill:var(--accent)} .mk-ok{fill:var(--ok)} #c-dim path{fill:var(--faint)}</style>
+    </defs>
+
+    <!-- 三栏标题 -->
+    <text class="sg-rail" x="20" y="30">编辑端 · 笔记本</text>
+    <text class="sg-rails" x="20" y="48">人在这里</text>
+    <text class="sg-rail" x="452" y="30" text-anchor="middle">git 两个仓</text>
+    <text class="sg-rails" x="452" y="48" text-anchor="middle">同步总线</text>
+    <text class="sg-rail" x="612" y="30">服务器端 · 7×24</text>
+    <text class="sg-rails" x="612" y="48">无人值守</text>
+
+    <!-- 左:编辑端 -->
+    <rect class="sg-box" x="20" y="62" width="340" height="112"/>
+    <text class="sg-t" x="40" y="86">人工</text>
+    <text class="sg-s" x="40" y="106">Obsidian 读写库 · Web Clipper 剪藏</text>
+    <text class="sg-s" x="40" y="124">vault.sh commit 提交个人内容</text>
+    <text class="sg-s" x="40" y="142">改了 docs/ 才重建文档站并提交</text>
+    <text class="sg-s" x="40" y="162">(生成物入库,只在这一端重建)</text>
+
+    <rect class="sg-box" x="20" y="190" width="340" height="76"/>
+    <text class="sg-t" x="40" y="214">每日定时:只有两条 pull</text>
+    <text class="sg-s" x="40" y="234">内容库 · 允许 rebase autostash</text>
+    <text class="sg-s" x="40" y="252">代码库 · 只快进</text>
+
+    <rect class="sg-box warn-b" x="20" y="282" width="340" height="86"/>
+    <text class="sg-gate" x="40" y="306">这一端不跑编译</text>
+    <text class="sg-s" x="40" y="326">互斥锁只锁同机进程,跨机器没有锁。</text>
+    <text class="sg-s" x="40" y="344">两端同时编译再各自 push,内容库必然冲突。</text>
+    <text class="sg-s" x="40" y="362">所以编辑端的定时任务只剩 pull。</text>
+
+    <!-- 中:两个仓 -->
+    <rect class="sg-box eng" x="392" y="86" width="120" height="60"/>
+    <text class="sg-t" x="452" y="112" text-anchor="middle">代码库</text>
+    <text class="sg-s" x="452" y="132" text-anchor="middle">脚本 · 文档</text>
+    <path class="fl" marker-end="url(#c-dim)" d="M388,116 L364,116"/>
+    <text class="sg-dim" x="452" y="164" text-anchor="middle">单向:只读拉取</text>
+
+    <rect class="sg-box llm" x="392" y="196" width="120" height="60"/>
+    <text class="sg-t" x="452" y="222" text-anchor="middle">内容库</text>
+    <text class="sg-s" x="452" y="242" text-anchor="middle">私有知识内容</text>
+    <path class="fl ok" marker-end="url(#c-ok)" d="M388,226 L364,226"/>
+    <path class="fl ok" marker-end="url(#c-ok)" d="M516,226 L596,226"/>
+    <path class="fl ok" marker-end="url(#c-ok)" d="M596,206 L516,206"/>
+    <text class="sg-dim" x="452" y="274" text-anchor="middle">双向</text>
+
+    <path class="fl ac" marker-end="url(#c-ac)" d="M516,116 L596,116"/>
+
+    <!-- 右:服务器端 -->
+    <rect class="sg-box path" x="612" y="62" width="528" height="204"/>
+    <text class="sg-t" x="632" y="86">每日一次编排 · update-all.sh 七步</text>
+    <text class="sg-mono" x="632" y="112">① 拉内容库</text>
+    <text class="sg-gate" x="748" y="112">核心</text>
+    <text class="sg-mono" x="632" y="134">② 日报</text>
+    <text class="sg-mono" x="632" y="156">③ 编译</text>
+    <text class="sg-gate" x="748" y="156">核心</text>
+    <text class="sg-s" x="800" y="156">六步:引擎 → OKF 注入 → 建索引 → lint → 浏览站 → 提交</text>
+    <text class="sg-mono" x="632" y="178">④ 推内容库</text>
+    <text class="sg-gate" x="748" y="178">核心</text>
+    <text class="sg-mono" x="632" y="200">⑤ 订阅台账　⑥ 门户入口</text>
+    <text class="sg-mono" x="632" y="222">⑦ 文档站</text>
+    <text class="sg-dim" x="748" y="222">本端跳过(见下方第二条)</text>
+    <text class="sg-s" x="632" y="248">标「核心」的三步:缺工具时判失败而非跳过 —— 否则 cron 天天报绿而 Wiki 悄悄停摆</text>
+
+    <rect class="sg-box" x="612" y="282" width="528" height="86"/>
+    <text class="sg-t" x="632" y="306">常驻服务(systemd,登出不死)</text>
+    <text class="sg-s" x="632" y="328">本地门户 —— 只绑回环地址,要看走 SSH 隧道</text>
+    <text class="sg-s" x="632" y="346">对话入口 —— 长连接,本机主动出站,不开入站端口</text>
+    <text class="sg-s" x="632" y="364">每日一次异地备份(内容库 + 对话记忆)</text>
+
+    <!-- 底:对外出口 -->
+    <line class="sg-sep" x1="20" y1="398" x2="1140" y2="398"/>
+    <text class="sg-rail" x="20" y="428">对外只有两个出口</text>
+
+    <rect class="sg-box" x="20" y="446" width="548" height="96"/>
+    <text class="sg-t" x="40" y="470">文档站</text>
+    <text class="sg-s" x="40" y="490">从代码库 main 的 site/ 部署 —— 不经过服务器端</text>
+    <text class="sg-s" x="40" y="508">生成物入库,且不同机器 pandoc 版本渲染结果不同</text>
+    <text class="sg-s" x="40" y="526">→ 只在编辑端重建,服务器端显式跳过并如实打印理由</text>
+
+    <rect class="sg-box gate2" x="592" y="446" width="548" height="96"/>
+    <text class="sg-t" x="612" y="470">公开发布仓</text>
+    <text class="sg-s" x="612" y="490">经 publish-kit.sh,过三道门禁:</text>
+    <text class="sg-s" x="612" y="508">禁忌词零命中 · 公开版树 pytest 全绿 · 世系新鲜度</text>
+    <text class="sg-s" x="612" y="526">任一不过即中止,一个提交都不推</text>
+
+    <rect class="sg-box dead" x="20" y="562" width="1120" height="76"/>
+    <text class="sg-gate" x="40" y="586">已知缺口 · 如实记着,还没修</text>
+    <text class="sg-s" x="40" y="608">整体退出码目前没有消费者 —— 定时任务把输出重定向进日志文件,失败只体现在日志文本里,没有任何告警。</text>
+    <text class="sg-s" x="40" y="628">「失败要能被看见」这条,在编排层与编译层都做到了(核心步判失败、建索引/lint 挂了末尾非零退出),但在通知层还没有。</text>
+  </svg>
+  </div>
+  <p class="fig-note">窄屏可左右滑动查看完整图形</p>
+
+  <div class="rules">
+    <div class="rule"><div><b>编译只在服务器端跑</b>:互斥锁只锁同机进程,<b>跨机器没有锁</b>。两端同时编译再各自 push,内容库必然冲突 —— 所以编辑端的定时任务只剩 pull。</div></div>
+    <div class="rule"><div><b>文档站只在编辑端重建</b>:<code>site/*.html</code> 是提交进仓的生成物,而不同机器的 pandoc 版本会渲染出不同 HTML,谁跑谁把代码仓弄脏。服务器端显式跳过,<b>跳过理由如实打印</b>,不会伪装成「缺 pandoc」。</div></div>
+    <div class="rule"><div><b>失败要能被看见</b>:七步里三步标了「核心」,缺工具时判失败而不是跳过。<b>但整体退出码目前没有消费者</b> —— 这条缺口如实记在图里,还没修。</div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="cap">08 · 开发</div>
   <h2>纪律:用证据而非声称</h2>
   <p class="lead">开发遵循 <a href="https://github.com/obra/superpowers">Superpowers</a> 四原则:<b>测试先行 · 系统化优于拍脑袋 · 简单为第一目标 · 用证据而非声称</b>。</p>
   <div class="row row3">

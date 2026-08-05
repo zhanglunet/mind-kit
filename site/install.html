@@ -42,35 +42,35 @@
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>依赖</th>
 <th>用途</th>
 <th>检查命令</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Git</td>
 <td>版本化与归档判据(必装)</td>
 <td><code>git --version</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>Go 运行环境</td>
 <td>安装 <a href="https://github.com/xoai/sage-wiki">sage-wiki</a>
 编译引擎</td>
 <td><code>go version</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Node.js</td>
 <td>安装 Claude Code CLI</td>
 <td><code>node --version</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>Python 3.9+</td>
 <td>运行仓库脚本(索引 / 本地浏览站 / 报表等)</td>
 <td><code>python3 --version</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Obsidian</td>
 <td>存储/写作界面(桌面端)</td>
 <td>—</td>
@@ -133,7 +133,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <col style="width: 20%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>后端</th>
 <th>env 变量</th>
 <th>端点(OpenAI 兼容)</th>
@@ -142,21 +142,21 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><strong>GLM</strong>(默认)</td>
 <td><code>GLM_API_KEY</code></td>
 <td><code>open.bigmodel.cn/api/coding/paas/v4</code></td>
 <td><code>glm-4.5-flash</code></td>
 <td><code>config.glm.yaml</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>DeepSeek</strong></td>
 <td><code>DEEPSEEK_API_KEY</code></td>
 <td><code>api.deepseek.com/v1</code></td>
 <td><code>deepseek-v4-flash</code> / <code>-pro</code></td>
 <td><code>config.deepseek.yaml</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong>Kimi</strong></td>
 <td><code>KIMI_API_KEY</code></td>
 <td><code>api.kimi.com/coding/v1</code></td>
@@ -192,8 +192,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="
 <ol type="1">
 <li><p><strong>sage-wiki</strong>(编译引擎):<a
 href="https://github.com/xoai/sage-wiki">https://github.com/xoai/sage-wiki</a>(Go
-实现,MIT)。 主包在 <code>cmd/</code>
-下,<strong>装的时候别漏</strong>(漏了会报
+实现,MIT)。 <strong>要 ≥ 0.2.6</strong>,理由见下一节。 主包在
+<code>cmd/</code> 下,<strong>装的时候别漏</strong>(漏了会报
 <code>no non-test Go files</code>):</p>
 <div class="sourceCode" id="cb6"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">go</span> install github.com/xoai/sage-wiki/cmd/sage-wiki@latest</span>
@@ -211,9 +211,54 @@ vault 根目录运行 <code>claude</code> 即可。</p></li>
 <p>再装四个 Obsidian 插件:<strong>Web Clipper</strong>(剪藏落地到
 <code>raw/clippings/</code>)、<strong>Templater</strong>、<strong>Dataview</strong>(五维标签检索)、<strong>BRAT</strong>;附件目录设为
 <code>raw/assets/</code>。</p>
-<h2 id="校验配置与连接">4. 校验配置与连接</h2>
+<h3 id="sage-wiki-要-0.2.6装完先验一下一分钟">3.1 sage-wiki 要 ≥
+0.2.6(装完先验一下,一分钟)</h3>
+<p><strong>0.2.6 之前的 <code>sage-wiki init</code>
+会毁用户文件</strong>:<code>.gitignore</code> 被整个改写成一行
+<code>.sage/</code>,<code>.manifest.json</code> 被清成空壳。上游 #127
+已修 —— 改为<strong>追加</strong> <code>.sage/</code>、
+<code>.manifest.json</code> 存在即跳过,另给 <code>--force</code>
+供明确重写(<code>config.yaml</code> 任何情况下
+都保留)。同一版还修了另一条:此前
+<code>sage-wiki init &lt;目录&gt;</code> <strong>会忽略位置参数、
+照样初始化当前目录</strong>,可能打到完全不相干的仓库。</p>
+<p>真机上栽过一次,两条后果不对称,值得记住:</p>
+<ul>
+<li><code>.manifest.json</code> 被清空后,紧接着的 <code>compile</code>
+看到空清单,<strong>把整个知识库从头 重编了一遍</strong>(全额 API
+费用)——它至少”自愈”了,只是花了钱。</li>
+<li><code>.gitignore</code>
+被清空后<strong>没有任何东西会重建它</strong>。于是密钥形状(<code>.env</code>
+/ <code>*.key</code>)、
+个人内容目录的忽略规则全部消失,<strong>六天</strong>没人发现,靠一次偶然的
+<code>git status</code> 才看见。</li>
+</ul>
+<p><strong>别靠版本号判断</strong> —— 从源码 <code>go build</code>
+出来的二进制会报
+<code>sage-wiki dev (commit none, built unknown)</code>,看不出新旧。用<strong>行为</strong>验:</p>
 <div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor        <span class="co"># 验证 API 连接与配置</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="va">T</span><span class="op">=</span><span class="va">$(</span><span class="fu">mktemp</span> <span class="at">-d</span><span class="va">)</span> <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> <span class="st">&quot;</span><span class="va">$T</span><span class="st">&quot;</span> <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;&amp;</span> <span class="bu">printf</span> <span class="st">&#39;# 我的规则\n/secret\n&#39;</span> <span class="op">&gt;</span> .gitignore <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;&amp;</span> <span class="bu">printf</span> <span class="st">&#39;{&quot;version&quot;:2,&quot;sources&quot;:{&quot;a.md&quot;:{}},&quot;concepts&quot;:{&quot;x&quot;:{}}}\n&#39;</span> <span class="op">&gt;</span> .manifest.json <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&amp;&amp;</span> <span class="ex">sage-wiki</span> init <span class="op">&gt;</span>/dev/null <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=== .gitignore ===&quot;</span><span class="kw">;</span>     <span class="fu">cat</span> .gitignore       <span class="co"># ✅ 三行(原两行 + .sage/) ❌ 只剩 .sage/ 一行</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=== .manifest.json ===&quot;</span><span class="kw">;</span> <span class="fu">cat</span> .manifest.json   <span class="co"># ✅ 仍含 a.md 与 x         ❌ 变成空壳</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~ <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> <span class="st">&quot;</span><span class="va">$T</span><span class="st">&quot;</span></span></code></pre></div>
+<p>任一项 ❌
+就升级:<code>go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest</code>,
+升完把上面这段<strong>再跑一遍</strong>确认。升级前顺手
+<code>cp .manifest.json ~/manifest.bak</code>,
+一秒的事,省得万一还要重编一轮。</p>
+<blockquote>
+<p><strong>规矩:已初始化的仓库里永远不要跑
+<code>sage-wiki init</code>。</strong> 要改配置就直接改
+<code>config.yaml</code>(init 无条件保留它),或用
+<code>scripts/sage-backend.sh</code> 切后端。 <code>init</code>
+只用于全新目录。</p>
+</blockquote>
+<h2 id="校验配置与连接">4. 校验配置与连接</h2>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor        <span class="co"># 验证 API 连接与配置</span></span></code></pre></div>
 <p><code>config.yaml</code>
 骨架已配置好来源目录、忽略清单与模型(当前单一
 <code>glm-4.5-flash</code>,不分层),<code>doctor</code>
@@ -240,8 +285,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 管线保留但当前未启用)</li>
 </ul>
 <h2 id="首次编译与验证">6. 首次编译与验证</h2>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh        <span class="co"># 全流水线:编译 → 重建 index → lint → 生成本地浏览站 → 提交</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh        <span class="co"># 全流水线:编译 → 重建 index → lint → 生成本地浏览站 → 提交</span></span></code></pre></div>
 <blockquote>
 <p>日常编译一律走 <code>bash scripts/compile.sh</code>(而非裸
 <code>sage-wiki compile</code>):dev build 不自动维护

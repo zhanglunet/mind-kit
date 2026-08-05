@@ -326,3 +326,52 @@ def test_pipeline_never_swallows_vault_commit_failure():
             if re.search(r"commit[^|]*\|\|\s*(true|echo|:)", s):
                 bad.append(f"{name}:{i}: {s[:80]}")
     assert not bad, ("这些地方把提交失败吞掉了(失败会伪装成成功):\n  " + "\n  ".join(bad))
+
+
+def test_systemd_units_use_the_venv_interpreter():
+    """systemd unit 的 ExecStart 不能写死系统 python。
+
+    真机(阿里云 Anolis)上系统 `python3` 由 uv 托管、`pip install` 被 PEP 668 拒,
+    依赖全在 `mind/.venv` 里——VM部署.md §0.4 因此明写「cron/systemd 一律用
+    `mind/.venv/bin/python`」。
+
+    `mind-feishu-bot.service` 第一版恰恰写的是 `/usr/bin/python3`:照文档装完,
+    服务起来就 `ModuleNotFoundError: lark_oapi`,而且 `Restart=always` 会让它
+    每 10 秒重启一次——**日志刷屏、飞书那头一直没人回**。
+    这个门禁把 `.sh` 那条规矩延伸到 unit 文件,同一个坑不踩两次。
+    """
+    bad = []
+    for p in sorted((REPO / "scripts").glob("*.service")):
+        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            s = line.strip()
+            if s.startswith("#") or not s.lower().startswith("execstart="):
+                continue
+            exe = s.split("=", 1)[1].split()[0] if "=" in s else ""
+            if exe.endswith("/.venv/bin/python") or "/.venv/bin/python" in exe:
+                continue
+            if "python" in exe:
+                bad.append(f"{p.name}:{i} ExecStart 用了 {exe},应为 .venv/bin/python")
+    assert not bad, "\n  ".join([""] + bad)
+
+
+def test_inline_systemd_snippets_in_docs_use_the_venv_interpreter():
+    """文档里**内联**的 systemd unit 片段,同样不许写死系统 python。
+
+    上一条门禁只扫 `scripts/*.service`,而 setup-linux-server.md 里 brain-server 的
+    unit 是**内联在文档代码块里**的 —— 门禁看不到,于是它一直写着
+    `ExecStart=/usr/bin/python3 …`,与 VM部署.md §0.4「cron/systemd 一律用
+    mind/.venv/bin/python」直接冲突。照抄的人在 Anolis 上会落到 EOL 的 3.6.8,
+    症状与 2026-08-04 那次 mind-feishu-bot 完全一样。
+
+    这条是子代理对抗核验翻出来的:同一类 bug,只因藏在文档里就绕过了门禁。
+    """
+    bad = []
+    for p in sorted((REPO / "docs").rglob("*.md")):
+        for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            s = line.strip()
+            if not s.lower().startswith("execstart="):
+                continue
+            exe = s.split("=", 1)[1].split()[0]
+            if "python" in exe and "/.venv/bin/python" not in exe:
+                bad.append(f"{p.relative_to(REPO)}:{i} ExecStart 用了 {exe}")
+    assert not bad, "文档内联 unit 也要用 venv 解释器:\n  " + "\n  ".join(bad)

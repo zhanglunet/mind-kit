@@ -176,11 +176,17 @@ OKF 明确要求消费者容忍未知键——所以新增 `type`、老键原样
 6  vault.sh commit           写集校验 → 提交编译产物
 ```
 
-**顺序不是审美。** `index.md` 由 `build-index.py` 读 frontmatter 生成:注入若发生在它之后,
-索引拿到的就是上一轮的旧字段。这条已经用测试钉死,免得日后有人调换:
+**顺序是防御性约定,不是当前的数据依赖 —— 这里更正一处早前的错误说法。**
+本文原来写的是「注入若发生在建索引之后,索引拿到的就是上一轮的旧字段」。
+**实测不成立**:`build-index.py` 只读 `entity_type` / `concept` / `sources` / `source` /
+`标题|title`(该文件 :71 :72 :74 :85 :94),**并不读** okf 注入的 `type` / `stale_after`,
+所以先后顺序目前对索引内容没有影响。
+
+保持这个顺序仍然值得,理由换成防御性的:一旦索引哪天开始消费 `type`,顺序反了就会读到
+上一轮的旧字段 —— 那种 bug 极难察觉。所以照旧用测试钉死:
 
 ```python
-assert i_fix < i_idx, "注入必须在重建 index 之前,否则索引读到旧 frontmatter"
+assert i_fix < i_idx, "注入应在重建 index 之前(防御性约定)"
 assert i_chk > i_idx, "体检应在 lint 记账阶段(index 之后)"
 ```
 

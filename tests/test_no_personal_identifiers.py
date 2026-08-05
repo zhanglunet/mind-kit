@@ -156,3 +156,64 @@ def test_keepalive_fails_clearly_without_identity(tmp_path):
     assert r.returncode != 0, "缺身份配置应非零退出"
     assert "MIND_FEISHU_OU" in (r.stdout + r.stderr), \
         "报错须点名缺失的环境变量,给出可操作指引:" + (r.stdout + r.stderr)[:300]
+
+
+# ---------- 隐私兜底网本身要有门禁 ----------
+#
+# CLAUDE.md 的硬约束靠一句话成立:「那些路径在 mind/.gitignore 里,git add 会静默
+# 什么都不干」。也就是说 **.gitignore 里那几行就是防止个人内容误入代码仓的最后一道网**。
+# 而在 2026-08-04 之前,**没有任何测试盯着它们** —— 谁(或哪次合并冲突)把某行删了,
+# 都不会有人发现,直到某天一次 git add -A 把整个知识库加进代码仓。
+
+PERSONAL_PATHS = ["/raw", "/_wiki", "/material", "/writing",
+                  "/reports/daily", "/reports/weekly", "/reports/lint", "/browse/"]
+
+
+def test_gitignore_still_shields_personal_content():
+    """`.gitignore` 必须挡住所有个人内容目录 —— 这是最后一道网,不许悄悄失效。"""
+    lines = {l.strip() for l in (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()}
+    missing = [p for p in PERSONAL_PATHS if p not in lines and p.rstrip("/") not in lines]
+    assert not missing, (
+        "`.gitignore` 少了这些个人内容路径,代码仓失去兜底:\n  " + "\n  ".join(missing)
+        + "\n(CLAUDE.md 的「git add 会静默什么都不干」正是靠它们成立)")
+
+
+def test_no_personal_directory_is_actually_tracked():
+    """行为层再兜一道:个人目录**一个文件都不许被 git 跟踪**。
+
+    只查 .gitignore 文本还不够 —— 已经被跟踪的文件,加进 .gitignore 也不会移除。
+    这条直接问 git:实际跟踪清单里有没有它们。
+    """
+    tracked = _tracked(*[p.lstrip("/") for p in PERSONAL_PATHS])
+    assert not tracked, (
+        "个人内容已被代码仓跟踪(必须 git rm --cached 移除):\n  "
+        + "\n  ".join(str(p.relative_to(REPO)) for p in tracked[:20]))
+
+
+# 密钥形状:登录二维码也算凭据
+#
+# `lark-cli auth login` 会在**仓库根**生成 `lark-auth-qr.png` —— 扫一下就能登进
+# 飞书账号,和密钥同级。而 .gitignore 里那批图片规则是 `raw/**/*.png`,**盖不到
+# 仓库根**,于是它一直以未跟踪状态躺在那里,离入库只差一次 `git add -A`
+# (2026-08-04 真机上就是这个状态)。
+
+SECRET_PROBES = [".env", ".env.local", "probe.key", "probe.pem", "secrets.json",
+                 "credentials.json", "token.json", "lark-auth-qr.png"]
+
+
+def test_gitignore_still_shields_secret_shapes():
+    """密钥形状必须被 git 忽略 —— **问 git 本身**,不读 .gitignore 文本。
+
+    规则写成什么样不重要(`*.key` 还是 `**/*.key`、有没有被后面的 `!` 反选掉),
+    *git 此刻到底忽不忽略*才是事实。探针路径不必真实存在:`git check-ignore`
+    按路径名匹配规则,不看文件系统。
+    """
+    r = subprocess.run(["git", "check-ignore", "-v", *SECRET_PROBES],
+                       cwd=str(REPO), capture_output=True, text=True)
+    # 退出码 1 = 有路径没被忽略(正是我们要查的),不能当失败;2 才是 git 自己出错
+    assert r.returncode in (0, 1), "git check-ignore 自身失败,门禁不能空转:" + r.stderr
+    ignored = {line.rsplit("\t", 1)[-1] for line in r.stdout.splitlines() if "\t" in line}
+    missing = [p for p in SECRET_PROBES if p not in ignored]
+    assert not missing, (
+        "这些密钥形状**没有**被 git 忽略,一次 `git add -A` 就会入库:\n  "
+        + "\n  ".join(missing))

@@ -19,8 +19,9 @@ TPL = REPO / "scripts" / "site-template.html"
 # 每对载体:(名字, 章节数, 主题词根)。主题取各自措辞里**稳定**的词根,
 # 两份载体都必须覆盖;改文案时别动这些词根,或同步改这里。
 PAIRS = [
-    ("architecture", 8,
-     ["四层一图", "三层架构", "双库", "编译流水线", "四道机器", "查询", "隐私", "Superpowers"]),
+    ("architecture", 9,
+     ["四层一图", "三层架构", "双库", "编译流水线", "四道机器", "查询", "隐私",
+      "Superpowers", "运行时"]),
     ("okf", 8,
      ["Open Knowledge Format", "取证", "okf.py", "entity_type",
       "流水线", "stale_after", "门禁", "四层"]),
@@ -96,3 +97,35 @@ def test_no_broken_internal_links():
             if not dest.exists():
                 broken.append(f"{p.relative_to(REPO)} → {target}")
     assert not broken, "站内死链:\n" + "\n".join(broken)
+
+
+def test_no_mojibake_in_site_pages():
+    """烧进 HTML 的 U+FFFD = 构建机器 locale 是 C,argv 里的中文按单字节解码报废。
+
+    真机实测:changelog/prd 两页的标题经 `--metadata title=...` 传入,在 C locale
+    的 VM 上构建后 title 与面包屑全是「�」。build-site.sh 已改走 --metadata-file
+    (pandoc 恒按 UTF-8 读),这道门禁防止任何路径把乱码重新带进来。
+    """
+    bad = []
+    for p in sorted(SITE.rglob("*.html")):
+        if "�" in p.read_text(encoding="utf-8"):
+            bad.append(str(p.relative_to(REPO)))
+    assert not bad, "页面含 U+FFFD 乱码(用 UTF-8 locale 重建 site/):\n" + "\n".join(bad)
+
+
+def test_svg_text_has_no_literal_markdown():
+    """SVG 的 `<text>` **不渲染 markdown** —— 写 `**粗体**` 会把星号原样显示出来。
+
+    2026-08-04 实测栽过:运行时信息图里五处 `**…**` 全部漏成了字面星号。
+    写 SVG 时手感和写 markdown 一样,很容易顺手带上;而它只在渲染出来的图上
+    才看得见,读代码看不出来 —— 正好是门禁该管的那类。
+
+    要强调就用 class(如 sg-gate / sg-lab),不要用 markdown 记号。
+    """
+    bad = []
+    for p in sorted(SITE.glob("*.html")):
+        for m in re.finditer(r"<text[^>]*>([^<]*)</text>", p.read_text(encoding="utf-8")):
+            t = m.group(1)
+            if "**" in t or "`" in t:
+                bad.append(f"{p.name}: {t.strip()[:60]}")
+    assert not bad, "SVG <text> 里混进了 markdown 记号(不会被渲染,只会漏成字面量):\n  " + "\n  ".join(bad)

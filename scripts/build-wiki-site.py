@@ -83,6 +83,7 @@ class Page:
     def __init__(self, path, kind, group):
         self.path = path
         self.slug = path.stem
+        self.mtime = path.stat().st_mtime   # 首页「最近更新」按它排序
         fm, body = split_fm(path.read_text(encoding="utf-8"))
         self.fm, self.body = fm, body
         self.kind = kind
@@ -237,6 +238,18 @@ def group_kind(name):
     return "concept"
 
 
+def recent_html(pages, limit=10):
+    """「最近更新」区块:按源文件 mtime 降序取前 N 页——新 ingest 的内容
+    一打开首页就能看到,不用在几百页的分类索引里找。"""
+    recent = sorted(pages, key=lambda p: p.mtime, reverse=True)[:limit]
+    items = "\n".join(
+        f'<li><span class="date">{date.fromtimestamp(p.mtime).isoformat()}</span> '
+        f'<a href="{p.href}">{html.escape(p.title)}</a> '
+        f'<span class="src">{html.escape(disp(p.group))}</span></li>'
+        for p in recent)
+    return f'<h2 id="recent">最近更新 <span class="cnt">{len(recent)}</span></h2>\n<ul class="cards">\n{items}\n</ul>'
+
+
 def index_main(groups, pages):
     n = len(pages)
     # 头部粘性分类索引:每组一个锚点芯片(色点=类别色 + 计数),长页一键跳段
@@ -246,6 +259,7 @@ def index_main(groups, pages):
         for i, (name, ps) in enumerate(groups))
     parts = [f"<h1>知识库索引</h1>",
              f'<p class="sub">共 {n} 页 · 生成于 {date.today().isoformat()} · 由 <code>build-wiki-site.py</code> 从 <code>_wiki/</code> + <code>material/</code> 生成 · <a href="graph.html">🕸 看关系图</a></p>',
+             recent_html(pages),
              f'<div class="toc">{toc}</div>']
     for i, (name, ps) in enumerate(groups):
         parts.append(f'<h2 id="g{i}">{html.escape(disp(name))} <span class="cnt">{len(ps)}</span></h2>')
@@ -356,6 +370,7 @@ a{color:var(--acc)}.broken{color:var(--mut);text-decoration:underline dotted}
 h2{scroll-margin-top:64px}
 ul.cards{list-style:none;padding:0}ul.cards li{padding:8px 0;border-bottom:1px solid var(--line)}
 ul.cards li a{font-weight:600}.src{background:var(--chip);color:var(--mut);font-size:12px;padding:1px 6px;border-radius:10px;margin-left:4px}
+.date{color:var(--mut);font-size:13px;font-variant-numeric:tabular-nums;margin-right:6px}
 code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}pre{background:var(--code);padding:14px;border-radius:8px;overflow-x:auto}
 pre code{background:none;padding:0}table{border-collapse:collapse;width:100%;display:block;overflow-x:auto;font-size:14px}
 th,td{border:1px solid var(--line);padding:6px 10px;text-align:left}th{background:var(--chip)}

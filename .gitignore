@@ -10,6 +10,10 @@ secrets.*
 credentials*.json
 token*.json
 *_token.json
+# 登录二维码 = 凭据形状:`lark-cli auth login` 在**仓库根**生成 lark-auth-qr.png,
+# 扫一下就能登进账号。下面那批图片规则是 raw/**/*.png,盖不到仓库根 —— 单独兜一条。
+*-qr.png
+*-qrcode.png
 
 # === 系统 / 编辑器 ===
 .DS_Store

@@ -192,12 +192,12 @@
     <text class="sg-s" x="202" y="371">与 stale_after</text>
 
     <path class="fl wa" marker-end="url(#a-wa)" d="M412,352 L494,352"/>
-    <text class="sg-lab wa" x="453" y="334" text-anchor="middle">顺序不可换</text>
+    <text class="sg-lab wa" x="453" y="334" text-anchor="middle">顺序:防御性</text>
 
     <rect class="sg-box" x="496" y="310" width="240" height="72"/>
     <text class="sg-mono" x="514" y="336">② build-index.py</text>
     <text class="sg-s" x="514" y="354">重建 _wiki/index.md</text>
-    <text class="sg-s" x="514" y="371">——它读 frontmatter 生成</text>
+    <text class="sg-s" x="514" y="371">——不读 type,顺序是防御性的</text>
 
     <path class="fl" marker-end="url(#a-dim)" d="M736,352 L780,352"/>
 
@@ -376,7 +376,7 @@ python3 scripts/okf.py --check --json</code></pre>
 <section class="section">
   <div class="cap">05 · 接线</div>
   <h2>接进编译流水线</h2>
-  <p class="lead">编译<b>流水线</b>从五步变六步,<code>okf.py</code> 占两个位置。顺序不是审美。</p>
+  <p class="lead">编译<b>流水线</b>从五步变六步,<code>okf.py</code> 占两个位置。</p>
 
   <div class="dg">
     <ol class="pipe">
@@ -390,11 +390,11 @@ python3 scripts/okf.py --check --json</code></pre>
   </div>
 
   <div class="verdict">
-    <b>为什么第 2 步必须早于第 3 步</b>
-    <span><code>index.md</code> 由 <code>build-index.py</code> 读 frontmatter 生成。注入若发生在它之后,索引拿到的就是<b>上一轮的旧字段</b>。这条已经用测试钉死,免得日后有人调换。</span>
+    <b>第 2 步早于第 3 步:防御性约定,不是数据依赖</b>
+    <span><b>这里更正一处早前的错误说法。</b>本页原写「注入若发生在建索引之后,索引会读到上一轮旧字段」——<b>实测不成立</b>:<code>build-index.py</code> 只读 <code>entity_type</code> / <code>concept</code> / <code>sources</code> / <code>source</code> / <code>标题|title</code>,<b>并不读</b> okf 注入的 <code>type</code> / <code>stale_after</code>,顺序目前对索引没有影响。保持顺序的理由换成防御性的:一旦索引哪天开始消费 <code>type</code>,顺序反了会读到旧字段,而那种 bug 极难察觉。</span>
   </div>
 
-  <pre><code>assert i_fix &lt; i_idx, "注入必须在重建 index 之前,否则索引读到旧 frontmatter"
+  <pre><code>assert i_fix &lt; i_idx, "注入应在重建 index 之前(防御性约定)"
 assert i_chk &gt; i_idx, "体检应在 lint 记账阶段(index 之后)"</code></pre>
 
   <div class="row row2">

@@ -306,3 +306,153 @@ def test_vault_pull_failure_is_not_silent(tmp_path):
     both = r.stdout + r.stderr
     assert "内容库" in both, "要说清是内容库同步这一步出的问题:" + both[-500:]
     assert r.returncode != 0, "内容库拉取失败还退 0 = 又一次假绿"
+
+
+# ---------- 机器级开关:VM 不该每天重建文档站 ----------
+#
+# 2026-08-04 实测:VM 的 cron 每天跑 build-site.sh 重新生成 site/*.html,
+# 而两台机器的 pandoc 版本不同 → 渲染出的 HTML 有差异 → 代码仓天天是脏的
+# → `git pull` 每次都被「Your local changes would be overwritten」拦下。
+# 那批 HTML 在 VM 上**没有任何消费者**(aip.cab 由 Cloudflare 从 GitHub main
+# 部署,不走 VM)。所以给它一个机器级开关,VM 上关掉。
+#
+# 关键约束:**跳过的理由必须说真话**。沿用既有的「缺工具就跳过」通道会打印
+# 「未装 pandoc」——那是假的,会把人引去装一个已经装了的东西。
+
+
+def test_site_step_skipped_when_switch_off():
+    """MIND_BUILD_SITE=0 → 文档站不出现在计划里(或明确标为将跳过)。"""
+    env = {**os.environ, "MIND_BUILD_SITE": "0"}
+    r = _run("--dry-run", env=env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    line = [l for l in r.stdout.splitlines() if "[文档站]" in l]
+    assert line, "计划里应仍列出文档站这一步(只是标明将跳过):" + r.stdout[-400:]
+    assert "跳过" in line[0], "关掉开关后该标明将跳过:" + line[0]
+
+
+def test_site_skip_reason_tells_the_truth_not_missing_pandoc():
+    """关掉开关时的理由必须是「开关关了」,**不能**说成「未装 pandoc」。
+
+    说假理由比不说更糟:它会把人支去装一个已经装好的东西,
+    而真正的原因(这台机器不负责生成文档站)一直没人知道。
+    """
+    env = {**os.environ, "MIND_BUILD_SITE": "0"}
+    r = _run("--dry-run", env=env)
+    line = [l for l in r.stdout.splitlines() if "[文档站]" in l][0]
+    assert "MIND_BUILD_SITE" in line or "关闭" in line, \
+        "跳过理由要指明是开关关的:" + line
+    assert "未装 pandoc" not in line and "缺 pandoc" not in line, \
+        "pandoc 明明装着,不许报成缺 pandoc:" + line
+
+
+def test_site_step_on_by_default():
+    """不设开关时行为不变 —— 笔记本照旧生成文档站。"""
+    env = {k: v for k, v in os.environ.items() if k != "MIND_BUILD_SITE"}
+    r = _run("--dry-run", env=env)
+    line = [l for l in r.stdout.splitlines() if "[文档站]" in l][0]
+    assert "MIND_BUILD_SITE" not in line, "默认不该提开关:" + line
+
+
+def test_switch_off_counts_as_skip_not_failure(tmp_path):
+    """关掉开关是**跳过**,不是失败 —— 否则 cron 天天发失败邮件。"""
+    vault = _synthetic_vault(tmp_path)
+    r = _run_real(vault, env_extra={"MIND_BUILD_SITE": "0"})
+    out = r.stdout + r.stderr
+    assert "[文档站]" in out
+    seg = out[out.index("[文档站]"):][:200]
+    assert "跳过" in seg, "关掉开关应记为跳过:" + seg
+    assert "未装 pandoc" not in seg, "不许谎报缺 pandoc:" + seg
+
+
+# ---------- 隐私兜底网的运行时检查 ----------
+#
+# 2026-08-04 真机事故:VM 上的 .gitignore 被**整个覆盖**,129 行只剩一行 `.sage/`
+# (幸存的正是 sage-wiki 自己的缓存目录,像是它用最小模板覆盖而非追加)。
+# 被抹掉的包括密钥形状(.env / *.key / secrets.*)、raw/private 冷存层,
+# 以及全部个人内容软链 —— CLAUDE.md 那条「那些路径在 .gitignore 里,`git add`
+# 会静默什么都不干」的兜底,当场失效。
+#
+# 仓库侧已有门禁(tests/test_no_personal_identifiers.py),但它只护得住**仓库里的
+# 版本**,护不住**运行中的机器**被第三方工具改写。所以每日编排开跑前先问 git 一句:
+# 那几个路径现在还被忽略吗?不问,就要等到某次 `git add -A` 之后才知道。
+
+SHIELD_MARKER = "隐私兜底网"   # 这条检查自己的招牌:别的步骤失败不会打出这四个字
+
+
+def _dual_repo_vault(tmp_path, gitignore):
+    """合成一个**双库布局**的仓:个人目录是指向相邻内容库的软链。
+
+    必须是软链而非真目录 —— 检查只管软链(单库模式下 `_wiki/` 等是真目录、本来
+    就该入库,那种仓一条都不该查)。拿真目录搭的合成仓根本触发不了这条检查,
+    测出来的就是别的东西了。
+    """
+    v = _synthetic_vault(tmp_path)
+    data = tmp_path / "mind-vault"
+    (v / "reports").mkdir(exist_ok=True)
+    for rel in ("_wiki", "material", "raw", "writing",
+                "reports/daily", "reports/weekly", "reports/lint"):
+        (data / rel).mkdir(parents=True, exist_ok=True)
+        (v / rel).symlink_to(data / rel)
+    (v / ".gitignore").write_text(gitignore, encoding="utf-8")
+    subprocess.run(["git", "-C", str(v), "init", "-q"], check=True)
+    return v
+
+
+def test_refuses_to_run_when_gitignore_stops_shielding_personal_dirs(tmp_path):
+    """个人目录不再被 git 忽略时,必须**开跑前就停住并明说**,而不是照常跑完报绿。
+
+    问的是 `git check-ignore`,不是读 .gitignore 文本:规则写成什么样不重要,
+    **git 此刻到底忽不忽略**才是事实(还顺带覆盖 .git/info/exclude 与全局 excludes)。
+    """
+    v = _dual_repo_vault(tmp_path, ".sage/\n")          # 复刻真机被覆盖后的样子
+    r = _run_real(v)
+    out = r.stdout + r.stderr
+    assert SHIELD_MARKER in out, "兜底网破了必须明说:" + out[-700:]
+    assert "▶" not in out, "要在**开跑前**停住,不许先跑一半再说:" + out[-700:]
+    assert r.returncode != 0, "兜底网破了还退 0 = 又一次「失败伪装成成功」"
+
+
+def test_shield_failure_says_how_to_fix_it(tmp_path):
+    """光报警没用:得说清怎么修、以及怎样显式绕过。
+
+    否则现场只有一句"出错了",人只会去脚本里把这段删掉 —— 那比没有检查更糟。
+    """
+    v = _dual_repo_vault(tmp_path, ".sage/\n")
+    r = _run_real(v)
+    out = r.stdout + r.stderr
+    assert ".gitignore" in out, "要点名是哪个文件出的事:" + out[-500:]
+    assert "MIND_SKIP_SHIELD_CHECK" in out, \
+        "要给出具名的绕过方式,否则人会直接改脚本:" + out[-500:]
+
+
+def test_intact_gitignore_does_not_trip_the_check(tmp_path):
+    """兜底网完好时不许误报 —— 否则这条检查很快会被人加 `|| true` 绕过。
+
+    用的就是本仓真实的 .gitignore:这条检查跟仓库里那份约定是**同一个事实**,
+    拿删减版来测等于给自己放水。
+    """
+    v = _dual_repo_vault(tmp_path, (REPO / ".gitignore").read_text(encoding="utf-8"))
+    r = _run_real(v)
+    out = r.stdout + r.stderr
+    assert SHIELD_MARKER not in out, "兜底网完好时不该报警:" + out[-600:]
+    assert "▶" in out, "检查通过就该照常往下跑:" + out[-600:]
+
+
+def test_shield_check_is_silent_outside_a_git_repo(tmp_path):
+    """不在 git 工作树里(临时副本、解压出来的一份)就无从问起 —— 静默放行。
+
+    这里**不能**把"问不到"当成"破了":那会让所有合成环境与非 git 副本永久红,
+    检查很快就被整段注释掉。
+    """
+    v = _synthetic_vault(tmp_path)
+    r = _run_real(v)
+    assert SHIELD_MARKER not in (r.stdout + r.stderr)
+
+
+def test_shield_check_has_a_named_escape_hatch(tmp_path):
+    """留一个**具名**开关:绕过必须是显式动作(写得出变量名),而不是默默失效。"""
+    v = _dual_repo_vault(tmp_path, ".sage/\n")
+    r = _run_real(v, {"MIND_SKIP_SHIELD_CHECK": "1"})
+    out = r.stdout + r.stderr
+    assert SHIELD_MARKER not in out, "显式绕过后不该再拦:" + out[-400:]
+    assert "▶" in out, "绕过后要照常往下跑:" + out[-400:]

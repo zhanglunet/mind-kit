@@ -43,39 +43,39 @@
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>目录</th>
 <th>谁写</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><code>raw/**</code></td>
 <td>人放入</td>
 <td>原始来源,只读不改,唯一真相</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>_wiki/summaries·concepts·entities</code></td>
 <td>sage-wiki 全权</td>
 <td>LLM 只读;编译产物</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>_wiki/outputs/</code></td>
 <td>LLM 可写</td>
 <td>查询产出与深度摄入摘要</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>_wiki/index.md</code>、<code>log.md</code></td>
 <td>共同维护</td>
 <td>只追加,不删除</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>material/**</code></td>
 <td>LLM 全权</td>
 <td>六类写作素材</td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>writing/**</code></td>
 <td>LLM 可写,人主导</td>
 <td>写作成稿存档</td>
@@ -134,24 +134,24 @@ git。</p>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>阶段</th>
 <th>操作</th>
 <th>产出</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>写作前</td>
 <td>六类框架 prompt 全库提取素材</td>
 <td><code>material/[主题]-素材库.md</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>写作中</td>
 <td>取用金句/案例/数据,需深挖时即时 Query</td>
 <td>成稿草稿</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>写作后</td>
 <td>新金句/判断回写 <code>material/</code>;分析存
 <code>_wiki/outputs/</code>;成稿存 <code>writing/</code></td>

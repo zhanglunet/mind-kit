@@ -40,15 +40,24 @@ build_page "$VAULT/docs/guide/usage.md"    usage.html     usage
 build_page "$VAULT/docs/guide/faq.md"      faq.html       faq
 build_page "$VAULT/docs/guide/deploy.md"   deploy.html    deploy
 build_page "$VAULT/docs/guide/setup-linux-server.md" server.html server
+# 标题走 --metadata-file 而非 --metadata CLI 参数:argv 按 **locale** 解码,
+# 在 C/POSIX locale 的机器上(VM 的 cron 就是)中文标题每个字节变成 U+FFFD
+# 烧进 HTML(真机实测:title 与面包屑双双乱码);metadata 文件 pandoc 恒按
+# UTF-8 读,与机器 locale 无关。
+META_DIR="$(mktemp -d)"
+trap 'rm -rf "$META_DIR"' EXIT
+printf 'title: 更新日志\n' > "$META_DIR/changelog.yaml"
+printf 'title: 产品需求文档(PRD)\n' > "$META_DIR/prd.yaml"
+
 pandoc "$VAULT/CHANGELOG.md" -f markdown -t html --template "$TPL" --toc --toc-depth=2 \
-  --metadata title="更新日志" -V active_changelog=1 -o "$SITE/changelog.html"
+  --metadata-file "$META_DIR/changelog.yaml" -V active_changelog=1 -o "$SITE/changelog.html"
 wrap_tables "$SITE/changelog.html"
 echo "  ✓ site/changelog.html"
 
 # PRD:从权威 Markdown 直接 pandoc 渲染(不再依赖手工"精装"导出;与指南页同一模板、始终跟源同步)
-# PRD.md 无 title frontmatter,故显式 --metadata title(同 changelog 处理)
+# PRD.md 无 title frontmatter,故走 metadata 文件(同 changelog,防 argv 按 locale 解码出乱码)
 pandoc "$VAULT/docs/prd/第二大脑-个人知识库-PRD.md" -f markdown -t html --template "$TPL" --toc --toc-depth=2 \
-  --metadata title="产品需求文档(PRD)" -V active_prd=1 -o "$SITE/prd.html"
+  --metadata-file "$META_DIR/prd.yaml" -V active_prd=1 -o "$SITE/prd.html"
 wrap_tables "$SITE/prd.html"
 echo "  ✓ site/prd.html(pandoc 从 PRD.md 渲染)"
 
