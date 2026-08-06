@@ -131,16 +131,42 @@ def test_no_feishu_doc_tokens_in_tracked_files():
 # ---------- 正向断言:身份类配置必须走环境变量 ----------
 
 def test_identity_comes_from_env_not_literals():
-    """姓名/群名无形态可匹配,故断言相应脚本确实从 env 读取(字面值已移除)。"""
+    """姓名/群名无形态可匹配,故断言相应脚本确实从 env 读取(字面值已移除)。
+
+    2026-08-06(服务化 M1)扩入三个本地渲染脚本:真名默认参数、点评机器人
+    名单、简报机器人名——它们此前都以字面值写在代码里,属于同一类
+    「个人标识不入库」违例;值改为逗号分隔时也从同一个变量读。
+    """
     expect = {
-        "scripts/feishu-token-keepalive.sh": "MIND_FEISHU_OU",
-        "scripts/build-kd-weekly.py": "MIND_KD_GROUP",
-        "scripts/kd-weekly-sync.sh": "MIND_KD_GROUP",
-        "scripts/feishu-fetch-chat-docs.py": "MIND_FEISHU_SELF",
+        "scripts/feishu-token-keepalive.sh": ["MIND_FEISHU_OU"],
+        "scripts/build-kd-weekly.py": ["MIND_KD_GROUP", "MIND_KD_BOTS"],
+        "scripts/kd-weekly-sync.sh": ["MIND_KD_GROUP"],
+        "scripts/feishu-fetch-chat-docs.py": ["MIND_FEISHU_SELF"],
+        "scripts/build-feishu-site.py": ["MIND_FEISHU_SELF"],
+        "scripts/build-feishu-brief.py": ["MIND_FEISHU_BRIEF_BOTS"],
     }
-    missing = [f"{f} 应从 {var} 读取" for f, var in expect.items()
+    missing = [f"{f} 应从 {var} 读取" for f, envs in expect.items() for var in envs
                if (REPO / f).exists() and var not in _read(REPO / f)]
     assert not missing, "身份类配置须走环境变量:\n  " + "\n  ".join(missing)
+
+
+def test_kd_weekly_fails_clearly_without_group(tmp_path):
+    """未设 MIND_KD_GROUP 时必须明确报错退出并点名变量(FR-MOD-02 契约)。
+
+    这条行为 2026-07-25 就写进了脚本(SystemExit + 可操作指引),但一直没有
+    测试钉住——服务化 M1 起它是发行集 env 契约的样板,不能只靠源码注释活着。
+    """
+    import os
+    import sys
+    py = REPO / "scripts" / "build-kd-weekly.py"
+    if not py.exists():
+        return
+    env = {k: v for k, v in os.environ.items() if k not in ("MIND_KD_GROUP",)}
+    r = subprocess.run([sys.executable, str(py)], capture_output=True, text=True,
+                       env=env, cwd=str(REPO), timeout=60)
+    assert r.returncode != 0, "缺群名配置应非零退出"
+    assert "MIND_KD_GROUP" in (r.stdout + r.stderr), \
+        "报错须点名缺失的环境变量:" + (r.stdout + r.stderr)[:300]
 
 
 def test_keepalive_fails_clearly_without_identity(tmp_path):

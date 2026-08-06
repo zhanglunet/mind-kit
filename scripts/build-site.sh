@@ -40,6 +40,7 @@ build_page "$VAULT/docs/guide/usage.md"    usage.html     usage
 build_page "$VAULT/docs/guide/faq.md"      faq.html       faq
 build_page "$VAULT/docs/guide/deploy.md"   deploy.html    deploy
 build_page "$VAULT/docs/guide/setup-linux-server.md" server.html server
+build_page "$VAULT/docs/guide/services.md"  services.html  services
 # 标题走 --metadata-file 而非 --metadata CLI 参数:argv 按 **locale** 解码,
 # 在 C/POSIX locale 的机器上(VM 的 cron 就是)中文标题每个字节变成 U+FFFD
 # 烧进 HTML(真机实测:title 与面包屑双双乱码);metadata 文件 pandoc 恒按

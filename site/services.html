@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>服务 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="okf.html">OKF 合规</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="services.html" class="active">服务</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 服务</div>
+<h1
+id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套件(邀请制内测)</h1>
+<blockquote>
+<p><strong>一句话</strong>:把你自己的飞书云文档 /
+知识库拿回自己手里——增量备份为 Markdown,
+跑在<strong>你自己的机器</strong>上,接<strong>你自己的账号</strong>。自托管:凭证在你的系统钥匙串,
+数据在你的目录,<strong>我们全程零接触</strong>。</p>
+</blockquote>
+<h2 id="这是什么">这是什么</h2>
+<p>本站的第二大脑工具集(mind-kit,开源免费)之外,还有一套<strong>私人集成发行版</strong>:
+飞书个人数据备份套件。当前<strong>邀请制内测,免费</strong>。</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>能力</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>云文档备份</td>
+<td>「我拥有的」飞书云文档 → Markdown,增量,重跑只补新内容</td>
+</tr>
+<tr class="even">
+<td>知识库备份</td>
+<td>飞书知识库(wiki)按空间/路径落盘为 Markdown</td>
+</tr>
+<tr class="odd">
+<td>多账号</td>
+<td>一台机器管多个飞书账号,数据目录自动隔离</td>
+</tr>
+<tr class="even">
+<td>失败可见</td>
+<td>与 mind-kit 的失败通知层配套:定时任务挂了会通知你,不会静默烂掉</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="先看门槛如实说">先看门槛(如实说)</h2>
+<p>这<strong>不是</strong>点一下就好的云服务,自托管有真实的人工成本:</p>
+<ul>
+<li>会用终端、能装 CLI、能配 cron</li>
+<li>需要在你的飞书租户创建<strong>企业自建应用</strong>并扫码授权(手册给逐步说明;
+只涉你本人的文档,不需要读他人数据的审批)</li>
+<li>token 有 7 天刷新窗口,需要一条保活定时任务;断供 7 天要重新扫码</li>
+<li>能力以<strong>你租户的权限策略</strong>为准——“作者能跑”不保证”你能跑”,装前看清单</li>
+<li>依赖第三方 CLI(lark-cli),发行版锁定版本并如实声明依赖边界</li>
+</ul>
+<p>作为对价:你的凭证和数据<strong>从不经过我们</strong>,退出 =
+删本地数据 + 删自建应用,完。</p>
+<h2 id="怎么申请">怎么申请</h2>
+<p>邀请制内测,名额以单人能认真支持的数量为限:</p>
+<ul>
+<li>在 <a href="https://github.com/zhanglunet/mind-kit">mind-kit
+仓库</a>开一个 issue,
+标题带「邀请申请」,说明你的使用场景与环境(macOS/Linux)</li>
+<li>通过后你会收到发行包(私有仓访问或 tarball)与《订阅者部署手册》</li>
+</ul>
+<h2 id="边界与承诺">边界与承诺</h2>
+<ul>
+<li><strong>不做</strong>:微信个人号消息同步(无官方
+API,协议手段有封号与法律风险, 永久不提供);托管代跑(替你保管 token
+与数据——那是另一种产品形态, 当前明确不做)</li>
+<li><strong>免费</strong>:内测阶段不收费;未来若收费会提前明示,且已装功能不受影响</li>
+<li>工具集本体(mind-kit)始终开源免费,发行版只是私人集成部分</li>
+</ul>
+<h2 id="相关">相关</h2>
+<ul>
+<li><a href="install.html">安装指南</a> · <a href="usage.html">使用手册</a>
+· <a href="architecture.html">系统如何运作</a></li>
+<li>发行版更新与变更随包内 CHANGELOG 发布</li>
+</ul>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#服务飞书个人备份套件邀请制内测"
+id="toc-服务飞书个人备份套件邀请制内测">服务:飞书个人备份套件(邀请制内测)</a>
+<ul>
+<li><a href="#这是什么" id="toc-这是什么">这是什么</a></li>
+<li><a href="#先看门槛如实说"
+id="toc-先看门槛如实说">先看门槛(如实说)</a></li>
+<li><a href="#怎么申请" id="toc-怎么申请">怎么申请</a></li>
+<li><a href="#边界与承诺" id="toc-边界与承诺">边界与承诺</a></li>
+<li><a href="#相关" id="toc-相关">相关</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>
