@@ -3,33 +3,27 @@ project: my-second-brain
 description: "我的第二大脑 — AI/科技知识库"
 
 sources:
-  - path: raw/clippings      # Web Clip 和文章库(自动 watch)
+  - path: raw/clippings
     type: auto
     watch: true
-  - path: raw/flomo/delta    # flomo 增量文件(watch)
+  - path: raw/flomo/delta
     type: auto
     watch: true
-  - path: raw/pdfs           # 本地 PDF(不 watch)
+  - path: raw/pdfs
     type: auto
     watch: false
-# 注:raw/articles/ 下的历史文章**不作为编译源**,只作文章收藏,不进 Wiki 概念体系。
-# 实测:强行编译会抽出十几倍于技术剪藏的概念——评论性散文不是技术文档,抽出来的多是
-# 单篇一次性表述与文章修辞手法,会淹没已收敛的概念体系。
-# 要查这些文章直接读 raw/articles/ 下的 markdown。
 
-# 忽略目录:不发送给 API
 ignore:
-  - raw/archive              # 已处理存档,不重复编译
-  - raw/todo                 # 手动处理,不自动触发
-  - raw/flomo                # 原始导出;delta/ 子目录已在 sources 显式声明,
-                             # sources 优先于 ignore(引擎须满足 PRD §4.4 硬标准 5)
-  - raw/assets               # 图片等附件,不参与文本编译
-  - material                 # 素材库
-  - writing                  # 写作产出
-  - reports                  # 工作日志(日报/周报),不是知识来源
-  - docs                     # PRD 等设计文档,不是知识来源
-  - site                     # 文档站静态产物,不是知识来源
-  - scripts                  # 脚本目录
+  - raw/archive
+  - raw/todo
+  - raw/flomo
+  - raw/assets
+  - material
+  - writing
+  - reports
+  - docs
+  - site
+  - scripts
   - .obsidian
   - .claudian
   - .claude
@@ -38,32 +32,28 @@ output: _wiki
 
 api:
   provider: openai-compatible
-  base_url: https://open.bigmodel.cn/api/coding/paas/v4   # GLM 编码端点(OpenAI 兼容)
-  api_key: ${GLM_API_KEY}                                 # export GLM_API_KEY=...(见 ~/.zshrc,不入库)
-  extra_params:                                           # GLM-4.5 系关思维链:实测概念抽取时 CoT 吃掉 >8K 字符
-    thinking:                                             # 撑爆 token 预算(finish_reason=length),关掉后输出快且稳
+  base_url: https://open.bigmodel.cn/api/coding/paas/v4
+  api_key: ${GLM_API_KEY}
+  extra_params:
+    thinking:
       type: disabled
 
-# 模型:当前全部用 GLM 的 glm-4.5-flash(单一模型,不做分层)。
-# 原因:接 GLM 编码端点省钱,且 flash 在 120s 超时内最稳(见记忆 second-brain-sage-wiki-glm-setup)。
-# PRD 附录B 的 haiku/sonnet 分层是模板默认;本仓以此实际配置为准。模型版本随迭代定期复评(PRD §12 问题 5)。
 models:
-  summarize: glm-4.5-flash      # 摘要(高频)
-  extract:   glm-4.5-flash      # 素材抽取(高频)
-  write:     glm-4.5-flash      # 写 Wiki 文章
-  lint:      glm-4.5-flash      # 健检
-  query:     glm-4.5-flash      # 查询
+  summarize: glm-4.5-flash
+  extract: glm-4.5-flash
+  write: glm-4.5-flash
+  lint: glm-4.5-flash
+  query: glm-4.5-flash
 
 compiler:
-  max_parallel: 2                  # GLM 账户限流较紧(HTTP 429 code 1302);4 并发会导致部分写入失败,降到 2
+  max_parallel: 2
   debounce_seconds: 2
   summary_max_tokens: 1500
-  extract_batch_size: 1            # 概念抽取按单摘要小批:默认 20 份/批输出过长,叠加引擎 120s 硬超时(不可配)必败(见开发计划 G10)
-  extract_max_tokens: 8000         # 单摘要概念输出上限;flash 是推理模型,CoT 也计入,4000 会 length 截断
+  extract_batch_size: 1
+  extract_max_tokens: 8000
   article_max_tokens: 3000
-  auto_commit: false               # 拆库后必须关:引擎会提交到 mind,但个人目录已 gitignore(软链到 mind-vault),
-                                   # 提交必然为空或报错。收尾提交改由 compile.sh 走 scripts/vault.sh commit 落到内容库。
-  auto_lint: true                  # 编译后自动 lint
+  auto_commit: false
+  auto_lint: true
 
 search:
   hybrid_weight_bm25: 0.7

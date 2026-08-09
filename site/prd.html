@@ -42,47 +42,47 @@ Wiki 知识库 —— 把”每次提问都从零检索”的 RAG
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>项目</th>
 <th>内容</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>文档名称</td>
 <td>《第二大脑》个人知识库 产品需求文档(PRD)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>版本</td>
 <td>v1.3</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>状态</td>
 <td>定稿</td>
 </tr>
-<tr class="even">
+<tr>
 <td>日期</td>
 <td>2026-07-14</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>文档定位</td>
 <td>自用施工蓝图 —— 我按此文档亲自落地搭建</td>
 </tr>
-<tr class="even">
+<tr>
 <td>需求策略</td>
 <td>需求优先、工具中立;四件套(Obsidian × sage-wiki × Claudian ×
 Flomo)作为<strong>推荐参考实现</strong></td>
 </tr>
-<tr class="odd">
+<tr>
 <td>产品负责人 / 使用者</td>
 <td>本人(单人知识工作者 / 科技创业者 / 内容创作者)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>理论来源</td>
 <td>Karpathy「LLM Wiki(Wiki 不是 RAG)」方案;Tiago Forte《Building a
 Second Brain》(PARA / CODE)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>依据文档</td>
 <td>《第二大脑建设行动计划》(2026-04)</td>
 </tr>
@@ -99,7 +99,7 @@ Second Brain》(PARA / CODE)</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>版本</th>
 <th>日期</th>
 <th>修改人</th>
@@ -107,14 +107,14 @@ Second Brain》(PARA / CODE)</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>v1.0</td>
 <td>2026-07-13</td>
 <td>本人</td>
 <td>首版:在《行动计划》基础上,结合深度调研,形成需求优先、工具中立的完整
 PRD</td>
 </tr>
-<tr class="even">
+<tr>
 <td>v1.1</td>
 <td>2026-07-13</td>
 <td>本人</td>
@@ -123,7 +123,7 @@ PRD</td>
 分隔符统一为全角”｜“;附录 B/C/D/E
 与仓库实际文件同步并声明以仓库为准</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>v1.2</td>
 <td>2026-07-14</td>
 <td>本人</td>
@@ -133,7 +133,7 @@ dev build 与 PRD 假设的差距(index.md 不自动维护、auto_lint
 不触发、entities 入 ontology DB、–config 未接线、auto_commit 贪婪),及
 GLM/Kimi 双后端接入;施工侧待办清单移入独立开发计划文档活文档</td>
 </tr>
-<tr class="even">
+<tr>
 <td>v1.3</td>
 <td>2026-07-23</td>
 <td>本人</td>
@@ -261,42 +261,42 @@ AI 从积累里挖宝”,绝不先花几周整理再开工。</li>
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>术语</th>
 <th>含义</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Raw Sources 原始来源</td>
 <td>文章、笔记、PDF、剪藏等不可修改的一手资料(LLM 只读)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Wiki</td>
 <td>LLM 生成并维护的结构化 Markdown 文件集合(摘要 / 实体 / 概念 /
 综述)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Schema</td>
 <td>告诉 LLM 库结构、规范与工作流的配置文件(如 CLAUDE.md)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Ingest 摄入</td>
 <td>加入新来源:读取→提炼→更新相关 Wiki 页</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Query 查询</td>
 <td>从 Wiki 检索并综合答案,附来源引用;有价值的产出存回库</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Lint 健检</td>
 <td>定期检查库健康:矛盾、孤立页、缺失交叉引用等</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>双轨框架</td>
 <td>写作轨(六类素材)+ 决策轨(五维工作框架)并行</td>
 </tr>
-<tr class="even">
+<tr>
 <td>delta</td>
 <td>flomo 全量导出之间的”增量”文件,只编译增量以避免重复</td>
 </tr>
@@ -314,39 +314,39 @@ AI 从积累里挖宝”,绝不先花几周整理再开工。</li>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>编号</th>
 <th>目标</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>G1</td>
 <td>让知识<strong>复利</strong></td>
 <td>每一次摄入/查询/健检都使知识库更丰富,读过的内容沉淀为可调用资产而非一次性对话</td>
 </tr>
-<tr class="even">
+<tr>
 <td>G2</td>
 <td>打通<strong>输入到产出</strong></td>
 <td>flomo、文章库、PDF、剪藏统一进入流水线,写作/决策时可一键调用素材</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>G3</td>
 <td>把<strong>整理成本降到接近零</strong></td>
 <td>分类、摘要、交叉引用、归档由 LLM 自动完成,人只负责阅读与导航</td>
 </tr>
-<tr class="even">
+<tr>
 <td>G4</td>
 <td>服务<strong>写作 + 决策</strong>双场景</td>
 <td>双轨框架:写作用六类素材,产品决策用五维工作框架</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>G5</td>
 <td><strong>抗腐化</strong></td>
 <td>通过月度健检发现并修复矛盾、孤立页、重复,随规模增长保持可信</td>
 </tr>
-<tr class="even">
+<tr>
 <td>G6</td>
 <td><strong>本地、可移植、低锁定</strong></td>
 <td>纯文本 + Git 版本化,不依赖任何单一厂商,可随时迁移</td>
@@ -379,55 +379,55 @@ AI 从积累里挖宝”,绝不先花几周整理再开工。</li>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>类别</th>
 <th>指标</th>
 <th>v1 目标(建立节奏后 4–8 周)</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>北极星</td>
 <td>每周知识库调用次数(写作素材提取 + Query)</td>
 <td>≥ 5 次/周</td>
 </tr>
-<tr class="even">
+<tr>
 <td>复利</td>
 <td>Wiki 页面总数、页面间链接密度(平均入链数)</td>
 <td>页面持续增长;平均入链 ≥ 2</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>复利</td>
 <td>查询产出回写率(有价值 Query 存回 <code>_wiki/outputs/</code>
 的比例)</td>
 <td>≥ 50%</td>
 </tr>
-<tr class="even">
+<tr>
 <td>效率</td>
 <td>单篇来源摄入到可调用的时间</td>
 <td>自动来源分钟级;深度摄入 &lt; 15 分钟/篇</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>效率</td>
 <td>一次写作的素材准备时间(对比无库时)</td>
 <td>缩短 ≥ 50%</td>
 </tr>
-<tr class="even">
+<tr>
 <td>健康</td>
 <td>月度健检发现的问题数与修复率</td>
 <td>修复率 ≥ 80%</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>健康</td>
 <td>孤立页面占比</td>
 <td>&lt; 10% 并持续下降</td>
 </tr>
-<tr class="even">
+<tr>
 <td>成本</td>
 <td>每月 LLM 调用成本</td>
 <td>控制在预算内(见 §8.1,高频任务用小模型)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>可靠</td>
 <td>数据零丢失(Git 可回溯)</td>
 <td>100% 关键操作有版本记录</td>
@@ -452,24 +452,24 @@ AI 从积累里挖宝”,绝不先花几周整理再开工。</li>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>角色</th>
 <th>核心诉求</th>
 <th>高频动作</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><strong>科技创业者</strong></td>
 <td>做产品判断、竞品分析、融资准备、招聘决策时,快速调取”市场/技术/产品/人/框架”五维信息</td>
 <td>Query、决策轨素材调用</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>内容创作者</strong></td>
 <td>写文章/做分享时,快速调用可直接嵌入的金句、案例、数据、框架</td>
 <td>写作前素材提取、写作后回写</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>终身学习者</strong></td>
 <td>持续摄入
 AI/科技领域的文章、报告、笔记,并让它们互相连接、持续增值</td>
@@ -539,7 +539,7 @@ Git 版本化</strong>,以便随时回溯、备份、迁移。(→ NFR
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>层</th>
 <th>名称</th>
 <th>职责与所有权</th>
@@ -547,19 +547,19 @@ Git 版本化</strong>,以便随时回溯、备份、迁移。(→ NFR
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>第一层</td>
 <td><strong>原始来源 Raw Sources</strong></td>
 <td>文章、笔记、PDF、剪藏。不可修改,唯一真相来源</td>
 <td>人(放入);LLM 只读</td>
 </tr>
-<tr class="even">
+<tr>
 <td>第二层</td>
 <td><strong>Wiki</strong></td>
 <td>LLM 生成并维护的 Markdown:摘要、实体页、概念页、综述、查询产出</td>
 <td>编译引擎 / LLM 全权;人只读与导航</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>第三层</td>
 <td><strong>Schema</strong></td>
 <td>告诉 LLM 库结构、规范、工作流与权责边界的配置(CLAUDE.md 等)</td>
@@ -593,51 +593,51 @@ Git 版本化</strong>,以便随时回溯、备份、迁移。(→ NFR
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>编号</th>
 <th>能力域</th>
 <th>系统必须能够……</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>C1</td>
 <td><strong>摄入 Ingest</strong></td>
 <td>接收多源输入(剪藏/文章/PDF/flomo),自动或半自动地读取、提炼并整合进
 Wiki</td>
 </tr>
-<tr class="even">
+<tr>
 <td>C2</td>
 <td><strong>编译与维护 Compile</strong></td>
 <td>将来源编译为结构化、互联的 Wiki
 页(摘要/实体/概念/综述),并在新来源加入时增量更新相关页</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>C3</td>
 <td><strong>查询与综合 Query</strong></td>
 <td>基于全库检索并综合出带来源引用的答案;支持把有价值的产出回写为新页</td>
 </tr>
-<tr class="even">
+<tr>
 <td>C4</td>
 <td><strong>健检 Lint</strong></td>
 <td>定期检查库健康(矛盾/孤立页/缺失交叉引用/数据缺口),产出报告并支持部分自动修复</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>C5</td>
 <td><strong>素材与框架 Material</strong></td>
 <td>支持双轨框架:六类写作素材抽取 + 五维决策检索</td>
 </tr>
-<tr class="even">
+<tr>
 <td>C6</td>
 <td><strong>写作与回写 Express</strong></td>
 <td>支持”写作前提取→写作中调用→写作后回写”的闭环</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>S1</td>
 <td><strong>治理与 Schema</strong></td>
 <td>用可版本化的配置约束各角色权责边界,防止越权与漂移</td>
 </tr>
-<tr class="even">
+<tr>
 <td>S2</td>
 <td><strong>自动化与调度</strong></td>
 <td>目录监听、增量检测、编译后归档、定期节奏等可脚本化/自动化</td>
@@ -657,35 +657,35 @@ Wiki</td>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>能力域</th>
 <th>推荐实现</th>
 <th>角色</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>存储 / 写作界面 / 浏览</td>
 <td><strong>Obsidian</strong></td>
 <td>笔记存储、Markdown 编辑、图谱视图、Dataview、Web Clipper 剪藏</td>
 </tr>
-<tr class="even">
+<tr>
 <td>主交互界面</td>
 <td><strong>Claudian</strong>(Obsidian 内置 Claude Code 插件)</td>
 <td>在 Obsidian 侧栏直接驱动 LLM,消除”终端↔︎笔记”切换;通过 MCP
 直连编译引擎</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>编译引擎</td>
 <td><strong>sage-wiki</strong>(Karpathy 方案的 Go 实现)</td>
 <td>自动把来源编译为 Wiki;提供 CLI、MCP server、watch 监听</td>
 </tr>
-<tr class="even">
+<tr>
 <td>存量笔记来源</td>
 <td><strong>Flomo</strong>(导出 + 增量脚本)</td>
 <td>提供多年个人笔记作为知识来源与偏好校准层</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>备用批处理</td>
 <td><strong>Claude Code(CLI)</strong></td>
 <td>终端里跑复杂批处理任务;Claudian 底层即 Claude Code,CLAUDE.md
@@ -728,7 +728,7 @@ G)。</p>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>组件</th>
 <th>推荐</th>
 <th>备选</th>
@@ -736,31 +736,31 @@ G)。</p>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>存储/编辑器</td>
 <td>Obsidian</td>
 <td>Logseq、Cursor+文件夹、纯文件夹+VS Code</td>
 <td>是否本地 Markdown、有无图谱/Dataview、插件生态</td>
 </tr>
-<tr class="even">
+<tr>
 <td>编译引擎</td>
 <td>sage-wiki</td>
 <td>自建脚本(Claude Code 直接维护 Wiki)、其他 Karpathy 方案实现</td>
 <td>是否支持 watch、MCP、按任务分模型、增量编译</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>LLM 交互界面</td>
 <td>Claudian</td>
 <td>Claude Code CLI、Cursor、其他 Obsidian AI 插件</td>
 <td>是否消除上下文切换、是否复用 CLAUDE.md/MCP</td>
 </tr>
-<tr class="even">
+<tr>
 <td>存量来源</td>
 <td>Flomo</td>
 <td>Notion 导出、Apple Notes 导出、Readwise</td>
 <td>能否导出为 Markdown、能否做增量</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>版本/备份</td>
 <td>Git(本地)</td>
 <td>Git + 私有远端、同步盘(iCloud/Dropbox)</td>
@@ -791,7 +791,7 @@ Requirements)</h2>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -799,7 +799,7 @@ Requirements)</h2>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-ING-01</td>
 <td>P0</td>
 <td><strong>自动来源落地</strong>:系统应支持将剪藏文章自动落入指定输入目录(如
@@ -807,14 +807,14 @@ Requirements)</h2>
 <td>在浏览器用 Web Clipper 剪藏一篇文章,文件出现在
 <code>raw/clippings/</code> 且格式为带 frontmatter 的 Markdown</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-ING-02</td>
 <td>P0</td>
 <td><strong>多源接入</strong>:系统应支持至少四类来源 ——
 剪藏、文章库、本地 PDF、flomo 导出 —— 进入统一流水线</td>
 <td>四类来源各放入对应目录后,均可被后续编译流程识别</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-ING-03</td>
 <td>P0</td>
 <td><strong>深度对话式摄入</strong>:对标记为 <code>todo</code>
@@ -823,34 +823,34 @@ Requirements)</h2>
 <code>_wiki/outputs/</code> 摘要页 + <code>material/</code> 素材 +
 <code>log.md</code> 追加一行</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-ING-04</td>
 <td>P0</td>
 <td><strong>flomo 增量摄入</strong>:flomo
 每次为全量快照,系统应只识别并处理<strong>新增</strong>笔记(delta),不重复、不遗漏,且<strong>不修改原始导出</strong></td>
 <td>连续两次导入 flomo,第二次仅新增笔记被编译;原始导出目录字节不变</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-ING-05</td>
 <td>P1</td>
 <td><strong>一源多页更新</strong>:摄入一个来源时,系统应更新其触及的所有相关
 Wiki 页(实体、概念、摘要、索引),典型一篇触及 10–15 页</td>
 <td>摄入一篇跨多主题文章后,相关实体/概念页均出现新增内容或链接</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-ING-06</td>
 <td>P0</td>
 <td><strong>摄入即记账</strong>:每次摄入后,系统应在时序日志
 <code>log.md</code> 追加一条 <code>## [日期] ingest ｜ 标题</code></td>
 <td>每次摄入后 <code>log.md</code> 新增对应条目</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-ING-07</td>
 <td>P2</td>
 <td><strong>摄入前预览/去重提示</strong>:摄入疑似重复来源时给出提示</td>
 <td>摄入与既有来源高度相似的内容时,系统提示可能重复</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-ING-08</td>
 <td>P1</td>
 <td><strong>附件安全入箱</strong>:对话中收到的附件应先安全复制进
@@ -872,7 +872,7 @@ Compile(C2)</h3>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -880,55 +880,55 @@ Compile(C2)</h3>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-CMP-01</td>
 <td>P0</td>
 <td><strong>自动编译</strong>:系统应能将输入目录中的来源自动编译为结构化
 Wiki 页(摘要 / 实体 / 概念 / 综述)</td>
 <td>运行编译后,<code>_wiki/</code> 下生成对应分类页面</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-CMP-02</td>
 <td>P0</td>
 <td><strong>目录监听(watch)</strong>:系统应支持监听指定目录,文件变化时自动(去抖后)触发编译</td>
 <td>开启 watch 后向 <code>raw/clippings/</code>
 放入新文件,数秒内自动编译</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-CMP-03</td>
 <td>P0</td>
 <td><strong>增量与幂等</strong>:系统应只编译新增/变化的来源;已处理来源移入归档后不再重复编译</td>
 <td>重复运行编译不产生重复 Wiki 条目</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-CMP-04</td>
 <td>P0</td>
 <td><strong>索引维护</strong>:每次编译后,系统应自动更新内容导航
 <code>index.md</code>(页面 + 单行摘要 + 来源数量,按分类组织)</td>
 <td>编译后 <code>index.md</code> 反映最新页面清单</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-CMP-05</td>
 <td>P1</td>
 <td><strong>按任务分模型</strong>:系统应支持对不同编译子任务配置不同模型(高频的摘要/抽取用小模型省钱,写作/查询用强模型)</td>
 <td>配置中可分别指定 summarize/extract/write/lint/query
 的模型且生效</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-CMP-06</td>
 <td>P1</td>
 <td><strong>编译后自动动作</strong>:系统应支持编译后自动执行 Git
 提交、自动健检、自动归档等钩子</td>
 <td>开启后,一次编译触发自动 commit 与自动 lint</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-CMP-07</td>
 <td>P1</td>
 <td><strong>忽略清单</strong>:系统应支持配置不发送给 LLM
 的忽略目录(归档、素材、写作产出、脚本、配置等)</td>
 <td>忽略目录中的文件不参与编译、不消耗调用</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-CMP-08</td>
 <td>P2</td>
 <td><strong>混合检索权重可调</strong>:系统应支持关键词(BM25)+
@@ -948,7 +948,7 @@ Wiki 页(摘要 / 实体 / 概念 / 综述)</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -956,41 +956,41 @@ Wiki 页(摘要 / 实体 / 概念 / 综述)</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-QRY-01</td>
 <td>P0</td>
 <td><strong>索引优先检索</strong>:查询时系统应先读 <code>index.md</code>
 定位相关页,再深入具体页,而非扫描全部原始来源</td>
 <td>查询日志显示先命中索引再展开相关页</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-QRY-02</td>
 <td>P0</td>
 <td><strong>带来源引用的综合答案</strong>:系统应综合多页信息作答,并附
 Wiki 内部链接/来源引用</td>
 <td>任一查询回答均包含指向具体 Wiki 页或来源的引用</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-QRY-03</td>
 <td>P0</td>
 <td><strong>产出回写(探索复利)</strong>:有价值的查询分析应能一键存入
 <code>_wiki/outputs/</code> 并在 <code>log.md</code> 追加记录</td>
 <td>一次比较分析被存为 <code>_wiki/outputs/</code> 新页且日志记录</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-QRY-04</td>
 <td>P1</td>
 <td><strong>五维决策检索</strong>:系统应支持按”市场与竞争 / 技术判断 /
 产品与用户 / 人与组织 / 框架与心智模型”检索(决策轨)</td>
 <td>用五维中任一维度提问,答案聚焦该维度并跨来源综合</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-QRY-05</td>
 <td>P2</td>
 <td><strong>联网补充</strong>:当库内数据存在缺口时,系统应能(在人确认下)联网检索补充并注明来源</td>
 <td>对库内缺失的数据点,系统提示并可联网补齐</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-QRY-06</td>
 <td>P1(已落地)</td>
 <td><strong>检索栈升级</strong>:本地检索应支持 CJK bigram
@@ -1016,7 +1016,7 @@ Wiki 内部链接/来源引用</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -1024,45 +1024,45 @@ Wiki 内部链接/来源引用</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-LNT-01</td>
 <td>P0</td>
 <td><strong>矛盾检测</strong>:系统应能发现页面间矛盾、被新来源推翻的旧声明</td>
 <td>健检报告能列出至少此类问题项</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-LNT-02</td>
 <td>P0</td>
 <td><strong>孤立页/缺失交叉引用检测</strong>:系统应能发现无入链的孤立页、应链接却未链接的关系</td>
 <td>报告列出孤立页清单与建议链接</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-LNT-03</td>
 <td>P1</td>
 <td><strong>概念缺页检测</strong>:被多处提及却无独立页面的重要概念,系统应建议新建页面</td>
 <td>报告给出”建议新建概念页”清单</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-LNT-04</td>
 <td>P1</td>
 <td><strong>数据缺口 /
 新问题建议</strong>:系统应建议可联网补充的数据缺口、以及下一步值得深挖的问题与来源</td>
 <td>报告含”下一步”建议区块</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-LNT-05</td>
 <td>P1</td>
 <td><strong>部分自动修复</strong>:系统应支持对安全的问题(如补链接)执行自动修复</td>
 <td>运行”修复模式”后,可自动补齐的链接被修复,并记录变更</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-LNT-06</td>
 <td>P2</td>
 <td><strong>健检记账</strong>:每次健检在 <code>log.md</code> 追加
 <code>## [日期] lint ｜ 摘要</code></td>
 <td>健检后日志新增条目</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-LNT-07</td>
 <td>P1(已落地)</td>
 <td><strong>轻量保鲜模型</strong>:LLM
@@ -1088,7 +1088,7 @@ Wiki 内部链接/来源引用</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -1096,7 +1096,7 @@ Wiki 内部链接/来源引用</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-MAT-01</td>
 <td>P0</td>
 <td><strong>六类写作素材抽取(写作轨)</strong>:系统应能按①原创金句
@@ -1105,28 +1105,28 @@ Wiki 内部链接/来源引用</td>
 对应子目录</td>
 <td>对一批来源执行抽取,六类文件各自被追加对应素材,原始来源不被修改</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-MAT-02</td>
 <td>P0</td>
 <td><strong>五维决策框架(决策轨)</strong>:Wiki
 的标签/分类体系应支持”市场与竞争/技术判断/产品与用户/人与组织/框架与心智模型”五维检索</td>
 <td>五维标签存在且可用于检索/Dataview</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-MAT-03</td>
 <td>P1</td>
 <td><strong>来源偏好加权</strong>:处理 flomo
 等个人来源时,系统应侧重①②⑤,弱化③⑥;处理文章库时相反</td>
 <td>抽取结果体现来源相关的类别偏好</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-MAT-04</td>
 <td>P1</td>
 <td><strong>主题素材库生成</strong>:给定写作主题与结构,系统应在全库按六类搜集,输出
 <code>material/[主题]-素材库.md</code></td>
 <td>输入主题后得到按六类组织、带来源的素材库文件</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-MAT-05</td>
 <td>P2</td>
 <td><strong>框架与心智模型沉淀</strong>:系统应把反复出现的思维框架沉淀为
@@ -1146,7 +1146,7 @@ Wiki 内部链接/来源引用</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -1154,21 +1154,21 @@ Wiki 内部链接/来源引用</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-WRT-01</td>
 <td>P0</td>
 <td><strong>写作前:素材提取</strong>:系统应支持一键从库中生成主题素材库(见
 FR-MAT-04)</td>
 <td>写作前得到可直接取用的素材库</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-WRT-02</td>
 <td>P1</td>
 <td><strong>写作中:深挖查询</strong>:写作过程中系统应支持即时 Query
 深挖某点</td>
 <td>写作中可随时发起查询并得到带引用的答案</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-WRT-03</td>
 <td>P0</td>
 <td><strong>写作后:回写复利</strong>:新产生的金句/判断/案例应回写至
@@ -1176,7 +1176,7 @@ FR-MAT-04)</td>
 <code>_wiki/outputs/</code></td>
 <td>写作后至少完成一次回写并被日志记录</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-WRT-04</td>
 <td>P1</td>
 <td><strong>写作产出存档</strong>:成稿存入
@@ -1196,7 +1196,7 @@ FR-MAT-04)</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -1204,7 +1204,7 @@ FR-MAT-04)</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-SCH-01</td>
 <td>P0</td>
 <td><strong>权责边界配置</strong>:系统应有一份可版本化的 Schema(如
@@ -1215,35 +1215,35 @@ CLAUDE.md),明确各角色对各目录的读/写权限</td>
 <code>material/</code>;<code>writing/</code> LLM 可写、人主导(与 §9 RACI
 一致)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-SCH-02</td>
 <td>P0</td>
 <td><strong>防越权</strong>:LLM
 不得直接创建/修改编译引擎管辖的文件(<code>_wiki/summaries/</code>、<code>_wiki/concepts/</code>、<code>_wiki/entities/</code>)</td>
 <td>在规范约束下,LLM 拒绝或避免写入受保护目录</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-SCH-03</td>
 <td>P0</td>
 <td><strong>共同维护文件规则</strong>:<code>index.md</code>、<code>log.md</code>
 允许追加不允许删除</td>
 <td>LLM 仅追加这两个文件,不删除历史</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-SCH-04</td>
 <td>P1</td>
 <td><strong>工作流内置</strong>:Schema 应写明
 Ingest/Query/Lint/flomo/写作 的标准步骤,供 LLM 遵循</td>
 <td>CLAUDE.md 含各工作流步骤;LLM 行为与之一致</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-SCH-05</td>
 <td>P1</td>
 <td><strong>Schema 可进化</strong>:Schema
 应随使用持续迭代,并被版本化记录</td>
 <td>CLAUDE.md 的修改进入 Git 历史</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-SCH-06</td>
 <td>P1(已落地)</td>
 <td><strong>待确认决策队列</strong>:需要人工裁决的事项(提升入库/删除/合并/Schema
@@ -1269,7 +1269,7 @@ CLI 硬保证)+ Dataview 看板;check 并入 lint</td>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -1277,14 +1277,14 @@ CLI 硬保证)+ Dataview 看板;check 并入 lint</td>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-AUT-01</td>
 <td>P0</td>
 <td><strong>编译后自动归档</strong>:已编译的剪藏文件应能自动移入
 <code>raw/archive/</code>,避免重复编译</td>
 <td>归档脚本运行后,已处理文件移入 archive,不再触发编译</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-AUT-02</td>
 <td>P0</td>
 <td><strong>flomo 增量脚本</strong>:提供脚本比对两次导出、生成 delta
@@ -1292,27 +1292,27 @@ CLI 硬保证)+ Dataview 看板;check 并入 lint</td>
 <td>运行脚本后仅新增笔记进入
 <code>raw/flomo/delta/</code>,指纹状态更新</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-AUT-03</td>
 <td>P1</td>
 <td><strong>周期节奏</strong>:支持每周(摄入/归档/健检)、每月(深度健检)的固定节奏,可手动或半自动执行</td>
 <td>存在明确的每周/每月 checklist(见 §7.6);watch 模式可自动化
 clippings</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-AUT-04</td>
 <td>P1</td>
 <td><strong>版本化</strong>:关键操作后自动/半自动 Git
 提交,保证可回溯</td>
 <td>编译/摄入后有对应 commit</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-AUT-05</td>
 <td>P2</td>
 <td><strong>图片本地化</strong>:剪藏/摄入的图片应能落入本地附件目录,避免外链失效</td>
 <td>附件保存在 <code>raw/assets/</code> 且引用为本地路径</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-AUT-06</td>
 <td>P1</td>
 <td><strong>工作日志(日报/周报)</strong>:系统应能自动盘点前一天的工作(git
@@ -1322,7 +1322,7 @@ clippings</td>
 <td>运行日报脚本后 <code>reports/daily/</code>
 出现当日报告且每条可回溯来源;运行周报脚本得到聚合周报;手记区内容重生成后不丢失</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-AUT-07</td>
 <td>P1(已落地)</td>
 <td><strong>浏览站新鲜度自检</strong>:浏览站构建时记录输入指纹(<code>browse/wiki/.build-manifest.json</code>),服务端
@@ -1350,7 +1350,7 @@ Evaluation(S3,2026-07 新增能力域)</h3>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>ID</th>
 <th>优先级</th>
 <th>需求描述</th>
@@ -1358,7 +1358,7 @@ Evaluation(S3,2026-07 新增能力域)</h3>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>FR-EVA-01</td>
 <td>P0(已落地)</td>
 <td><strong>检索回归基线</strong>:系统应维护 golden case(检索
@@ -1369,7 +1369,7 @@ CI</td>
 <code>evaluation/fixtures/retrieval_smoke.json</code> 全过且
 MRR≥0.75;pytest 锁定基线条数,静默删 case 即红</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-EVA-02</td>
 <td>P0(已落地)</td>
 <td><strong>质量断言锁认知边界</strong>:系统应支持对知识页断言
@@ -1380,7 +1380,7 @@ MRR≥0.75;pytest 锁定基线条数,静默删 case 即红</td>
 通过合成样例;「required=限定语全句 + forbidden=其中断言子串」的 case
 可正常使用</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>FR-EVA-03</td>
 <td>P0(已落地)</td>
 <td><strong>评测流量不掺水</strong>:评测请求应显式声明(<code>eval:true</code>),服务端对评测流量不写调用记账——回归跑批不污染北极星指标(调用率)</td>
@@ -1388,7 +1388,7 @@ MRR≥0.75;pytest 锁定基线条数,静默删 case 即红</td>
 <code>_wiki/log.md</code> 记账;evaluate_search 的 brain
 后端默认带该标记</td>
 </tr>
-<tr class="even">
+<tr>
 <td>FR-EVA-04</td>
 <td>P0(约定)</td>
 <td><strong>摄入即沉淀</strong>:每轮真实摄入应沉淀 1-2 条回归 case 到
@@ -1465,7 +1465,7 @@ Vault)。这是所有工具协作的物理约定。</p>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>目录</th>
 <th>是否 watch</th>
 <th>用途</th>
@@ -1473,19 +1473,19 @@ Vault)。这是所有工具协作的物理约定。</p>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>raw/clippings/</code></td>
 <td>✅ 监听</td>
 <td>Web Clipper 自动落地的文章;走自动编译</td>
 <td>移入 <code>raw/archive/</code>(可脚本自动化)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>raw/todo/</code></td>
 <td>❌ 不监听</td>
 <td>需要深度对话式摄入的文章</td>
 <td>LLM 处理完后移入 <code>raw/archive/</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>raw/archive/</code></td>
 <td>❌ 不监听</td>
 <td>所有已处理内容的永久存档</td>
@@ -1527,7 +1527,7 @@ class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>type</th>
 <th>目录</th>
 <th>内容</th>
@@ -1535,32 +1535,32 @@ class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>summary</code></td>
 <td><code>_wiki/summaries/</code></td>
 <td>单一来源的摘要</td>
 <td>编译引擎(LLM 只读)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>entity</code></td>
 <td><code>_wiki/entities/</code></td>
 <td>人/公司/产品/模型等实体的聚合页</td>
 <td>编译引擎</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>concept</code></td>
 <td><code>_wiki/concepts/</code></td>
 <td>概念/方法/框架的聚合页</td>
 <td>编译引擎</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>output</code></td>
 <td><code>_wiki/outputs/</code></td>
 <td>查询产出与深度摄入摘要:比较分析、决策备忘、todo 来源摘要页(见
 §7.1)</td>
 <td><strong>LLM 可写</strong></td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>note</code></td>
 <td><code>raw/…</code> / <code>material/…</code></td>
 <td>原始笔记 / 抽取的素材</td>
@@ -1592,7 +1592,7 @@ class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>文件</th>
 <th>用途</th>
 <th>更新时机</th>
@@ -1600,14 +1600,14 @@ class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>_wiki/index.md</code></td>
 <td>内容目录:所有页面 + 单行摘要 +
 来源数量,按分类组织。查询时先读这里</td>
 <td>每次 ingest 后自动更新</td>
 <td>分类小标题下逐页列出 <code>- [[页面]] — 摘要(N 源)</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>_wiki/log.md</code></td>
 <td>时序日志:只追加,记录每次操作</td>
 <td>每次操作后追加</td>
@@ -1666,24 +1666,24 @@ archive。</p>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>阶段</th>
 <th>操作</th>
 <th>产出</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>写作前</td>
 <td>用六类框架 prompt 让 LLM 在全库提取素材</td>
 <td><code>material/[主题]-素材库.md</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td>写作中</td>
 <td>打开素材库取用金句/案例/数据;需深挖时即时 Query</td>
 <td>成稿草稿</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>写作后</td>
 <td>新金句/判断/案例回写 <code>material/</code>;值得留存的分析存
 <code>_wiki/outputs/</code>;成稿存 <code>writing/</code></td>
@@ -1743,70 +1743,70 @@ archive。</p>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>维度</th>
 <th>需求</th>
 <th>具体标准</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><strong>成本</strong></td>
 <td>LLM 调用成本可控</td>
 <td>按任务分模型:高频的 summarize/extract/lint 用小模型(如 Haiku
 级),低频高价值的 write/query 用强模型(如 Sonnet
 级);设定每月预算上限并可通过 <code>log.md</code> 粗估用量</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>性能</strong></td>
 <td>编译与查询延迟可接受</td>
 <td>自动来源分钟级完成编译;单次查询秒级返回;watch 去抖(如 2
 秒)避免频繁触发;编译并发可配置(如 max_parallel=4)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>规模</strong></td>
 <td>运行在方案甜点区</td>
 <td>目标 100–10,000
 篇高信号来源;超过数百页时启用混合检索(BM25+向量);不追求百万级</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>隐私与安全</strong></td>
 <td>个人数据不外泄</td>
 <td>数据本地存储;仅”发送给 LLM 的目录”经过 API,敏感目录纳入
 <code>ignore</code>;API Key
 用环境变量注入,不写入版本库;<code>.gitignore</code> 排除密钥与缓存</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>可靠性与备份</strong></td>
 <td>数据零丢失、可回溯</td>
 <td>Git
 版本化关键操作;原始来源永不被改写;建议叠加远端私有仓库或加密同步盘做异地备份</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>可移植性</strong></td>
 <td>低锁定、可迁移</td>
 <td>纯 Markdown + YAML,任何编辑器可读;工具可按 §4.4 标准替换;迁移 =
 拷贝目录</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>可维护性</strong></td>
 <td>抗腐化</td>
 <td>月度健检制度化;Schema 随用迭代;<code>log.md</code>
 保留完整操作史</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>可观测性</strong></td>
 <td>操作可追溯</td>
 <td>每次 ingest/query/lint 有日志与(可选)commit;可用
 Dataview/图谱自查健康度</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>易用性</strong></td>
 <td>低摩擦日常使用</td>
 <td>主交互集中在 Obsidian 侧栏,消除”终端↔︎笔记”切换;常用操作固化为 prompt
 模板与脚本</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>可扩展性</strong></td>
 <td>能力可增量增强</td>
 <td>新增来源类型/新增自动化脚本不影响既有数据;P2 能力可后续叠加</td>
@@ -1841,7 +1841,7 @@ CLAUDE.md(Schema)的核心职责,防止 LLM 越权或”漂移”。</p>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>目录 / 资产</th>
 <th>编译引擎(sage-wiki)</th>
 <th>LLM(Claudian / Claude Code)</th>
@@ -1849,49 +1849,49 @@ CLAUDE.md(Schema)的核心职责,防止 LLM 越权或”漂移”。</p>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>raw/**</code> 原始来源</td>
 <td>只读(用于编译)</td>
 <td>只读</td>
 <td>放入 / 组织(A)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>_wiki/summaries/</code>、<code>_wiki/concepts/</code>、<code>_wiki/entities/</code></td>
 <td><strong>全权写(R/A)</strong></td>
 <td>只读</td>
 <td>只读、导航</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>_wiki/outputs/</code></td>
 <td>—</td>
 <td><strong>可写(R/A)</strong></td>
 <td>只读</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>_wiki/index.md</code>、<code>_wiki/log.md</code></td>
 <td>可写</td>
 <td><strong>可追加不可删</strong></td>
 <td>只读</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>material/**</code> 素材</td>
 <td>忽略</td>
 <td><strong>全权写(R/A)</strong></td>
 <td>使用</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>writing/**</code> 写作产出</td>
 <td>忽略</td>
 <td>可写</td>
 <td>主导(A)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>CLAUDE.md</code> Schema</td>
 <td>只读</td>
 <td>可建议修改</td>
 <td><strong>共同维护(A)</strong></td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>config.yaml</code>、<code>.mcp.json</code></td>
 <td>读取</td>
 <td>只读</td>
@@ -2017,24 +2017,24 @@ clippings)。</li>
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>里程碑</th>
 <th>时间</th>
 <th>完成标志</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>M1 骨架就绪</td>
 <td>第 1 周末</td>
 <td>环境/配置/Schema/目录/插件全部就位</td>
 </tr>
-<tr class="even">
+<tr>
 <td>M2 主流程贯通</td>
 <td>第 2 周末</td>
 <td>编译/摄入/查询/素材/健检/版本化各跑通一次</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>M3 进入稳态</td>
 <td>第 4–8 周</td>
 <td>每周节奏固化,北极星指标达标,库开始复利</td>
@@ -2053,7 +2053,7 @@ clippings)。</li>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>#</th>
 <th>风险 / 易踩的坑</th>
 <th>影响</th>
@@ -2061,73 +2061,73 @@ clippings)。</li>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>R1</td>
 <td><strong>先整理知识库再干活</strong></td>
 <td>陷入无止境整理,永不产出</td>
 <td>任务驱动:先有写作/决策任务,再让 AI 从积累里挖宝</td>
 </tr>
-<tr class="even">
+<tr>
 <td>R2</td>
 <td><strong>把 todo 文件移入 <code>clippings/</code> 存档</strong></td>
 <td>编译引擎重复编译 → 重复 Wiki 条目</td>
 <td>统一移入 <code>raw/archive/</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td>R3</td>
 <td><strong>把 flomo 原始导出直接扔进编译范围</strong></td>
 <td>全量重复、笔记被反复处理</td>
 <td>只编译 <code>raw/flomo/delta/</code> 增量;原始导出永久原样保留</td>
 </tr>
-<tr class="even">
+<tr>
 <td>R4</td>
 <td><strong>忽略 CLAUDE.md,让 LLM 自由发挥</strong></td>
 <td>LLM 越权改 Wiki、结构漂移</td>
 <td>先写好 Schema,明确编译引擎与 LLM 的权责边界</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>R5</td>
 <td><strong>用 LLM 直接改 <code>_wiki/summaries/</code></strong></td>
 <td>破坏编译引擎的领地、产生冲突</td>
 <td>LLM 只读该目录,产出写到 <code>_wiki/outputs/</code></td>
 </tr>
-<tr class="even">
+<tr>
 <td>R6</td>
 <td><strong>Query 答案留在聊天记录里</strong></td>
 <td>洞见流失、探索不复利</td>
 <td>有价值的分析存入 <code>_wiki/outputs/</code> 并记日志</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>R7</td>
 <td><strong>永不健检</strong></td>
 <td>库随规模腐化:矛盾、孤立页堆积</td>
 <td>月度健检制度化,<code>lint --fix</code> 处理安全项</td>
 </tr>
-<tr class="even">
+<tr>
 <td>R8</td>
 <td><strong>六类框架用于所有场景</strong></td>
 <td>写作与决策混淆、检索低效</td>
 <td>写作用六类框架;产品决策用五维框架;各司其职</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>R9</td>
 <td><strong>API Key 写入版本库 / 配置</strong></td>
 <td>密钥泄露</td>
 <td>用环境变量注入;<code>.gitignore</code> 排除密钥与缓存</td>
 </tr>
-<tr class="even">
+<tr>
 <td>R10</td>
 <td><strong>无异地备份</strong></td>
 <td>本地损坏即全失</td>
 <td>Git + 远端私有仓库 / 加密同步盘做异地备份</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>R11</td>
 <td><strong>LLM 调用成本失控</strong></td>
 <td>月度账单超预算</td>
 <td>分层模型 + 忽略清单 + 增量编译 + 预算护栏</td>
 </tr>
-<tr class="even">
+<tr>
 <td>R12</td>
 <td><strong>规模超出甜点区</strong></td>
 <td>检索噪声上升、成本陡增</td>
@@ -2408,7 +2408,7 @@ G:选型对比(需求优先下的备选评估)</h3>
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>组件</th>
 <th>推荐</th>
 <th>主要备选</th>
@@ -2416,34 +2416,34 @@ G:选型对比(需求优先下的备选评估)</h3>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>存储/编辑器</td>
 <td><strong>Obsidian</strong></td>
 <td>Logseq / Cursor+文件夹 / VS Code+文件夹</td>
 <td>Obsidian:本地 Markdown、图谱、Dataview、插件生态成熟;Logseq
 大纲式更适合原子笔记;纯文件夹最轻但缺图谱</td>
 </tr>
-<tr class="even">
+<tr>
 <td>编译引擎</td>
 <td><strong>sage-wiki</strong></td>
 <td>自建脚本让 Claude Code 直接维护 Wiki / 其他 Karpathy 方案实现</td>
 <td>sage-wiki:开箱即用的 watch / MCP / 分模型 /
 增量;自建更灵活但需自己维护幂等与调度</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>LLM 交互界面</td>
 <td><strong>Claudian</strong></td>
 <td>Claude Code CLI / Cursor / 其他 Obsidian AI 插件</td>
 <td>Claudian:侧栏直用、复用 CLAUDE.md 与 MCP、消除切换;CLI
 适合批处理</td>
 </tr>
-<tr class="even">
+<tr>
 <td>存量来源</td>
 <td><strong>Flomo</strong></td>
 <td>Notion / Apple Notes / Readwise 导出</td>
 <td>关键是能导出 Markdown 且能做增量;Flomo 卡片式贴合个人金句/复盘</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>版本/备份</td>
 <td><strong>Git(本地)</strong></td>
 <td>Git+私有远端 / iCloud / Dropbox(加密)</td>
@@ -2464,70 +2464,70 @@ G:选型对比(需求优先下的备选评估)</h3>
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>术语</th>
 <th>含义</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>RAG</td>
 <td>检索增强生成:查询时临时检索原始文档片段作答,不留积累</td>
 </tr>
-<tr class="even">
+<tr>
 <td>LLM Wiki</td>
 <td>Karpathy 方案:LLM 持续编写维护的永久性、结构化、互联 Markdown
 库</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Raw Sources</td>
 <td>原始来源:不可修改的一手资料(LLM 只读)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Wiki</td>
 <td>编译产物:摘要 / 实体 / 概念 / 综述 / 查询产出</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Schema</td>
 <td>规范配置(CLAUDE.md):权责边界 + 工作流</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Ingest / Query / Lint</td>
 <td>三种核心操作:摄入 / 查询 / 健检</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Compile 编译</td>
 <td>把来源转成结构化 Wiki 页的过程</td>
 </tr>
-<tr class="even">
+<tr>
 <td>delta</td>
 <td>flomo 全量导出之间的增量文件(仅此被编译)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>watch</td>
 <td>监听目录变化自动触发编译</td>
 </tr>
-<tr class="even">
+<tr>
 <td>MCP</td>
 <td>Model Context Protocol:让 LLM 把外部工具当原生工具调用</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>六类框架(写作轨)</td>
 <td>金句/复盘/外部权威/案例/框架/数据</td>
 </tr>
-<tr class="even">
+<tr>
 <td>五维框架(决策轨)</td>
 <td>市场与竞争/技术判断/产品与用户/人与组织/框架与心智模型</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>PARA / CODE</td>
 <td>Building a Second Brain 的组织法与信息生命周期</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Intermediate Packet</td>
 <td>中间产物:可复用的半成品(对应 material/ 与 outputs/)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>复利制品</td>
 <td>compounding artifact:越用越丰富、价值累积的知识库</td>
 </tr>
@@ -2577,7 +2577,7 @@ auto_commit(FR-AUT-04)· 深度 ingest(FR-ING-03,6 文档→素材+摘要+log)·
 <col style="width: 25%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>#</th>
 <th>偏差</th>
 <th>波及</th>
@@ -2585,41 +2585,41 @@ auto_commit(FR-AUT-04)· 深度 ingest(FR-ING-03,6 文档→素材+摘要+log)·
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>G1</td>
 <td><code>_wiki/index.md</code> <strong>不自动维护</strong>(引擎用
 <code>.sage/</code> DB + <code>_wiki/CHANGELOG.md</code>)</td>
 <td>FR-CMP-04(P0)、FR-QRY-01</td>
 <td>待定:脚本重建 index vs 认定引擎 query 为检索入口</td>
 </tr>
-<tr class="even">
+<tr>
 <td>G2</td>
 <td><code>auto_lint: true</code> <strong>编译后不触发</strong></td>
 <td>FR-CMP-06、FR-LNT</td>
 <td>待办:编译后串一步 <code>sage-wiki lint</code></td>
 </tr>
-<tr class="odd">
+<tr>
 <td>G3</td>
 <td><strong>entities 不写独立页</strong>,入 <code>concepts/</code> +
 ontology DB</td>
 <td>§6.1/§6.3</td>
 <td>待定:接受 ontology DB vs 导出实体页</td>
 </tr>
-<tr class="even">
+<tr>
 <td>G4</td>
 <td><strong><code>--config</code> flag 未接线</strong>(永远读
 <code>config.yaml</code>)</td>
 <td>多后端切换</td>
 <td>已缓解:<code>scripts/sage-backend.sh</code> 换 config.yaml</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>G5</td>
 <td><strong>auto_commit 贪婪
 <code>git add -A</code></strong>(卷入无关改动)</td>
 <td>版本卫生</td>
 <td>缓解:compile 前先 commit/stash</td>
 </tr>
-<tr class="even">
+<tr>
 <td>G6</td>
 <td>无 embedding,<strong>向量检索关闭</strong>(仅 BM25)</td>
 <td>FR-CMP-08(P2)</td>

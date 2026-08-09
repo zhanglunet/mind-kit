@@ -1,3 +1,6 @@
+---
+type: readme
+---
 # reports/ — 工作日志(日报 / 周报)
 
 持续记录在知识库上做过的工作,并合成周报。这是 LLM 可写、以脚本自动维护为主的目录,不参与 sage-wiki 编译(已在 `config.yaml` ignore)。

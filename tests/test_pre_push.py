@@ -151,3 +151,49 @@ def test_hook_prefers_repo_venv_over_env(tmp_path):
     assert "VENV-USED" in r.stderr, "有 .venv 就该用 .venv:" + r.stdout + r.stderr
     assert "MINDPY-USED" not in r.stderr, "MIND_PYTHON 不该盖过 .venv:" + r.stderr
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+# ═══ 2026-08-06 真机暴露:恒红的假门禁 ═══════════════════════════════
+
+def test_hook_isolates_git_env_vars(tmp_path):
+    """钩子必须把 git 传进来的 GIT_* 变量隔离掉,否则整套门禁恒红。
+
+    实测:`git push` 调 pre-push 时会设 GIT_DIR(以及 GIT_INDEX_FILE 等)。
+    钩子直接 `pytest`,这些变量就泄漏进测试起的**每一个 git 子进程** ——
+    `tests/test_vault_sh.py` 在 tmp_path 里造临时仓再 `git -C` 操作,
+    子进程却被 GIT_DIR 指回真实仓,于是一片红。
+
+    后果不是"偶尔误报":这些测试**单独跑全绿、一 push 就红**,
+    门禁从装上那天起就没放行过任何一次 push。
+    恒红的门禁等于没有门禁 —— 还更坏,因为它逼所有人养成 --no-verify 的习惯。
+
+    这里直接断言钩子在 GIT_DIR 被污染时仍能正确放行一份全绿的测试。
+    """
+    _write(tmp_path, "test_ok.py", "def test_ok():\n    assert True\n")
+    repo = _synthetic_repo(tmp_path, name=".hookrepo")
+    r = subprocess.run(
+        ["bash", str(repo / ".githooks" / "pre-push")],
+        cwd=str(tmp_path), input="", capture_output=True, text=True,
+        env={**os.environ, "MIND_PYTHON": sys.executable,
+             # 复现 git 调用钩子时的环境
+             "GIT_DIR": str(REPO / ".git"),
+             "GIT_INDEX_FILE": str(REPO / ".git" / "index")},
+    )
+    assert "GIT_DIR" not in r.stderr or r.returncode == 0, r.stderr[-400:]
+    assert r.returncode == 0, (
+        "钩子没隔离 GIT_* → 测试子进程被指回真实仓:\n" + (r.stdout + r.stderr)[-600:])
+
+
+def test_hook_unsets_git_env_for_pytest(tmp_path):
+    """更直接的锁:pytest 进程里不该再看得见 GIT_DIR。"""
+    _write(tmp_path, "test_env.py",
+           "import os\n"
+           "def test_no_git_dir():\n"
+           "    assert 'GIT_DIR' not in os.environ, 'GIT_DIR 泄漏进了测试进程'\n")
+    repo = _synthetic_repo(tmp_path, name=".hookrepo")
+    r = subprocess.run(
+        ["bash", str(repo / ".githooks" / "pre-push")],
+        cwd=str(tmp_path), input="", capture_output=True, text=True,
+        env={**os.environ, "MIND_PYTHON": sys.executable, "GIT_DIR": str(REPO / ".git")},
+    )
+    assert r.returncode == 0, (r.stdout + r.stderr)[-600:]

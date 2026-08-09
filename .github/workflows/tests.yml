@@ -22,8 +22,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dev deps
-        run: python -m pip install --upgrade pip && pip install -r requirements-dev.txt
+      # 运行时依赖也要装:tests/test_build_wiki_site.py 在 **collection 期**就
+      # exec_module 了 build-wiki-site.py,后者 import markdown。缺它不是"少跑一个
+      # 测试",是 collection error → **退出码 2、整套件零执行**(2026-08-04 起真实
+      # 发生,CI 从那天到 08-06 没有真正检查过任何一次 push)。
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Run pytest
         run: python -m pytest -q

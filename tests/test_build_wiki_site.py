@@ -6,6 +6,15 @@ from pathlib import Path
 
 import pytest
 
+# 被测脚本在模块顶层 `import markdown`,而 markdown 是 **可选** 运行时依赖
+# (requirements.txt 明写:不装也不影响编译,compile.sh 第 4 步是 best-effort)。
+# 没有这道守卫时,缺它会在 **collection 期** 抛 ModuleNotFoundError ——
+# pytest 对 collection error 的处理是 `Interrupted` + **退出码 2,整套件零执行**。
+# 一个可选依赖不该有掐断全套件的杀伤力(2026-08-04~08-06 的 CI 就是这么恒红的)。
+pytest.importorskip(
+    "markdown",
+    reason="缺可选依赖 markdown(pip install -r requirements.txt);跳过本模块,不掐断全套件")
+
 _SPEC = importlib.util.spec_from_file_location(
     "build_wiki_site",
     Path(__file__).resolve().parent.parent / "scripts" / "build-wiki-site.py")
@@ -67,3 +76,12 @@ def test_recent_section_caps_at_ten(mini_vault):
     sec = html.split("最近更新", 1)[1].split("<h2", 1)[0]
     assert sec.count("<li>") <= 10, f"最近更新最多 10 条,实际 {sec.count('<li>')}"
     assert "批量14" in sec and "批量04" not in sec, "留下的必须是最新的那批"
+
+
+def test_index_groups_are_collapsed_and_have_category_overview(mini_vault):
+    pages = B.collect()
+    html = B.index_main(B.grouped(pages), pages)
+    assert 'class="category-grid"' in html
+    assert 'class="index-section"' in html
+    assert '<details class="index-section"' in html
+    assert '<summary><span>概念</span>' in html

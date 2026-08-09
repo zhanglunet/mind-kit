@@ -117,6 +117,7 @@ _wiki/under_review/
 /reports/weekly
 /reports/lint
 .manifest.json
+.manifest.json.lock
 # 内容库若被克隆到本库**内部**(很自然的误操作,布局本应是同级目录),
 # 没有这行会静默跟踪全部个人内容。零成本兜底。
 /mind-vault/

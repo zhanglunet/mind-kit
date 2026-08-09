@@ -161,10 +161,13 @@ def build_edges(pages, lookup):
 def sidebar_html(groups, active_slug):
     li = []
     for name, ps in groups:
-        li.append(f'<div class="grp">{html.escape(disp(name))}</div>')
+        open_attr = " open" if any(p.slug == active_slug for p in ps) else ""
+        li.append(f'<details class="nav-group"{open_attr}>')
+        li.append(f'<summary class="grp">{html.escape(disp(name))}<span class="nav-count">{len(ps)}</span></summary>')
         for p in ps:
             cls = " active" if p.slug == active_slug else ""
             li.append(f'<a class="nav{cls}" href="{p.href}" data-t="{html.escape(p.title.lower())}">{html.escape(p.title)}</a>')
+        li.append('</details>')
     return "\n".join(li)
 
 
@@ -191,9 +194,8 @@ def page_shell(title, sidebar, main, home_active=False, graph_active=False):
 const q=document.getElementById('q'),nav=document.getElementById('nav');
 q&&q.addEventListener('input',()=>{{const v=q.value.toLowerCase();
  nav.querySelectorAll('.nav').forEach(a=>{{a.style.display=a.dataset.t.includes(v)||a.textContent.toLowerCase().includes(v)?'':'none';}});
- nav.querySelectorAll('.grp').forEach(g=>{{let n=g.nextElementSibling,any=false;
-  while(n&&n.classList.contains('nav')){{if(n.style.display!=='none')any=true;n=n.nextElementSibling;}}
-  g.style.display=any?'':'none';}});}});
+ nav.querySelectorAll('.nav-group').forEach(g=>{{const any=[...g.querySelectorAll('.nav')].some(a=>a.style.display!=='none');
+  g.style.display=any?'':'none';if(v&&any)g.open=true;}});}});
 document.getElementById('menu').addEventListener('click',()=>document.getElementById('side').classList.toggle('open'));
 </script>
 </body></html>"""
@@ -257,18 +259,28 @@ def index_main(groups, pages):
         f'<a class="tchip" href="#g{i}"><i style="background:{KIND_COLOR[group_kind(name)]}"></i>'
         f'{html.escape(disp(name))}<b>{len(ps)}</b></a>'
         for i, (name, ps) in enumerate(groups))
+    category_cards = "".join(
+        f'<a class="category-card" href="#g{i}">'
+        f'<span class="category-dot" style="background:{KIND_COLOR[group_kind(name)]}"></span>'
+        f'<span><strong>{html.escape(disp(name))}</strong><small>{len(ps)} 页</small></span>'
+        f'</a>'
+        for i, (name, ps) in enumerate(groups))
     parts = [f"<h1>知识库索引</h1>",
              f'<p class="sub">共 {n} 页 · 生成于 {date.today().isoformat()} · 由 <code>build-wiki-site.py</code> 从 <code>_wiki/</code> + <code>material/</code> 生成 · <a href="graph.html">🕸 看关系图</a></p>',
              recent_html(pages),
+             '<h2 class="overview-title">按分类浏览</h2>',
+             f'<div class="category-grid">{category_cards}</div>',
              f'<div class="toc">{toc}</div>']
     for i, (name, ps) in enumerate(groups):
-        parts.append(f'<h2 id="g{i}">{html.escape(disp(name))} <span class="cnt">{len(ps)}</span></h2>')
+        parts.append(f'<details class="index-section" id="g{i}">')
+        parts.append(f'<summary><span>{html.escape(disp(name))}</span><span class="cnt">{len(ps)} 页</span></summary>')
         parts.append('<ul class="cards">')
         for p in ps:
             one = f' — {html.escape(p.oneliner)}' if p.oneliner else ""
             src = f' <span class="src">{p.sources}源</span>' if p.sources else ""
             parts.append(f'<li><a href="{p.href}">{html.escape(p.title)}</a>{src}{one}</li>')
         parts.append("</ul>")
+        parts.append("</details>")
     return "\n".join(parts)
 
 
@@ -349,7 +361,8 @@ CSS = """
 .glink{display:block;color:var(--acc);text-decoration:none;font-size:14px;padding:5px 8px;border-radius:6px;margin-bottom:10px}
 .glink:hover{background:var(--chip)}.glink.active{background:var(--acc);color:#fff}
 #q{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);margin-bottom:10px;font-size:14px}
-.grp{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin:14px 8px 4px}
+.nav-group{margin:10px 0}.grp{display:flex;align-items:center;justify-content:space-between;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin:0;padding:4px 8px;cursor:pointer;list-style:none}.grp::-webkit-details-marker{display:none}.grp::before{content:'›';font-size:16px;margin-right:5px;transition:.15s}.nav-group[open]>.grp::before{transform:rotate(90deg)}
+.nav-count{font-size:11px;opacity:.65;font-variant-numeric:tabular-nums}
 a.nav{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 a.nav:hover{background:var(--chip)}a.nav.active{background:var(--acc);color:#fff}
 main{margin-left:280px;padding:36px 48px;max-width:860px}
@@ -368,6 +381,8 @@ a{color:var(--acc)}.broken{color:var(--mut);text-decoration:underline dotted}
 .tchip i{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 .tchip b{font-weight:600;color:inherit;opacity:.65;margin-left:2px}
 h2{scroll-margin-top:64px}
+.overview-title{margin-top:1.2em}.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 18px}.category-card{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px;color:var(--fg);text-decoration:none;background:var(--side);transition:.15s}.category-card:hover{border-color:var(--acc);transform:translateY(-1px)}.category-dot{width:10px;height:10px;border-radius:50%;flex:none}.category-card strong,.category-card small{display:block}.category-card strong{font-size:14px}.category-card small{font-size:12px;color:var(--mut);margin-top:2px}
+.index-section{border-bottom:1px solid var(--line);scroll-margin-top:64px}.index-section>summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;font-size:20px;font-weight:600;padding:12px 0}.index-section>summary::-webkit-details-marker{display:none}.index-section>summary::before{content:'›';font-size:24px;font-weight:400;color:var(--mut);margin-right:8px;transition:.15s}.index-section[open]>summary::before{transform:rotate(90deg)}.index-section>summary>span:first-of-type{margin-right:auto}.index-section .cards{margin:0 0 14px 32px}
 ul.cards{list-style:none;padding:0}ul.cards li{padding:8px 0;border-bottom:1px solid var(--line)}
 ul.cards li a{font-weight:600}.src{background:var(--chip);color:var(--mut);font-size:12px;padding:1px 6px;border-radius:10px;margin-left:4px}
 .date{color:var(--mut);font-size:13px;font-variant-numeric:tabular-nums;margin-right:6px}

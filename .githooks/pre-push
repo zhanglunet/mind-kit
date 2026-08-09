@@ -42,7 +42,15 @@ if ! "$PY" -m pytest --version >/dev/null 2>&1; then
 fi
 
 echo "▶ pre-push:运行 pytest…" >&2
-"$PY" -m pytest -q
+# git 调钩子时会设 GIT_DIR / GIT_INDEX_FILE 等。不清掉,它们会泄漏进测试起的
+# **每一个 git 子进程** —— tests/test_vault_sh.py 在 tmp_path 里造临时仓再 `git -C`,
+# 子进程却被 GIT_DIR 指回真实仓,于是一片红。这些测试**单独跑全绿、一 push 就红**,
+# 门禁从装上那天(2026-07-21)起就没放行过任何一次 push。
+# 恒红的门禁等于没有门禁 —— 还更坏,因为它逼所有人养成 --no-verify 的习惯。
+env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX \
+    -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
+    -u GIT_QUARANTINE_PATH -u GIT_INTERNAL_GETTEXT_SH_SCHEME \
+    "$PY" -m pytest -q
 code=$?
 
 if [ "$code" -eq 5 ]; then
