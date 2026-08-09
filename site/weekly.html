@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>开发周报 2026-W32 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="okf.html">OKF 合规</a>
+    <a href="install.html">安装指南</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="services.html">服务</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="weekly.html" class="active">开发周报</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 开发周报
+2026-W32</div>
+<h1 id="开发周报-2026-w32">开发周报 · 2026-W32</h1>
+<p><strong>周期：2026-08-03 ～ 2026-08-09</strong></p>
+<blockquote>
+<p>本页只统计公开仓 <code>mind-kit</code>
+的公开提交与公开发布内容，不包含私有仓代码、个人知识内容或内部集成数据。</p>
+</blockquote>
+<h2 id="本周概览">本周概览</h2>
+<ul>
+<li>公开发布提交：7 次</li>
+<li>主要产出：公开版工具链、文档站、OKF 合规说明、发布与运行门禁</li>
+<li>发布方式：公开仓 <code>main</code> 线性追加，静态站由 Cloudflare
+Pages 部署</li>
+</ul>
+<h2 id="关键进展">关键进展</h2>
+<h3 id="工具链与运行稳定性">1. 工具链与运行稳定性</h3>
+<ul>
+<li>完善编译、增量更新、后端切换和本地服务脚本。</li>
+<li>增加失败通知、解释器选择和发布前检查，减少“命令退出但没人发现”的静默失败。</li>
+<li>补充运行时依赖与 CI
+测试配置，确保脚本测试在真实依赖环境中执行。</li>
+</ul>
+<h3 id="知识治理与-okf-合规">2. 知识治理与 OKF 合规</h3>
+<ul>
+<li>发布 OKF 合规说明、检查工具和对应测试。</li>
+<li>补充架构、安装、服务器部署与使用指南，明确代码仓与个人内容仓的边界。</li>
+<li>保持
+<code>raw/</code>、<code>_wiki/</code>、<code>material/</code>、<code>writing/</code>
+等个人内容不进入公开站点。</li>
+</ul>
+<h3 id="文档站与发布质量">3. 文档站与发布质量</h3>
+<ul>
+<li>更新公开版 CHANGELOG、服务说明和文档站页面。</li>
+<li>加强站点构建、隐私扫描、个人标识检查和 pre-push 测试门禁。</li>
+<li>本周新增本开发周报页面，后续可按公开仓 Git 历史持续更新。</li>
+</ul>
+<h2 id="本周最大风险">本周最大风险</h2>
+<p>公开仓当前采用“私有源仓脱敏发布”的线性历史模式，公开页面依赖提交后的
+<code>site/</code>
+生成物。后续改动必须同时完成公开边界检查、站点重建和线上路由验证，不能只更新
+Markdown 或只推送源代码。</p>
+<h2 id="下周重点">下周重点</h2>
+<ul>
+<li>继续完善公开版安装与首次运行验收路径。</li>
+<li>将公开仓周报生成纳入稳定的发布节奏。</li>
+<li>持续维护隐私扫描、站点死链检查和公开树测试门禁。</li>
+</ul>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#开发周报-2026-w32" id="toc-开发周报-2026-w32">开发周报 ·
+2026-W32</a>
+<ul>
+<li><a href="#本周概览" id="toc-本周概览">本周概览</a></li>
+<li><a href="#关键进展" id="toc-关键进展">关键进展</a></li>
+<li><a href="#本周最大风险" id="toc-本周最大风险">本周最大风险</a></li>
+<li><a href="#下周重点" id="toc-下周重点">下周重点</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>
