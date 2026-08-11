@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>用 Workbuddy 安装第二大脑 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="okf.html">OKF 合规</a>
+    <a href="quick-install.html">一键安装</a>
+    <a href="install.html">安装指南</a>
+    <a href="agent-install.html">Agent 安装</a>
+    <a href="workbuddy.html" class="active">Workbuddy 安装</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="services.html">服务</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="weekly.html">开发周报</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 用 Workbuddy
+安装第二大脑</div>
+<div class="wb-hero">
+<div class="wb-eyebrow">
+WORKBUDDY GUIDED SETUP
+</div>
+<h1>
+把安装交给 Workbuddy，<br>把授权留给你自己
+</h1>
+<p>
+复制第一段提示词，让 Workbuddy
+准备本地环境；在浏览器里亲自完成飞书权限与授权；最后复制第二段提示词，让
+Workbuddy 盯住同步并交付验收结果。
+</p>
+<div class="wb-actions">
+<a class="wb-primary" href="#第一步把这段提示词交给-workbuddy">从第一段提示词开始</a>
+<a class="wb-secondary" href="#飞书权限申请清单">先看权限清单</a>
+</div>
+</div>
+<div class="wb-route" aria-label="安装过程">
+<div>
+<span>01</span><strong>Workbuddy</strong><small>克隆、安装、启动向导</small>
+</div>
+<b aria-hidden="true">→</b>
+<div>
+<span>02</span><strong>你的浏览器</strong><small>申请权限、输入凭证、扫码</small>
+</div>
+<b aria-hidden="true">→</b>
+<div>
+<span>03</span><strong>Workbuddy</strong><small>观察同步、排错、验收</small>
+</div>
+</div>
+<blockquote>
+<p><strong>最重要的安全边界</strong>：完整仓库链接可以放进提示词；App
+Secret、access token、 refresh token 和授权二维码都不要贴进 Workbuddy
+聊天。App Secret 只填在安装器打开的 <code>127.0.0.1</code>
+本地网页中，由它通过 stdin 交给 lark-cli，再保存到系统钥匙串。</p>
+</blockquote>
+<h2 id="开始前准备">开始前准备</h2>
+<p>你需要：</p>
+<ul>
+<li>一台由你控制的 macOS 或 Linux 电脑，Workbuddy
+能在这台电脑上运行终端命令；</li>
+<li>已收到的<strong>完整第二大脑仓库链接</strong>；私有仓库还需要这台电脑已有对应
+GitHub 访问权限；</li>
+<li>飞书租户中创建企业自建应用的权限，或者能联系到租户管理员；</li>
+<li>约 15–30
+分钟。文档很多时，首次同步会更久，但中断后可以增量续跑。</li>
+</ul>
+<p>不需要把 GitHub token、飞书 App Secret 或任何 API
+Key发给本页面、Workbuddy 或发行方。</p>
+<h2 id="第一步把这段提示词交给-workbuddy">第一步：把这段提示词交给
+Workbuddy</h2>
+<p>先把下面的 <code>&lt;完整仓库链接&gt;</code>
+替换成你收到的真实链接，再整段复制给 Workbuddy。</p>
+<div class="prompt-block" data-label="提示词 1 · 安装并停在授权页">
+<pre class="text"><code>请在这台电脑上安装“第二大脑”，完整仓库链接是：
+&lt;完整仓库链接&gt;
+
+请按以下要求执行：
+1. 先检查目标目录是否已存在；保留已有文件和未提交改动，不覆盖、不删除用户数据。
+2. 克隆或更新完整仓库，阅读仓库内安装说明，然后在仓库根目录运行 ./install-second-brain。
+3. 保持安装器进程持续运行，不要因为命令暂时没有输出而结束它。
+4. 安装器出现 127.0.0.1 本地授权页面后，把页面地址告诉我，并停下来等我操作。
+5. 不要在聊天中索取、显示或保存飞书 App Secret、access token、refresh token、device code 或授权二维码。
+6. 不要替我点击飞书授权确认，不要申请页面未列出的额外权限。
+7. 暂时不要提交、推送、发布或部署任何代码。
+
+当本地授权页面已可打开时，只需回复：
+- 仓库所在目录
+- 本地授权页面地址
+- 环境检查结果（不得包含凭证）
+- “请在浏览器完成授权，完成后回来告诉我”</code></pre>
+</div>
+<p>正常情况下，Workbuddy 最后会给你一个类似下面的地址：</p>
+<pre class="text"><code>http://127.0.0.1:随机端口/wizard?token=一次性随机值</code></pre>
+<p>这个 URL 只在你的电脑上有效。不要把它转发给别人，也不要删改其中的
+token。</p>
+<h3 id="workbuddy-此时应该做到什么">Workbuddy 此时应该做到什么</h3>
+<div class="wb-checkgrid">
+<div>
+<strong>✓ 已完成</strong><span>仓库就绪、Vault
+初始化、依赖安装、授权页启动</span>
+</div>
+<div>
+<strong>⏸ 应暂停</strong><span>把本地页面交给你，不接触 App
+Secret，不代替你确认授权</span>
+</div>
+<div>
+<strong>✗ 不应发生</strong><span>把 Secret
+写入命令行、聊天、日志、仓库或截图</span>
+</div>
+</div>
+<h2 id="第二步申请飞书权限">第二步：申请飞书权限</h2>
+<p>在本地授权页点击“打开飞书开发者后台”，或直接进入 <a
+href="https://open.feishu.cn/app">飞书开发者后台</a>。</p>
+<ol type="1">
+<li>创建一个<strong>企业自建应用</strong>，建议名称写“我的第二大脑”。</li>
+<li>打开 <strong>开发配置 → 权限管理 → 开通权限</strong>。</li>
+<li>按下面清单申请权限。默认只选文档与知识库；云盘文件、聊天记录按需要选择。</li>
+<li>打开 <strong>应用发布 →
+版本管理与发布</strong>，创建版本并发布。公司租户可能需要管理员审核。</li>
+<li>在“凭证与基础信息”复制 App ID 和 App
+Secret，准备填入本地授权页。</li>
+</ol>
+<p>飞书官方流程说明：<a
+href="https://open.feishu.cn/document/server-docs/application-scope/introduction?lang=zh-CN">申请
+API 权限</a>。</p>
+<h3 id="飞书权限申请清单">飞书权限申请清单</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>模块</th>
+<th>权限 scope</th>
+<th style="text-align: right;">是否默认</th>
+<th>数据边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>我的云文档</td>
+<td><code>drive:drive:readonly</code></td>
+<td style="text-align: right;">是</td>
+<td>枚举我拥有的云文档</td>
+</tr>
+<tr>
+<td>文档正文</td>
+<td><code>docx:document:readonly</code></td>
+<td style="text-align: right;">是</td>
+<td>只读导出为 Markdown</td>
+</tr>
+<tr>
+<td>知识库</td>
+<td><code>wiki:wiki:readonly</code></td>
+<td style="text-align: right;">是</td>
+<td>读取我可访问的 Wiki 节点与正文</td>
+</tr>
+<tr>
+<td>云盘文件</td>
+<td><code>search:docs:read</code>、<code>drive:file:download</code></td>
+<td style="text-align: right;">否</td>
+<td>下载我拥有的普通文件</td>
+</tr>
+<tr>
+<td>群聊与单聊</td>
+<td><code>im:chat:read</code>、<code>im:message.group_msg:get_as_user</code>、<code>im:message.p2p_msg:get_as_user</code></td>
+<td style="text-align: right;">否</td>
+<td>包含他人消息，通常需要管理员审批</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="wb-callout warn">
+<p><strong>不要为了省事选择“全部权限”。</strong> 安装器使用
+<code>--scope</code>
+发起最小权限授权；飞书后台的应用权限和用户扫码授权两层都要满足。聊天记录涉及其他成员内容，不需要就不要勾选。</p>
+</div>
+<h2 id="第三步在本地页面完成授权">第三步：在本地页面完成授权</h2>
+<p>回到 Workbuddy 给出的 <code>127.0.0.1</code> 页面，依次操作：</p>
+<div class="wb-steps">
+<div>
+<span>1</span>
+<div>
+<strong>选择同步范围</strong>
+<p>
+默认文档和知识库；只有确实需要时才勾选云盘文件或聊天记录。
+</p>
+</div>
+</div>
+<div>
+<span>2</span>
+<div>
+<strong>填写 App ID 与 App Secret</strong>
+<p>
+点击“保存到系统钥匙串”。Secret 不会进入聊天或仓库。
+</p>
+</div>
+</div>
+<div>
+<span>3</span>
+<div>
+<strong>生成授权链接和二维码</strong>
+<p>
+页面会显示原始授权链接及二维码。打开链接或扫码。
+</p>
+</div>
+</div>
+<div>
+<span>4</span>
+<div>
+<strong>在飞书确认授权</strong>
+<p>
+核对应用名和权限范围后，由你本人点击确认。
+</p>
+</div>
+</div>
+<div>
+<span>5</span>
+<div>
+<strong>回到本地页开始同步</strong>
+<p>
+点击“授权完成并开始同步”。安装器在线校验 token，先冒烟，再自动增量同步。
+</p>
+</div>
+</div>
+</div>
+<p>授权链接过期时，回到本地页面重新点击“生成授权链接和二维码”。不要复用旧
+URL、旧二维码或旧 device code。</p>
+<h2 id="第四步回到-workbuddy-继续">第四步：回到 Workbuddy 继续</h2>
+<p>当本地页面显示“正在同步”或“同步完成”后，把下面第二段提示词交给<strong>同一个
+Workbuddy 任务</strong>。</p>
+<div class="prompt-block" data-label="提示词 2 · 监控同步并验收">
+<pre class="text"><code>我已在本地授权页面完成飞书授权，并点击了“授权完成并开始同步”。
+
+请继续处理：
+1. 保持 install-second-brain 安装器进程运行，观察页面状态和终端日志直到完成或出现明确错误。
+2. 不要读取、回显或保存任何 App Secret、token、device code、二维码内容。
+3. 如果提示 missing_scope，只报告缺失的 scope 和原始 console_url，等我去飞书后台开通并发布新版本；不要自行扩大权限。
+4. 如果授权链接过期，让我回到本地页面重新生成，不要复用旧链接。
+5. 同步成功后，检查文档和知识库输出目录、状态文件和非空 Markdown 样本；若我勾选了可选模块，也分别检查。
+6. 最终只汇报：同步模块、成功/失败数量、输出目录、增量状态、脱敏后的错误和下一步建议。
+7. 不要提交、推送、发布或上传我的飞书内容。</code></pre>
+</div>
+<h3 id="成功验收标准">成功验收标准</h3>
+<ul>
+<li>本地授权页状态为“同步完成”，而不是只显示“授权成功”；</li>
+<li>token 在线校验通过，身份为 user；bot 身份看不到你的个人云盘；</li>
+<li>默认目录 <code>raw/private/feishu/</code> 下出现非空 Markdown；</li>
+<li><code>_meta</code> 中存在增量状态，重新运行时未变化内容会跳过；</li>
+<li>Workbuddy 的汇报中没有 App Secret、token、device code
+或聊天正文；</li>
+<li>个人飞书内容没有进入 Git 提交、公开站点或发行方系统。</li>
+</ul>
+<h2 id="常见卡点">常见卡点</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>怎么处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>missing_scope</code> /
+<code>need_user_authorization</code></td>
+<td>后台权限或用户授权缺一层</td>
+<td>使用错误中原始 <code>console_url</code>，开通缺失
+scope，发布新版本，再从本地页重新授权</td>
+</tr>
+<tr>
+<td>授权链接已过期</td>
+<td>device flow 有时效</td>
+<td>重新生成链接和二维码；不要复用旧值</td>
+</tr>
+<tr>
+<td>授权成功但 token 校验失败</td>
+<td>授权尚未完成收口或 profile 不一致</td>
+<td>保持原安装任务，回本地页重试；让 Workbuddy 只做脱敏诊断</td>
+</tr>
+<tr>
+<td>文档有、知识库为空</td>
+<td>应用未开 Wiki 权限，或账号不可访问对应空间</td>
+<td>检查 <code>wiki:wiki:readonly</code> 和当前飞书账号的空间权限</td>
+</tr>
+<tr>
+<td>手动同步正常，定时同步写入失败</td>
+<td>macOS 对 CloudStorage 的权限限制</td>
+<td>按错误提示给定时进程授权，或把 <code>MIND_FEISHU_HOME</code>
+改到普通本地目录</td>
+</tr>
+<tr>
+<td>Workbuddy 任务被关闭</td>
+<td>安装器进程随任务结束</td>
+<td>回仓库重新运行
+<code>./install-second-brain</code>，重新生成一次性授权，不复用旧
+URL</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="隐私与退出">隐私与退出</h2>
+<ul>
+<li>凭证：由 lark-cli 保存在你自己的系统钥匙串；发行方不接触。</li>
+<li>数据：保存在你自己的 <code>raw/private/feishu/</code>；默认被 Git
+忽略。</li>
+<li>退出：停止定时任务、删除本地冷存，并在飞书授权管理页撤销服务端授权或删除自建应用。</li>
+<li><code>lark-cli auth logout</code>
+只清除当前机器登录态，不等于撤销飞书服务端授权。</li>
+</ul>
+<h2 id="一句话记住整个过程">一句话记住整个过程</h2>
+<div class="wb-summary">
+<strong>提示词 1 给
+Workbuddy</strong><span>→</span><strong>浏览器里由你申请并授权</strong><span>→</span><strong>提示词
+2 让 Workbuddy监控和验收</strong>
+</div>
+<script>
+document.querySelectorAll('.prompt-block').forEach(function(block) {
+  var pre = block.querySelector('pre');
+  if (!pre) return;
+  var button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'wb-copy';
+  button.textContent = '复制提示词';
+  button.setAttribute('aria-label', '复制这段 Workbuddy 提示词');
+  button.addEventListener('click', function() {
+    navigator.clipboard.writeText(pre.innerText).then(function() {
+      button.textContent = '已复制 ✓';
+      setTimeout(function() { button.textContent = '复制提示词'; }, 1800);
+    });
+  });
+  block.insertBefore(button, pre);
+});
+</script>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#开始前准备" id="toc-开始前准备">开始前准备</a></li>
+<li><a href="#第一步把这段提示词交给-workbuddy"
+id="toc-第一步把这段提示词交给-workbuddy">第一步：把这段提示词交给
+Workbuddy</a></li>
+<li><a href="#第二步申请飞书权限"
+id="toc-第二步申请飞书权限">第二步：申请飞书权限</a></li>
+<li><a href="#第三步在本地页面完成授权"
+id="toc-第三步在本地页面完成授权">第三步：在本地页面完成授权</a></li>
+<li><a href="#第四步回到-workbuddy-继续"
+id="toc-第四步回到-workbuddy-继续">第四步：回到 Workbuddy 继续</a></li>
+<li><a href="#常见卡点" id="toc-常见卡点">常见卡点</a></li>
+<li><a href="#隐私与退出" id="toc-隐私与退出">隐私与退出</a></li>
+<li><a href="#一句话记住整个过程"
+id="toc-一句话记住整个过程">一句话记住整个过程</a></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

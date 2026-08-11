@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>一键安装(给 Agent) · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="okf.html">OKF 合规</a>
+    <a href="quick-install.html" class="active">一键安装</a>
+    <a href="install.html">安装指南</a>
+    <a href="agent-install.html">Agent 安装</a>
+    <a href="workbuddy.html">Workbuddy 安装</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="services.html">服务</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="weekly.html">开发周报</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 一键安装(给
+Agent)</div>
+<h1 id="一键安装一段提示词装好">一键安装:一段提示词装好</h1>
+<blockquote>
+<p>在<strong>仓库根目录</strong>启动你的编码 agent,把下面整段发给它。约
+20 分钟。 想知道每步在做什么、装完怎么配、编译机制怎么转 → 看《<a
+href="agent-install.html">用 AI Agent 安装</a>》。</p>
+</blockquote>
+<h2 id="装之前30-秒">装之前(30 秒)</h2>
+<ul>
+<li>已 <code>git clone</code> 本仓,并 <code>cd</code> 进去</li>
+<li>机器上有 <strong>Git</strong>;<strong>Go / Node.js / Python
+3.9+</strong> 缺哪个让 agent 告诉你怎么装</li>
+<li>手上有一个大模型 <strong>API Key</strong>(GLM 默认 / DeepSeek / Kimi
+任一)—— <strong>先别填,它会在该填的时候停下来问你</strong></li>
+</ul>
+<h2 id="提示词整段复制">提示词(整段复制)</h2>
+<pre class="text"><code>你是我的安装助手。在当前目录把「第二大脑」装起来。
+
+权威步骤是仓库里的 docs/guide/install.md —— 先完整读它,按它执行,以它为准。
+
+铁律:
+1. 密钥你不碰。需要 API Key 时停下来告诉我该 export 哪个变量,由我自己填;
+   不要写进任何文件,不要回显任何密钥值。
+2. 花钱的一步先问。`bash scripts/compile.sh` 会按量调用大模型 API,
+   我明确说&quot;可以编译&quot;之前不要跑。
+3. 已初始化的仓库里永远不要跑 `sage-wiki init`。
+4. 不要替我 commit 或 push。
+5. 每条命令都把真实输出贴出来再下结论。失败就停下报错,
+   不要自己绕过去,不要用&quot;应该没问题&quot;结束一步。
+
+分三段做,每段结束等我确认再继续:
+
+A 只读盘点(这一段不许安装任何东西)
+  报告 git / go / node / python3 的实际版本;`pwd` 与 `ls` 确认在仓库根
+  (应能看到 config.yaml、CLAUDE.md、scripts/);`command -v sage-wiki`。
+
+B 安装与配置
+  按 install.md 装脚本依赖与 sage-wiki(主包在 cmd/ 下,路径漏了会报错);
+  跑一遍 install.md §3.1 的行为验证确认引擎版本,不符就告诉我别继续;
+  `bash scripts/init-vault.sh --dry-run` 把计划给我看,我同意后再真建;
+  `bash scripts/vault.sh repo` 必须打印内容库路径 ——
+  打印代码库路径就停下来告诉我(软链没建成);
+  最后 `sage-wiki doctor`,输出原样贴给我。
+
+C 首次编译(我同意才做)
+  `bash scripts/compile.sh`;跑完按 install.md 的「首周验收清单」逐条核对,
+  逐条说通过还是没通过,没通过的照实说。</code></pre>
+<h2 id="它会停下来问你三次">它会停下来问你三次</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>时机</th>
+<th>你要做什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A 段结束</td>
+<td>看一眼环境盘点,确认没问题</td>
+</tr>
+<tr>
+<td>B 段中间</td>
+<td><strong>自己 export API Key</strong> —— agent 不碰密钥</td>
+</tr>
+<tr>
+<td>C 段之前</td>
+<td>批准首次编译 —— <strong>这一步按量计费</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>除此之外它应当一路自己走完,并且<strong>每条命令都贴真实输出</strong>。
+它说”完成”却没有输出时,让它重跑并贴出来 ——
+<strong>没有输出就等于没做</strong>。</p>
+<h2 id="装完">装完</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor                <span class="co"># 连通</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/vault.sh repo      <span class="co"># 必须是内容库路径</span></span></code></pre></div>
+<p><code>git status</code>
+里<strong>不该</strong>出现你的个人内容(它们在内容库里)。</p>
+<p>出问题、想加自己的知识库、想搞清楚编译机制 → 《<a
+href="agent-install.html">用 AI Agent
+安装</a>》有完整的配置、接入与排障。</p>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#一键安装一段提示词装好"
+id="toc-一键安装一段提示词装好">一键安装:一段提示词装好</a>
+<ul>
+<li><a href="#装之前30-秒" id="toc-装之前30-秒">装之前(30 秒)</a></li>
+<li><a href="#提示词整段复制"
+id="toc-提示词整段复制">提示词(整段复制)</a></li>
+<li><a href="#它会停下来问你三次"
+id="toc-它会停下来问你三次">它会停下来问你三次</a></li>
+<li><a href="#装完" id="toc-装完">装完</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

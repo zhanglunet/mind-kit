@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>用 AI Agent 安装 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="architecture.html">系统运作</a>
+    <a href="okf.html">OKF 合规</a>
+    <a href="quick-install.html">一键安装</a>
+    <a href="install.html">安装指南</a>
+    <a href="agent-install.html" class="active">Agent 安装</a>
+    <a href="workbuddy.html">Workbuddy 安装</a>
+    <a href="usage.html">使用手册</a>
+    <a href="faq.html">FAQ</a>
+    <a href="deploy.html">发布</a>
+    <a href="services.html">服务</a>
+    <a href="server.html">服务器部署</a>
+    <a href="prd.html">PRD</a>
+    <a href="weekly.html">开发周报</a>
+    <a href="changelog.html">更新日志</a>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 用 AI Agent
+安装</div>
+<h1 id="用-ai-agent-安装第二大脑">用 AI Agent 安装第二大脑</h1>
+<blockquote>
+<p><strong>一句话</strong>:把<a href="#2-安装提示词整段复制">第 2
+节那段提示词</a>整段丢给任意编码 agent, 它替你走完《<a
+href="install.html">安装指南</a>》的六步;你只负责三件<strong>它不该替你做</strong>的事
+—— <strong>填密钥、批准花钱的那一步、验收</strong>。</p>
+</blockquote>
+<blockquote>
+<p><strong>只想赶紧装上、不看解释?</strong> → <a
+href="quick-install.html">一键安装:一段提示词装好</a>。
+本页是它的完整版:每条约束为什么这么写、装完怎么配、编译机制怎么转。</p>
+</blockquote>
+<h2 id="这页和安装指南的关系">0. 这页和《安装指南》的关系</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>《<a href="install.html">安装指南</a>》</th>
+<th>本页</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>面向</td>
+<td>人手动执行</td>
+<td>交给编码 agent 执行</td>
+</tr>
+<tr>
+<td>地位</td>
+<td><strong>权威步骤</strong></td>
+<td>执行方法 + 一段可粘贴的提示词</td>
+</tr>
+<tr>
+<td>冲突时</td>
+<td><strong>以它为准</strong></td>
+<td>听它的</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>本页<strong>不重复</strong>安装指南的细节(为什么
+<code>sage-wiki</code> 要 ≥ 0.2.6、后端 profile 怎么配),
+只讲<strong>怎么把那些步骤安全地交出去</strong>,以及交出去之后你要盯什么。</p>
+<blockquote>
+<p><strong>为什么值得用 agent
+装</strong>:这套骨架的安装不是”下一步下一步”,而是 「装引擎 →
+验引擎版本行为 → 配密钥 → 建内容库软链 → 验连通 → 首次编译」六段,
+每段都有一个<strong>沉默失败</strong>的坑(见第 8 节)。agent
+擅长的正是<strong>逐条跑、逐条贴输出</strong>;
+它不擅长的是判断”这个失败要不要继续”——所以提示词里把那些判断点<strong>全部交还给你</strong>。</p>
+</blockquote>
+<h2 id="前置agent-之外你得先有的东西">1. 前置:agent
+之外你得先有的东西</h2>
+<p>agent 能替你装依赖,但下面这些要么得你本人操作,要么得先存在:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>项</th>
+<th>谁来做</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git / Go / Node.js / Python 3.9+</td>
+<td>你(agent 给命令)</td>
+<td>装系统级运行时通常要 sudo,别让 agent 代劳</td>
+</tr>
+<tr>
+<td><strong>一个大模型 API Key</strong></td>
+<td><strong>只有你</strong></td>
+<td>GLM(默认)/ DeepSeek / Kimi 任一;写进 shell
+profile,<strong>不落任何仓库文件</strong></td>
+</tr>
+<tr>
+<td>Obsidian</td>
+<td>你</td>
+<td>桌面端,安装完再把 vault 目录打开即可</td>
+</tr>
+<tr>
+<td>一个空目录 + 已 clone 的仓库</td>
+<td>你</td>
+<td>agent 需要在<strong>仓库根</strong>启动,否则它看不到
+<code>config.yaml</code> 与 <code>CLAUDE.md</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="安装提示词整段复制">2. 安装提示词(整段复制)</h2>
+<p>在<strong>仓库根目录</strong>启动你的编码
+agent,把下面整段作为第一条消息发给它:</p>
+<pre class="text"><code>你是我的安装助手。目标:在这台机器上把「第二大脑」骨架跑起来。
+权威步骤是仓库里的 docs/guide/install.md —— 以它为准,本提示词与它冲突时听它的。
+
+硬约束(先读完再动手):
+1. 密钥你不碰。需要 API key 时停下来告诉我该 export 哪个环境变量,由我自己填。
+   不要把密钥写进任何文件、不要读我的 shell profile、不要回显任何密钥值。
+2. 花钱的一步必须先问。`bash scripts/compile.sh` 会调用大模型 API 按量计费;
+   在我明确说&quot;可以编译&quot;之前不要运行它。
+3. 已初始化的仓库里永远不要跑 `sage-wiki init`。它只用于全新目录。
+4. 不要替我 commit 或 push。你可以改文件,提交由我决定。
+5. 每步留证据:每执行一条命令,把真实输出贴出来再下结论。
+   命令失败就停下来报错,不要自己绕过去、不要&quot;应该没问题&quot;。
+6. 不确定就问。不要猜路径、不要猜版本号、不要用推测代替实际输出。
+
+按下面的顺序做。每完成一步,报告「做了什么 / 实际输出 / 通过与否」:
+
+第 0 步 只读盘点(先别装任何东西)
+  - 报告 git / go / node / python3 / pandoc 的实际版本(没有就说没有)
+  - `pwd` 与 `ls`,确认当前在仓库根(应能看到 config.yaml、CLAUDE.md、scripts/)
+  - 报告 `command -v sage-wiki` 与 `command -v claude` 的结果
+  - 盘点完停下来等我确认,再进入第 1 步
+
+第 1 步 脚本依赖
+  - 缺 Go / Node / Python 的,给出这台机器上对应的安装命令交给我执行,你不要装
+  - `pip install -r requirements.txt`
+
+第 2 步 编译引擎 sage-wiki
+  - `go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest`
+    (主包在 cmd/ 下;路径漏了会报 no non-test Go files)
+  - 确认 `export PATH=&quot;$HOME/go/bin:$PATH&quot;` 已在我的 shell profile 里
+  - 跑一遍 docs/guide/install.md §3.1 的行为验证,确认版本 ≥ 0.2.6:
+    它必须&quot;追加&quot; .sage/ 而不是重写 .gitignore,且 .manifest.json 不被清空。
+    任一项不符,告诉我要升级,不要继续。
+
+第 3 步 API Key(你只给指令,不要执行)
+  - 告诉我该 export 哪个变量(默认后端 GLM → GLM_API_KEY)
+  - 我说&quot;配好了&quot;之后再往下
+
+第 4 步 内容库与软链
+  - `bash scripts/init-vault.sh --dry-run` 先把计划给我看
+  - 我同意后再 `bash scripts/init-vault.sh`
+  - `bash scripts/vault.sh repo` 应打印内容库路径;
+    若打印的是代码库路径就停下来 —— 软链没建成,之后提交会把个人内容写进代码库
+
+第 5 步 连通性
+  - `sage-wiki doctor`,把输出原样贴给我
+
+第 6 步 首次编译(要我明确同意才做)
+  - 我同意后 `bash scripts/compile.sh`
+  - 跑完报告:_wiki/ 下生成了什么、index.md 是否更新、
+    lint 报告落在哪个文件、整体退出码是多少
+
+收尾:按 install.md 的「首周验收清单」逐条核对,逐条说通过还是没通过。
+没通过的照实说,不要粉饰。</code></pre>
+<h2 id="这段提示词为什么这么写">3. 这段提示词为什么这么写</h2>
+<p>每一条硬约束都对着一个<strong>真实会发生的坏结果</strong>,不是客套话:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>约束</th>
+<th>不写会怎样</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>密钥你不碰</strong></td>
+<td>agent 为了”帮你配好”会把 key 写进文件或回显到对话里 ——
+密钥一旦进了聊天记录/日志,就得当作已泄露处理</td>
+</tr>
+<tr>
+<td><strong>编译要先问</strong></td>
+<td><code>compile.sh</code> 按量计费。空的 <code>.manifest.json</code>
+会让引擎<strong>把整个知识库从头重编</strong>(全额 API 费用)</td>
+</tr>
+<tr>
+<td><strong>不许跑 <code>sage-wiki init</code></strong></td>
+<td>0.2.6 之前它会把 <code>.gitignore</code>
+整个改写成一行。<strong>没有任何东西会重建它</strong> ——
+密钥形状与个人内容的忽略规则一起消失,可能很久没人发现</td>
+</tr>
+<tr>
+<td><strong>不许替你 commit</strong></td>
+<td>内容库/代码库分家(见第 6
+节)。提交到错的那个库,个人内容就进了代码仓的历史</td>
+</tr>
+<tr>
+<td><strong>每步留证据</strong></td>
+<td>“应该装好了”和”装好了”在终端里长得一样。<strong>只有真实输出算数</strong></td>
+</tr>
+<tr>
+<td><strong>第 0 步只读盘点</strong></td>
+<td>让 agent 先看清环境再动手;也给你一个”现在还什么都没改”的中断点</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>一条建议</strong>:开 agent
+的<strong>逐步确认/审批模式</strong>,别开全自动。
+这套安装里有三处<strong>不可逆或要花钱</strong>的动作(建软链、写
+profile、首次编译), 全自动模式下它们会一口气过去。</p>
+</blockquote>
+<h2 id="各家-agent-怎么起">4. 各家 agent 怎么起</h2>
+<h3 id="通用做法任意编码-agent">4.1 通用做法(任意编码 agent)</h3>
+<ol type="1">
+<li><code>cd</code> 到<strong>仓库根目录</strong>再启动 agent ——
+它的工作目录决定了它能不能看到
+<code>config.yaml</code>、<code>CLAUDE.md</code>、<code>scripts/</code></li>
+<li>把第 2
+节那段提示词<strong>整段</strong>作为第一条消息发过去(别拆开发,约束和步骤要一起进上下文)</li>
+<li>打开<strong>逐步确认</strong>模式;拒绝任何”要不要我顺手
+commit”的提议</li>
+<li>每一步都要它<strong>贴真实输出</strong>;它说”完成”而没有输出时,让它重跑并贴出来</li>
+</ol>
+<p>这套做法与具体是哪个 agent 无关 ——
+提示词里没有任何一家专属的语法。</p>
+<h3 id="claude-code">4.2 Claude Code</h3>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> @anthropic-ai/claude-code</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /path/to/mind</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span></span></code></pre></div>
+<p>仓库根自带
+<strong><code>CLAUDE.md</code></strong>(权责边界”宪法”),Claude Code
+会自动读它 —— 所以它天然知道哪些目录不能碰(<code>_wiki/</code>
+的引擎领地、<code>raw/private/</code> 等)。 默认就是逐条请求权限,符合第
+3 节的建议。</p>
+<h3 id="codex">4.3 Codex</h3>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /path/to/mind</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">codex</span></span></code></pre></div>
+<p>Codex 读的是
+<strong><code>AGENTS.md</code></strong>,而本仓目前<strong>只有
+<code>CLAUDE.md</code></strong>。 两种做法都行:</p>
+<ul>
+<li>在提示词开头补一句「<strong>先读
+<code>CLAUDE.md</code>,把它当作你的行为准则</strong>」;</li>
+<li>或在仓库根建一个 <code>AGENTS.md</code>,内容写
+<code>见 CLAUDE.md</code> 并把关键边界抄过去。</li>
+</ul>
+<blockquote>
+<p>前者更省事且不会产生”一式两份”的分叉;后者更符合 Codex 的默认习惯。
+<strong>选后者的话记住:两份文件从此要同步改</strong> ——
+这正是本项目对”刻意的重复”
+一贯的处理方式:要么别重复,要么配一道检查。</p>
+</blockquote>
+<h3 id="其他-agentworkbuddyzcode-等">4.4 其他 agent(workbuddy、zcode
+等)</h3>
+<p><strong>本项目未在这些工具上实测过</strong>,所以这里不给专属命令 ——
+写错的命令会被原样粘贴,那比不写更坏。</p>
+<p>按 <strong>4.1 的通用做法</strong>即可:提示词本身与 agent
+无关,你只需要知道两件事:</p>
+<ol type="1">
+<li>怎么在<strong>指定目录</strong>启动它;</li>
+<li>它读<strong>哪个文件</strong>当持久指令(<code>CLAUDE.md</code> /
+<code>AGENTS.md</code> / 其他)—— 若都不读,就在提示词开头加一句「先读
+<code>CLAUDE.md</code> 并遵守其中的权责边界」。</li>
+</ol>
+<h2 id="装完之后配置">5. 装完之后:配置</h2>
+<h3 id="密钥与后端">5.1 密钥与后端</h3>
+<p>密钥只在<strong>环境变量</strong>里,不落盘:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">GLM_API_KEY</span><span class="op">=</span>...        <span class="co"># GLM(默认后端)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DEEPSEEK_API_KEY</span><span class="op">=</span>...   <span class="co"># DeepSeek</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">KIMI_API_KEY</span><span class="op">=</span>...       <span class="co"># Kimi</span></span></code></pre></div>
+<p>切后端不用手改 <code>config.yaml</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh            <span class="co"># 看当前后端 + 可用清单</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/sage-backend.sh deepseek   <span class="co"># 切到 DeepSeek</span></span></code></pre></div>
+<p>可用后端由仓库根实际存在的 <code>config.*.yaml</code> 决定 ——
+自己加一个 profile 就会出现在清单里。</p>
+<blockquote>
+<p><strong>切换后 <code>config.yaml</code> 在 git
+里显示为已修改是正常的</strong>(活动配置就是那个文件)。
+另外:<strong>思维模式一律显式关掉</strong>。概念抽取时思维链会吃掉 8K+
+字符撑爆 token 预算, 返回空结果 ——
+别指望”默认应该是关的”,文档往往不写默认值。</p>
+</blockquote>
+<h3 id="连通性">5.2 连通性</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sage-wiki</span> doctor</span></code></pre></div>
+<p>它会报出活动后端与连通性。<strong>这一步过不了就别往下走</strong> ——
+后面每一步都依赖它。</p>
+<h3 id="mcp-接入">5.3 MCP 接入</h3>
+<p><code>.mcp.json</code> 用相对路径
+<code>--project .</code>,换机器无需修改。 只有当你的客户端<strong>不以
+vault 为工作目录</strong>启动 MCP server 时,才需要改成绝对路径。</p>
+<h2 id="加入自己的知识库">6. 加入自己的知识库</h2>
+<h3 id="先理解双库为什么新克隆里没有-_wiki">6.1
+先理解双库:为什么新克隆里没有 <code>_wiki/</code></h3>
+<p><code>raw/</code>、<code>_wiki/</code>、<code>material/</code>、<code>writing/</code>、<code>reports/</code>
+是<strong>个人内容</strong>,
+它们在<strong>另一个私有内容库</strong>里,经软链挂进代码库。
+<strong>新克隆里这些目录不存在,是设计如此,不是装坏了。</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/init-vault.sh <span class="at">--dry-run</span>   <span class="co"># 先看计划</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/init-vault.sh             <span class="co"># 建内容库 + 软链 + git init</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/vault.sh repo             <span class="co"># 验证:应打印你的内容库路径</span></span></code></pre></div>
+<blockquote>
+<p><strong>这一步别跳过,也别只看它”没报错”。</strong> <code>_wiki</code>
+软链不存在时,<code>vault.sh</code> 会<strong>静默退回单库模式</strong>
+—— 之后 <code>vault.sh commit</code>
+会把你的个人内容提交进<strong>代码库</strong>。
+所以第三条命令是<strong>验收</strong>,不是装饰:它打印的必须是内容库路径。</p>
+</blockquote>
+<h3 id="存量资产放哪">6.2 存量资产放哪</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>你有的东西</th>
+<th>放进</th>
+<th>会不会被编译</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>网页剪藏、文章库</td>
+<td><code>raw/clippings/</code></td>
+<td><strong>会</strong>(声明在 <code>config.yaml</code> 的
+<code>sources</code>)</td>
+</tr>
+<tr>
+<td>待深读的重要文章</td>
+<td><code>raw/todo/</code></td>
+<td>不会 —— 留给你和 agent 做对话式精读</td>
+</tr>
+<tr>
+<td>本地 PDF</td>
+<td><code>raw/pdfs/</code></td>
+<td><strong>会</strong></td>
+</tr>
+<tr>
+<td>卡片笔记增量导出</td>
+<td><code>raw/flomo/&lt;日期&gt;/</code></td>
+<td>仅 <code>delta/</code> 子目录会</td>
+</tr>
+<tr>
+<td>敏感冷存</td>
+<td><code>raw/private/</code></td>
+<td><strong>永不入库</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>不是所有文字都该编译。</strong>
+评论性散文、随笔类语料会抽出大量”单篇一次性表述”
+与修辞手法,把已收敛的概念体系淹掉。这类内容<strong>只收藏、不编译</strong>
+—— 放在不被 <code>sources</code> 声明的目录里即可。</p>
+</blockquote>
+<h3 id="加新来源">6.3 加新来源</h3>
+<p>在 <code>config.yaml</code> 的 <code>sources</code>
+里加一个目录就行。 两条语义要知道:</p>
+<ul>
+<li><code>sources</code> 里显式声明的目录<strong>优先于</strong>
+<code>ignore</code>(所以 <code>raw/flomo</code> 整体被忽略、 而
+<code>raw/flomo/delta</code> 仍会编译);</li>
+<li>加完<strong>先小批量试编</strong>一次再放全量 ——
+编译按量计费,概念抽取的产出与语料类型强相关。</li>
+</ul>
+<h2 id="编译机制怎么运行">7. 编译机制怎么运行</h2>
+<h3 id="一条命令六步流水线">7.1 一条命令,六步流水线</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh</span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>步</th>
+<th>做什么</th>
+<th>失败会怎样</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1/6</td>
+<td><code>sage-wiki compile</code> —— 抽概念、写摘要页</td>
+<td>中止</td>
+</tr>
+<tr>
+<td>2/6</td>
+<td>OKF 合规注入(<code>type</code> / <code>stale_after</code>)</td>
+<td>记账,继续</td>
+</tr>
+<tr>
+<td>3/6</td>
+<td>重建 <code>index.md</code></td>
+<td><strong>记账,继续</strong>,但末尾非零退出</td>
+</tr>
+<tr>
+<td>4/6</td>
+<td><code>sage-wiki lint</code>(记账到 <code>reports/lint/</code>)</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>5/6</td>
+<td>生成本地浏览站 <code>browse/wiki/</code>(含关系图)</td>
+<td>best-effort;缺 <code>markdown</code> 包只告警跳过</td>
+</tr>
+<tr>
+<td>6/6</td>
+<td>提交编译产物(经 <code>vault.sh</code> 落到内容库)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>为什么第 3、4 步失败不中止</strong>:中止会丢掉本轮编译产物(第
+6 步才提交)。 但<strong>末尾必须非零退出</strong> ——
+否则”跑完了但有两步挂了”会被读成成功,
+这正是本项目反复强调的:<strong>失败必须长得像失败</strong>。</p>
+</blockquote>
+<h3 id="日常一律走-compile.sh不要裸跑-sage-wiki-compile">7.2 日常一律走
+<code>compile.sh</code>,不要裸跑 <code>sage-wiki compile</code></h3>
+<p>裸跑不维护 <code>index.md</code>、不触发 lint、不重建浏览站。
+<code>compile.sh</code>
+把这些串成一条命令,少一步都会让知识库慢慢”脱节”。</p>
+<h3 id="增量靠-manifest不靠归档">7.3 增量靠 manifest,不靠归档</h3>
+<p>引擎用 <code>.manifest.json</code> 里的 hash 判断哪些来源变过 ——
+<strong>只编译变化的部分</strong>。</p>
+<p>所以:</p>
+<ul>
+<li><strong>不要”编译完就把剪藏归档走”</strong>。文件消失会让引擎标记幻影
+<code>removed</code>;</li>
+<li><strong>不要删或清空 <code>.manifest.json</code></strong>。清空 =
+下次全量重编 = 全额 API 费用;</li>
+<li>升级引擎前顺手
+<code>cp .manifest.json ~/manifest.bak</code>,一秒的事。</li>
+</ul>
+<h3 id="定时编译">7.4 定时编译</h3>
+<p>跑通之后可以挂定时任务。两个坑:</p>
+<ul>
+<li><strong>cron 不读你的 shell profile</strong> —— <code>PATH</code>
+里要显式带上 <code>$HOME/go/bin</code>, API Key 也要在 cron
+能读到的地方;</li>
+<li><strong>系统 <code>python3</code>
+可能是很旧的版本</strong>。用仓库虚拟环境里的解释器,别写裸
+<code>python3</code>。</li>
+</ul>
+<h2 id="验收清单">8. 验收清单</h2>
+<p>装完逐条核对,<strong>没通过的照实记下来</strong>:</p>
+<ul class="task-list">
+<li><label><input type="checkbox" /><code>sage-wiki doctor</code>
+通过,API 连接正常</label></li>
+<li><label><input
+type="checkbox" /><code>bash scripts/vault.sh repo</code>
+打印的是<strong>内容库</strong>路径(不是代码库)</label></li>
+<li><label><input type="checkbox" /><code>bash scripts/compile.sh</code>
+跑完<strong>退出码为 0</strong>(非零 = 有步骤挂了,见 7.1)</label></li>
+<li><label><input type="checkbox" /><code>_wiki/</code>
+下生成了摘要页与概念页,<code>index.md</code> 已更新</label></li>
+<li><label><input type="checkbox" /><code>reports/lint/</code> 下有本次
+lint 记账</label></li>
+<li><label><input type="checkbox" />本地浏览站
+<code>browse/wiki/index.html</code> 能用 <code>file://</code>
+打开</label></li>
+<li><label><input type="checkbox" />Web Clipper 能把文章剪藏进
+<code>raw/clippings/</code></label></li>
+<li><label><input type="checkbox" /><code>git status</code>
+里<strong>没有</strong>你的个人内容(在内容库里才对)</label></li>
+</ul>
+<h2 id="出问题时先看这几条">9. 出问题时先看这几条</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>现象</th>
+<th>多半是</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>no non-test Go files</code></td>
+<td><code>go install</code> 的路径漏了 <code>/cmd/sage-wiki</code></td>
+</tr>
+<tr>
+<td><code>command not found: sage-wiki</code></td>
+<td><code>$HOME/go/bin</code> 不在 <code>PATH</code></td>
+</tr>
+<tr>
+<td><code>doctor</code> 报连不上</td>
+<td>API Key 没 export,或 export 在另一个终端里</td>
+</tr>
+<tr>
+<td>编译返回空结果 / <code>finish_reason=length</code></td>
+<td>思维模式没关(见 5.1)</td>
+</tr>
+<tr>
+<td><code>vault.sh repo</code> 打印代码库路径</td>
+<td>软链没建成,<strong>先修这个再做任何提交</strong></td>
+</tr>
+<tr>
+<td>编译很久且账单意外</td>
+<td><code>.manifest.json</code> 被清空过,触发了全量重编</td>
+</tr>
+<tr>
+<td>浏览站没生成</td>
+<td>缺 <code>markdown</code>
+包(<code>pip install -r requirements.txt</code>),不影响编译</td>
+</tr>
+<tr>
+<td>agent 说”完成”却没有输出</td>
+<td>让它重跑并贴真实输出 —— <strong>没有输出就等于没做</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="相关">相关</h2>
+<ul>
+<li><a href="install.html">安装指南</a> —— 权威步骤(人手动执行)</li>
+<li><a href="usage.html">使用手册</a> —— 装完之后的每周节奏</li>
+<li><a href="architecture.html">系统如何运作</a> ——
+架构、流水线与隐私边界</li>
+<li><a href="faq.html">FAQ 与避坑</a> —— 风险红线与脚本报错排查</li>
+</ul>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#用-ai-agent-安装第二大脑"
+id="toc-用-ai-agent-安装第二大脑">用 AI Agent 安装第二大脑</a>
+<ul>
+<li><a href="#这页和安装指南的关系" id="toc-这页和安装指南的关系">0.
+这页和《安装指南》的关系</a></li>
+<li><a href="#前置agent-之外你得先有的东西"
+id="toc-前置agent-之外你得先有的东西">1. 前置:agent
+之外你得先有的东西</a></li>
+<li><a href="#安装提示词整段复制" id="toc-安装提示词整段复制">2.
+安装提示词(整段复制)</a></li>
+<li><a href="#这段提示词为什么这么写" id="toc-这段提示词为什么这么写">3.
+这段提示词为什么这么写</a></li>
+<li><a href="#各家-agent-怎么起" id="toc-各家-agent-怎么起">4. 各家
+agent 怎么起</a></li>
+<li><a href="#装完之后配置" id="toc-装完之后配置">5.
+装完之后:配置</a></li>
+<li><a href="#加入自己的知识库" id="toc-加入自己的知识库">6.
+加入自己的知识库</a></li>
+<li><a href="#编译机制怎么运行" id="toc-编译机制怎么运行">7.
+编译机制怎么运行</a></li>
+<li><a href="#验收清单" id="toc-验收清单">8. 验收清单</a></li>
+<li><a href="#出问题时先看这几条" id="toc-出问题时先看这几条">9.
+出问题时先看这几条</a></li>
+<li><a href="#相关" id="toc-相关">相关</a></li>
+</ul></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

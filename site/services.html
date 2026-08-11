@@ -14,13 +14,17 @@
   <div class="navlinks">
     <a href="architecture.html">系统运作</a>
     <a href="okf.html">OKF 合规</a>
+    <a href="quick-install.html">一键安装</a>
     <a href="install.html">安装指南</a>
+    <a href="agent-install.html">Agent 安装</a>
+    <a href="workbuddy.html">Workbuddy 安装</a>
     <a href="usage.html">使用手册</a>
     <a href="faq.html">FAQ</a>
     <a href="deploy.html">发布</a>
     <a href="services.html" class="active">服务</a>
     <a href="server.html">服务器部署</a>
     <a href="prd.html">PRD</a>
+    <a href="weekly.html">开发周报</a>
     <a href="changelog.html">更新日志</a>
   </div>
 </div></nav>
@@ -72,7 +76,9 @@ id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套�
 </table>
 </div>
 <h2 id="先看门槛如实说">先看门槛(如实说)</h2>
-<p>这<strong>不是</strong>点一下就好的云服务,自托管有真实的人工成本:</p>
+<p>这不是代管账号的云服务；现在可以由 Workbuddy
+启动一键安装向导，但飞书应用创建、
+权限申请和扫码确认仍必须由你本人完成：</p>
 <ul>
 <li>会用终端、能装 CLI、能配 cron</li>
 <li>需要在你的飞书租户创建<strong>企业自建应用</strong>并扫码授权(手册给逐步说明;
@@ -91,6 +97,9 @@ id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套�
 标题带「邀请申请」,说明你的使用场景与环境(macOS/Linux)</li>
 <li>通过后你会收到发行包(私有仓访问或 tarball)与《订阅者部署手册》</li>
 </ul>
+<p>拿到完整仓库后，按 <a href="workbuddy.html">Workbuddy 专用安装向导</a>
+操作：页面提供两段可
+直接复制的提示词，并在中间明确标出必须由本人完成的飞书授权步骤。</p>
 <h2 id="边界与承诺">边界与承诺</h2>
 <ul>
 <li><strong>不做</strong>:微信个人号消息同步(无官方
@@ -103,6 +112,7 @@ API,协议手段有封号与法律风险, 永久不提供);托管代跑(替你�
 <ul>
 <li><a href="install.html">安装指南</a> · <a href="usage.html">使用手册</a>
 · <a href="architecture.html">系统如何运作</a></li>
+<li><a href="workbuddy.html">用 Workbuddy 安装第二大脑</a></li>
 <li>发行版更新与变更随包内 CHANGELOG 发布</li>
 </ul>
     <div class="doc-foot">

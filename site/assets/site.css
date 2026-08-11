@@ -165,3 +165,36 @@ tbody tr:nth-child(even){background:var(--row-alt)}
 .docsgrid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-bottom:26px}
 .docsgrid a.card:hover{text-decoration:none; border-color:var(--accent)}
 .docsgrid .card .go{font-size:13px; color:var(--accent); font-weight:600}
+/* ── Workbuddy 引导页 ─────────────────── */
+.wb-hero{position:relative; overflow:hidden; margin:18px 0 28px; padding:clamp(28px,6vw,54px); border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border)); border-radius:20px; background:radial-gradient(700px 260px at 100% 0,color-mix(in srgb,#7c3aed 17%,transparent),transparent 58%),linear-gradient(145deg,color-mix(in srgb,var(--accent-soft) 72%,var(--bg)),var(--bg)); box-shadow:var(--shadow)}
+.wb-hero .wb-eyebrow{font-size:12px; font-weight:800; letter-spacing:.16em; color:var(--accent); margin-bottom:12px}
+.doc-main .wb-hero h1{font-size:clamp(30px,5vw,46px); line-height:1.16; margin:0 0 14px; padding:0; border:0}
+.wb-hero p{max-width:660px; margin:0; color:var(--muted); font-size:16.5px}
+.wb-actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:24px}
+.wb-actions a{display:inline-flex; padding:10px 17px; border-radius:9px; font-weight:700}
+.wb-actions a:hover{text-decoration:none; transform:translateY(-1px)}
+.wb-primary{background:var(--accent); color:#fff}
+.wb-secondary{border:1px solid var(--border); background:var(--bg); color:var(--ink-strong)}
+.wb-route{display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:12px; margin:22px 0 30px}
+.wb-route>div{min-height:112px; padding:16px; border:1px solid var(--border); border-radius:13px; background:var(--bg)}
+.wb-route span{display:block; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.12em}
+.wb-route strong{display:block; color:var(--ink-strong); font-size:17px; margin:4px 0}
+.wb-route small{display:block; color:var(--muted); line-height:1.5}
+.wb-route>b{color:var(--faint); font-size:20px}
+.prompt-block{position:relative; margin:20px 0 28px; padding:46px 14px 14px; border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border)); border-radius:14px; background:linear-gradient(180deg,color-mix(in srgb,var(--accent-soft) 45%,var(--bg)),var(--bg))}
+.prompt-block::before{content:attr(data-label); position:absolute; top:14px; left:16px; color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.06em}
+.prompt-block pre{margin:0; max-height:560px; background:var(--bg)}
+.wb-copy{position:absolute; top:9px; right:12px; border:1px solid var(--border); border-radius:8px; padding:6px 10px; background:var(--bg); color:var(--ink-strong); font:600 12px/1.3 inherit; cursor:pointer}
+.wb-copy:hover{border-color:var(--accent); color:var(--accent)}
+.wb-checkgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0 30px}
+.wb-checkgrid>div{padding:15px; border:1px solid var(--border); border-radius:12px; background:var(--bg)}
+.wb-checkgrid strong,.wb-checkgrid span{display:block}.wb-checkgrid strong{color:var(--ink-strong); margin-bottom:5px}.wb-checkgrid span{color:var(--muted); font-size:13.5px; line-height:1.55}
+.wb-callout{margin:20px 0; padding:16px 18px; border-radius:12px; background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border))}
+.wb-callout.warn{border-left:4px solid var(--warn); background:color-mix(in srgb,var(--warn) 8%,var(--bg))}
+.wb-steps{display:grid; gap:10px; margin:18px 0 30px}
+.wb-steps>div{display:flex; gap:14px; padding:15px 16px; border:1px solid var(--border); border-radius:12px; background:var(--bg)}
+.wb-steps>div>span{flex:0 0 30px; height:30px; display:grid; place-items:center; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:800}
+.wb-steps strong{color:var(--ink-strong)}.wb-steps p{margin:3px 0 0; color:var(--muted); font-size:14px}
+.wb-summary{display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; margin:22px 0; padding:22px; border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border)); border-radius:14px; background:var(--accent-soft); text-align:center}
+.wb-summary strong{color:var(--ink-strong)}.wb-summary span{color:var(--accent); font-weight:800}
+@media(max-width:720px){.wb-route{grid-template-columns:1fr}.wb-route>b{transform:rotate(90deg); text-align:center}.wb-checkgrid{grid-template-columns:1fr}.prompt-block{padding-top:76px}.wb-copy{top:40px; left:14px; right:auto}}

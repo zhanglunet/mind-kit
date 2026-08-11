@@ -99,6 +99,25 @@ def test_no_broken_internal_links():
     assert not broken, "站内死链:\n" + "\n".join(broken)
 
 
+def test_workbuddy_guide_is_built_and_reachable():
+    source = REPO / "docs" / "guide" / "workbuddy.md"
+    page = SITE / "workbuddy.html"
+    assert source.is_file(), "缺 Workbuddy 指导页 Markdown 真源"
+    assert page.is_file(), "缺构建产物 site/workbuddy.html"
+    md = source.read_text(encoding="utf-8")
+    rendered = page.read_text(encoding="utf-8")
+    for required in (
+        "<完整仓库链接>", "./install-second-brain", "提示词 1", "提示词 2",
+        "App Secret", "127.0.0.1", "授权完成并开始同步", "missing_scope",
+    ):
+        assert required in md, f"Workbuddy 指南缺关键内容:{required}"
+        assert required.replace("<", "&lt;").replace(">", "&gt;") in rendered or required in rendered
+    href = 'href="workbuddy.html"'
+    assert href in (SITE / "index.html").read_text(encoding="utf-8"), "首页没入口"
+    assert href in TPL.read_text(encoding="utf-8"), "生成页导航没入口"
+    assert '&lt;a class=&quot;wb-primary&quot;' not in rendered, "页首 CTA 被 pandoc 误渲染成代码"
+
+
 def test_no_mojibake_in_site_pages():
     """烧进 HTML 的 U+FFFD = 构建机器 locale 是 C,argv 里的中文按单字节解码报废。
 
@@ -129,3 +148,46 @@ def test_svg_text_has_no_literal_markdown():
             if "**" in t or "`" in t:
                 bad.append(f"{p.name}: {t.strip()[:60]}")
     assert not bad, "SVG <text> 里混进了 markdown 记号(不会被渲染,只会漏成字面量):\n  " + "\n  ".join(bad)
+
+
+# ── 生成页也不许成为孤儿页 ────────────────────────────────────────────────
+# 既有的 `test_manual_pages_are_reachable_from_home_and_generated_pages` 只覆盖
+# **手工页**(architecture / okf)。而 `build-site.sh` 里 `build_page` 生成的页
+# **没有任何机制**保证它被挂上导航 —— 加了一行 build_page 却忘了改模板,
+# 结果是一个"只有知道 URL 才进得去"的页面,而且**构建不会有任何抱怨**。
+#
+# 这道检查从 build-site.sh **自己**读清单,不维护第二份名单:
+# 名单一旦要人手同步,它迟早和真相分叉(本仓一贯的判断)。
+
+BUILD_SH = REPO / "scripts" / "build-site.sh"
+
+
+def _generated_pages():
+    """从 build-site.sh 的 `build_page <md> <out.html> <active>` 行里读出生成页。"""
+    src = BUILD_SH.read_text(encoding="utf-8")
+    rows = re.findall(r'^build_page\s+\S+\s+(\S+\.html)\s+(\S+)\s*$', src, re.M)
+    assert rows, "从 build-site.sh 里一个 build_page 行都没读出来 —— 正则或脚本变了"
+    return rows
+
+
+def test_every_generated_page_is_on_the_nav():
+    tpl = TPL.read_text(encoding="utf-8")
+    missing = [out for out, _ in _generated_pages() if f'href="{out}"' not in tpl]
+    assert not missing, (
+        "这些页由 build-site.sh 生成,却没挂在 site-template.html 的导航里,"
+        "会成为只有知道 URL 才进得去的孤儿页:\n  " + "\n  ".join(missing))
+
+
+def test_every_generated_page_has_its_active_marker():
+    """导航高亮变量对不上 = 页面在导航里不会被标为当前页(低级但很显眼的坏体验)。"""
+    tpl = TPL.read_text(encoding="utf-8")
+    missing = [f"{out} → active_{act}" for out, act in _generated_pages()
+               if f"active_{act}" not in tpl]
+    assert not missing, "导航模板缺这些高亮变量:\n  " + "\n  ".join(missing)
+
+
+def test_every_generated_page_is_linked_from_the_home_page():
+    """首页是唯一入口页,生成页也必须能从它到达。"""
+    home = (SITE / "index.html").read_text(encoding="utf-8")
+    missing = [out for out, _ in _generated_pages() if f'href="{out}"' not in home]
+    assert not missing, "首页没有链到这些生成页:\n  " + "\n  ".join(missing)

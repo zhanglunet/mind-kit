@@ -45,7 +45,7 @@ cd mind
 pip install -r requirements.txt
 ```
 
-`scripts/` 下绝大多数脚本只用 Python 标准库,**唯一的第三方依赖是 `markdown`**(供 `scripts/build-wiki-site.py` 生成本地浏览站)。不装也不影响编译:`compile.sh` 第 4 步(生成浏览站)是 best-effort,缺 `markdown` 时只告警跳过、不中断编译与提交。
+`scripts/` 下绝大多数脚本只用 Python 标准库,**唯一的第三方依赖是 `markdown`**(供 `scripts/build-wiki-site.py` 生成本地浏览站)。不装也不影响编译:`compile.sh` 第 5 步(生成浏览站)是 best-effort,缺 `markdown` 时只告警跳过、不中断编译与提交。
 
 ## 2. 设置 API Key(GLM / DeepSeek / Kimi)
 
