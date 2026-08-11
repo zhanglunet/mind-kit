@@ -109,6 +109,9 @@ def test_workbuddy_guide_is_built_and_reachable():
     for required in (
         "<完整仓库链接>", "./install-second-brain", "提示词 1", "提示词 2",
         "App Secret", "127.0.0.1", "授权完成并开始同步", "missing_scope",
+        "Windows 10/11", "WSL2", "https://github.com/zhanglunet/mind-kit",
+        "Code → HTTPS", "bash scripts/compile.sh",
+        "usage.html", "http://127.0.0.1:8788/browse/index.html",
     ):
         assert required in md, f"Workbuddy 指南缺关键内容:{required}"
         assert required.replace("<", "&lt;").replace(">", "&gt;") in rendered or required in rendered
@@ -116,6 +119,26 @@ def test_workbuddy_guide_is_built_and_reachable():
     assert href in (SITE / "index.html").read_text(encoding="utf-8"), "首页没入口"
     assert href in TPL.read_text(encoding="utf-8"), "生成页导航没入口"
     assert '&lt;a class=&quot;wb-primary&quot;' not in rendered, "页首 CTA 被 pandoc 误渲染成代码"
+
+
+def test_primary_navigation_stays_focused():
+    """主导航只保留最常用入口；长尾文档留在首页卡片和页脚。"""
+    expected = {
+        "workbuddy.html": "开始安装",
+        "architecture.html": "系统原理",
+        "usage.html": "使用指南",
+        "services.html": "获取与服务",
+        "https://github.com/zhanglunet/mind-kit": "GitHub",
+    }
+    pages = [SITE / "index.html", SITE / "architecture.html", SITE / "okf.html", TPL]
+    for page in pages:
+        html = page.read_text(encoding="utf-8")
+        nav = re.search(r'<div class="navlinks">(.*?)</div>', html, re.S)
+        assert nav, f"{page.name} 缺主导航"
+        primary = nav.group(1).split('<details class="nav-more">', 1)[0]
+        links = re.findall(r'<a href="([^"]+)"[^>]*>([^<]+)</a>', primary)
+        assert len(links) == 5, f"{page.name} 主导航应为 5 项，实际 {len(links)} 项"
+        assert dict(links) == expected, f"{page.name} 主导航与统一信息架构不一致"
 
 
 def test_no_mojibake_in_site_pages():

@@ -5,7 +5,7 @@ title: 用 Workbuddy 安装第二大脑
 <div class="wb-hero">
   <div class="wb-eyebrow">WORKBUDDY GUIDED SETUP</div>
   <h1>把安装交给 Workbuddy，<br>把授权留给你自己</h1>
-  <p>复制第一段提示词，让 Workbuddy 准备本地环境；在浏览器里亲自完成飞书权限与授权；最后复制第二段提示词，让 Workbuddy 盯住同步并交付验收结果。</p>
+  <p>复制第一段提示词，让 Workbuddy 准备本地环境；在浏览器里亲自完成飞书权限与授权；同步验收后，再由你决定是否付费调用模型开始首次编译。</p>
   <div class="wb-actions">
 <a class="wb-primary" href="#第一步把这段提示词交给-workbuddy">从第一段提示词开始</a>
 <a class="wb-secondary" href="#飞书权限申请清单">先看权限清单</a>
@@ -18,6 +18,8 @@ title: 用 Workbuddy 安装第二大脑
   <div><span>02</span><strong>你的浏览器</strong><small>申请权限、输入凭证、扫码</small></div>
   <b aria-hidden="true">→</b>
   <div><span>03</span><strong>Workbuddy</strong><small>观察同步、排错、验收</small></div>
+  <b aria-hidden="true">→</b>
+  <div><span>04</span><strong>你确认后</strong><small>首次编译、打开本地知识门户</small></div>
 </div>
 
 > **最重要的安全边界**：完整仓库链接可以放进提示词；App Secret、access token、
@@ -28,16 +30,39 @@ title: 用 Workbuddy 安装第二大脑
 
 你需要：
 
-- 一台由你控制的 macOS 或 Linux 电脑，Workbuddy 能在这台电脑上运行终端命令；
+- 一台由你控制的 macOS、Linux，或 Windows 10/11 电脑，Workbuddy 能在这台电脑上运行终端命令；
+- Windows 请先启用 **WSL2 + Ubuntu**，让 Workbuddy 在 WSL 终端中安装。本安装器当前不支持原生 PowerShell；
 - 已收到的**完整第二大脑仓库链接**；私有仓库还需要这台电脑已有对应 GitHub 访问权限；
 - 飞书租户中创建企业自建应用的权限，或者能联系到租户管理员；
 - 约 15–30 分钟。文档很多时，首次同步会更久，但中断后可以增量续跑。
 
-不需要把 GitHub token、飞书 App Secret 或任何 API Key发给本页面、Workbuddy 或发行方。
+不需要把 GitHub token、飞书 App Secret 或任何 API Key 发给本页面、Workbuddy 或发行方。
+
+## “完整仓库链接”到底填什么
+
+| 仓库 | 链接 | 用途 | 能否完成本页的一键安装 |
+|---|---|---|---:|
+| `mind-kit`（公开） | [https://github.com/zhanglunet/mind-kit](https://github.com/zhanglunet/mind-kit) | 查看公开框架、文档和脱敏示例 | 否，不含私有安装器与飞书全量同步模块 |
+| 私有完整版仓库 | 邀请后在私有仓页面点击 **Code → HTTPS** 复制 | 完整安装、飞书授权与同步 | 是，获得访问权限后使用 |
+
+所以：**公开的 `mind-kit` 链接可以先给 Workbuddy 阅读和评估，但不能替代完整仓库链接。**
+要走本页的完整流程，应在接受邀请后，从你有权访问的私有仓页面复制 HTTPS 克隆地址。
+私有仓地址不公开写在本页，由 GitHub 邀请定向交付。
+
+### 如何获得 `mind-pro` 访问权限
+
+1. 你把自己的 **GitHub 用户名**发给发行方；不要发送密码或 token。
+2. 发行方在私有完整版仓库的 **Settings → Collaborators → Add people** 中发出邀请。
+3. 你在 GitHub 邮件或通知中接受邀请。GitHub 的官方说明见[邀请仓库协作者](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository)。
+4. 让 Workbuddy 在你的电脑上执行 `gh auth login`；浏览器中的登录和确认由你本人完成。
+5. 在私有仓页面点击 **Code → HTTPS** 复制完整克隆地址；Workbuddy 先用 `gh repo view <仓库所有者>/<私有仓库名>` 验证可访问，再开始克隆。
+
+邀请只解决 GitHub 访问权，不会把仓库公开。以后不再使用时，发行方应移除协作者权限。
 
 ## 第一步：把这段提示词交给 Workbuddy
 
-先把下面的 `<完整仓库链接>` 替换成你收到的真实链接，再整段复制给 Workbuddy。
+这里的 `<完整仓库链接>` 应替换为你在私有仓页面 **Code → HTTPS** 复制到的地址。如果你还没接受
+私有仓邀请，先完成上一节；不要用公开 `mind-kit` 地址顶替，也不要把 GitHub token 填进提示词。
 
 ::: {.prompt-block data-label="提示词 1 · 安装并停在授权页"}
 ```text
@@ -46,7 +71,7 @@ title: 用 Workbuddy 安装第二大脑
 
 请按以下要求执行：
 1. 先检查目标目录是否已存在；保留已有文件和未提交改动，不覆盖、不删除用户数据。
-2. 克隆或更新完整仓库，阅读仓库内安装说明，然后在仓库根目录运行 ./install-second-brain。
+2. 克隆或更新完整仓库，阅读仓库内安装说明，然后在仓库根目录运行 ./install-second-brain；Windows 必须在 WSL2 的 Ubuntu 终端中运行。
 3. 保持安装器进程持续运行，不要因为命令暂时没有输出而结束它。
 4. 安装器出现 127.0.0.1 本地授权页面后，把页面地址告诉我，并停下来等我操作。
 5. 不要在聊天中索取、显示或保存飞书 App Secret、access token、refresh token、device code 或授权二维码。
@@ -164,9 +189,47 @@ http://127.0.0.1:随机端口/wizard?token=一次性随机值
 - 退出：停止定时任务、删除本地冷存，并在飞书授权管理页撤销服务端授权或删除自建应用。
 - `lark-cli auth logout` 只清除当前机器登录态，不等于撤销飞书服务端授权。
 
+## 第五步：开始首次编译并打开指南
+
+“同步完成”只代表飞书内容已安全落到本地冷存，**不会自动把全部飞书内容送给大模型**。
+这是刻意的隐私和费用边界。先挑选值得进入知识体系的 Markdown，复制到
+`raw/clippings/`；需要深度处理、希望先审阅的材料放进 `raw/todo/`。
+
+首次编译会调用你配置的大模型并可能产生费用。先让 Workbuddy 只做估算：
+
+```bash
+bash scripts/compile.sh --dry-run
+```
+
+确认范围、模型和预估费用后，再运行：
+
+```bash
+bash scripts/compile.sh
+python3 scripts/brain-server.py
+```
+
+然后打开本地私密知识门户：
+[http://127.0.0.1:8788/browse/index.html](http://127.0.0.1:8788/browse/index.html)。
+日常摄入、查询、健检和全量更新见本站[使用指南](usage.html)。
+
+::: {.prompt-block data-label="提示词 3 · 经我确认后首次编译"}
+```text
+飞书同步已经验收完成。请先不要直接编译全部冷存内容。
+
+请继续：
+1. 说明 raw/private/feishu 是私密冷存，不是默认编译源。
+2. 帮我从待处理材料中挑选本次要编译的文件；未经我确认，不要批量复制飞书全库。
+3. 把我确认的材料放入 raw/clippings/，先运行 bash scripts/compile.sh --dry-run。
+4. 汇报本次范围、模型和费用风险，停下来等我明确回复“可以编译”。
+5. 得到确认后运行 bash scripts/compile.sh；完成后运行 python3 scripts/brain-server.py。
+6. 给我本地入口 http://127.0.0.1:8788/browse/index.html 和在线使用指南 https://aip.cab/usage。
+7. 不提交、推送或上传 raw/private、raw、_wiki、material、writing 中的个人内容。
+```
+:::
+
 ## 一句话记住整个过程
 
-<div class="wb-summary"><strong>提示词 1 给 Workbuddy</strong><span>→</span><strong>浏览器里由你申请并授权</strong><span>→</span><strong>提示词 2 让 Workbuddy监控和验收</strong></div>
+<div class="wb-summary"><strong>提示词 1 安装</strong><span>→</span><strong>浏览器里由你授权</strong><span>→</span><strong>提示词 2 同步验收</strong><span>→</span><strong>提示词 3 经你确认后编译</strong></div>
 
 <script>
 document.querySelectorAll('.prompt-block').forEach(function(block) {
