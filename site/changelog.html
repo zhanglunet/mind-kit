@@ -38,6 +38,36 @@
 <h1 id="更新日志">更新日志</h1>
 <p>本文件记录本代码库(脚本、配置、文档)的重要变更。知识内容的时序记录在你自己内容库的
 <code>_wiki/log.md</code>。</p>
+<h2 id="v1.7-2026-08-12">v1.7 — 2026-08-12</h2>
+<h3 id="workbuddy-一键安装进入公开仓">Workbuddy 一键安装进入公开仓</h3>
+<ul>
+<li><code>install-second-brain</code> 与
+<code>install-second-brain.ps1</code> 直接从公开 <code>mind-kit</code>
+启动， 不再需要私有仓邀请或访问令牌。</li>
+<li>本人通过 <code>127.0.0.1</code>
+本地页面完成飞书权限申请与授权，再同步文档、知识库，
+以及实际获批的云盘文件和消息；凭证与内容不进入代码仓。</li>
+<li>Workbuddy 指南改为三段式流程：安装并停在授权页 → 同步与脱敏验收 →
+用户确认后编译。</li>
+</ul>
+<h3 id="windows-原生-powershell">Windows 原生 PowerShell</h3>
+<ul>
+<li>Windows 10/11 直接使用 PowerShell 5.1+ 或 PowerShell 7，不需要
+WSL。</li>
+<li>新增跨平台 Vault 初始化核心；Windows 使用目录 Junction
+连接私有内容库， 不要求管理员权限或 Developer Mode。</li>
+<li>新增 <code>compile-second-brain.ps1</code>，支持先
+<code>-DryRun</code> 估算、确认后正式编译。</li>
+</ul>
+<h3 id="gitlab-windows-cicd">GitLab Windows CI/CD</h3>
+<ul>
+<li><code>.gitlab-ci.yml</code> 新增 <code>windows-native</code>
+job，绑定 <code>windows</code>、<code>powershell</code> Runner
+标签。</li>
+<li>Windows 原生入口不使用 GitHub Actions
+<code>windows-latest</code>；Linux pytest 仍保留独立 job。</li>
+<li>公开发行树继续经过禁忌词、不可扫描格式和 pytest 门禁。</li>
+</ul>
 <h2 id="v1.6-2026-08-06">v1.6 — 2026-08-06</h2>
 <p><strong>小版本,公开版只有一处可见变化</strong>:文档站多了一个「服务」页。
 本轮开发的绝大部分(私人集成的模块化与发行管线)不随公开版发布,如实说明如下。</p>
@@ -505,6 +535,8 @@ REFACTOR);pre-push 钩子跑全量 pytest;GitHub Actions 服务端兜底</li>
 <ul>
 <li><a href="#更新日志" id="toc-更新日志">更新日志</a>
 <ul>
+<li><a href="#v1.7-2026-08-12" id="toc-v1.7-2026-08-12">v1.7 —
+2026-08-12</a></li>
 <li><a href="#v1.6-2026-08-06" id="toc-v1.6-2026-08-06">v1.6 —
 2026-08-06</a></li>
 <li><a href="#v1.5-2026-08-05" id="toc-v1.5-2026-08-05">v1.5 —

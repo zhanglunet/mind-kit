@@ -2,6 +2,29 @@
 
 本文件记录本代码库(脚本、配置、文档)的重要变更。知识内容的时序记录在你自己内容库的 `_wiki/log.md`。
 
+## v1.7 — 2026-08-12
+
+### Workbuddy 一键安装进入公开仓
+
+- `install-second-brain` 与 `install-second-brain.ps1` 直接从公开 `mind-kit` 启动，
+  不再需要私有仓邀请或访问令牌。
+- 本人通过 `127.0.0.1` 本地页面完成飞书权限申请与授权，再同步文档、知识库，
+  以及实际获批的云盘文件和消息；凭证与内容不进入代码仓。
+- Workbuddy 指南改为三段式流程：安装并停在授权页 → 同步与脱敏验收 → 用户确认后编译。
+
+### Windows 原生 PowerShell
+
+- Windows 10/11 直接使用 PowerShell 5.1+ 或 PowerShell 7，不需要 WSL。
+- 新增跨平台 Vault 初始化核心；Windows 使用目录 Junction 连接私有内容库，
+  不要求管理员权限或 Developer Mode。
+- 新增 `compile-second-brain.ps1`，支持先 `-DryRun` 估算、确认后正式编译。
+
+### GitLab Windows CI/CD
+
+- `.gitlab-ci.yml` 新增 `windows-native` job，绑定 `windows`、`powershell` Runner 标签。
+- Windows 原生入口不使用 GitHub Actions `windows-latest`；Linux pytest 仍保留独立 job。
+- 公开发行树继续经过禁忌词、不可扫描格式和 pytest 门禁。
+
 ## v1.6 — 2026-08-06
 
 **小版本,公开版只有一处可见变化**:文档站多了一个「服务」页。
