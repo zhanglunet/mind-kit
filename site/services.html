@@ -35,8 +35,7 @@
 <div class="doc-layout">
   <main class="doc-main">
     <div class="crumb"><a href="index.html">首页</a> / 服务</div>
-<h1
-id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套件(邀请制内测)</h1>
+<h1 id="服务飞书同步与第二大脑部署">服务：飞书同步与第二大脑部署</h1>
 <blockquote>
 <p><strong>一句话</strong>:把你自己的飞书云文档 /
 知识库拿回自己手里——增量备份为 Markdown,
@@ -44,8 +43,9 @@ id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套�
 数据在你的目录,<strong>我们全程零接触</strong>。</p>
 </blockquote>
 <h2 id="这是什么">这是什么</h2>
-<p>本站的第二大脑工具集(mind-kit,开源免费)之外,还有一套<strong>私人集成发行版</strong>:
-飞书个人数据备份套件。当前<strong>邀请制内测,免费</strong>。</p>
+<p>飞书个人数据备份和同步能力已经进入公开的 <a
+href="https://github.com/zhanglunet/mind-kit">mind-kit</a>，不再需要私有仓邀请、访问令牌或
+单独发行包。Workbuddy 可以直接从公开仓启动安装器。</p>
 <div class="table-wrap">
 <table>
 <colgroup>
@@ -61,11 +61,15 @@ id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套�
 <tbody>
 <tr>
 <td>云文档备份</td>
-<td>「我拥有的」飞书云文档 → Markdown,增量,重跑只补新内容</td>
+<td>本人授权可见的飞书云文档 → Markdown，支持增量同步</td>
 </tr>
 <tr>
 <td>知识库备份</td>
 <td>飞书知识库(wiki)按空间/路径落盘为 Markdown</td>
+</tr>
+<tr>
+<td>云盘与消息</td>
+<td>按本人实际申请并获批的权限同步文件、群聊和单聊</td>
 </tr>
 <tr>
 <td>多账号</td>
@@ -83,7 +87,8 @@ id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套�
 启动一键安装向导，但飞书应用创建、
 权限申请和扫码确认仍必须由你本人完成：</p>
 <ul>
-<li>会用终端、能装 CLI、能配 cron</li>
+<li>一台 macOS、Linux 或 Windows 电脑；Windows 使用原生
+PowerShell，不需要 WSL</li>
 <li>需要在你的飞书租户创建<strong>企业自建应用</strong>并扫码授权(手册给逐步说明;
 只涉你本人的文档,不需要读他人数据的审批)</li>
 <li>token 有 7 天刷新窗口,需要一条保活定时任务;断供 7 天要重新扫码</li>
@@ -92,31 +97,31 @@ id="服务飞书个人备份套件邀请制内测">服务:飞书个人备份套�
 </ul>
 <p>作为对价:你的凭证和数据<strong>从不经过我们</strong>,退出 =
 删本地数据 + 删自建应用,完。</p>
-<h2 id="怎么申请">怎么申请</h2>
-<p>邀请制内测,名额以单人能认真支持的数量为限:</p>
+<h2 id="怎么开始">怎么开始</h2>
+<p>不需要申请。打开 <a href="workbuddy.html">Workbuddy
+专用安装向导</a>，依次完成：</p>
 <ul>
-<li>在 <a href="https://github.com/zhanglunet/mind-kit">mind-kit
-仓库</a>开一个 issue,
-标题带「邀请申请」,说明你的使用场景与环境(macOS/Linux)</li>
-<li>通过后你会收到发行包(私有仓访问或 tarball)与《订阅者部署手册》</li>
+<li>把公开仓链接和页面中的第一段提示词交给 Workbuddy</li>
+<li>在浏览器中由本人创建飞书自建应用、申请权限并确认授权</li>
+<li>回到 Workbuddy 执行同步、编译与验收提示词</li>
 </ul>
-<p>拿到完整仓库后，按 <a href="workbuddy.html">Workbuddy 专用安装向导</a>
-操作：页面提供两段可
-直接复制的提示词，并在中间明确标出必须由本人完成的飞书授权步骤。</p>
+<p>如果需要企业内网部署、权限方案评审或迁移支持，可以在 <a
+href="https://github.com/zhanglunet/mind-kit/issues">mind-kit Issues</a>
+提交需求；这是可选服务， 不影响公开安装器和基础同步能力的使用。</p>
 <h2 id="边界与承诺">边界与承诺</h2>
 <ul>
 <li><strong>不做</strong>:微信个人号消息同步(无官方
 API,协议手段有封号与法律风险, 永久不提供);托管代跑(替你保管 token
 与数据——那是另一种产品形态, 当前明确不做)</li>
-<li><strong>免费</strong>:内测阶段不收费;未来若收费会提前明示,且已装功能不受影响</li>
-<li>工具集本体(mind-kit)始终开源免费,发行版只是私人集成部分</li>
+<li><strong>开源免费</strong>：mind-kit、安装器和本地同步模块按仓库许可证提供</li>
+<li><strong>可选服务</strong>：企业权限梳理、部署与运维支持另行约定，不代管你的凭证和数据</li>
 </ul>
 <h2 id="相关">相关</h2>
 <ul>
 <li><a href="install.html">安装指南</a> · <a href="usage.html">使用手册</a>
 · <a href="architecture.html">系统如何运作</a></li>
 <li><a href="workbuddy.html">用 Workbuddy 安装第二大脑</a></li>
-<li>发行版更新与变更随包内 CHANGELOG 发布</li>
+<li>更新与变更见 <a href="changelog.html">CHANGELOG</a></li>
 </ul>
     <div class="doc-foot">
       <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
@@ -126,13 +131,13 @@ API,协议手段有封号与法律风险, 永久不提供);托管代跑(替你�
   <aside class="doc-toc"><div class="box">
     <div class="cap">本页目录</div>
 <ul>
-<li><a href="#服务飞书个人备份套件邀请制内测"
-id="toc-服务飞书个人备份套件邀请制内测">服务:飞书个人备份套件(邀请制内测)</a>
+<li><a href="#服务飞书同步与第二大脑部署"
+id="toc-服务飞书同步与第二大脑部署">服务：飞书同步与第二大脑部署</a>
 <ul>
 <li><a href="#这是什么" id="toc-这是什么">这是什么</a></li>
 <li><a href="#先看门槛如实说"
 id="toc-先看门槛如实说">先看门槛(如实说)</a></li>
-<li><a href="#怎么申请" id="toc-怎么申请">怎么申请</a></li>
+<li><a href="#怎么开始" id="toc-怎么开始">怎么开始</a></li>
 <li><a href="#边界与承诺" id="toc-边界与承诺">边界与承诺</a></li>
 <li><a href="#相关" id="toc-相关">相关</a></li>
 </ul></li>

@@ -107,10 +107,10 @@ def test_workbuddy_guide_is_built_and_reachable():
     md = source.read_text(encoding="utf-8")
     rendered = page.read_text(encoding="utf-8")
     for required in (
-        "<完整仓库链接>", "./install-second-brain", "提示词 1", "提示词 2",
+        "https://github.com/zhanglunet/mind-kit.git", "./install-second-brain", "提示词 1", "提示词 2",
         "App Secret", "127.0.0.1", "授权完成并开始同步", "missing_scope",
-        "Windows 10/11", "WSL2", "https://github.com/zhanglunet/mind-kit",
-        "Code → HTTPS", "bash scripts/compile.sh",
+        "Windows 10/11", "PowerShell", "不需要 WSL2", "install-second-brain.ps1",
+        "compile-second-brain.ps1", "bash scripts/compile.sh",
         "usage.html", "http://127.0.0.1:8788/browse/index.html",
     ):
         assert required in md, f"Workbuddy 指南缺关键内容:{required}"

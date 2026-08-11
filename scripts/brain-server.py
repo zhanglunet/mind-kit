@@ -46,19 +46,44 @@ def _try_flock():
 
     _update_lock 只护本进程;还有别的触发方(如定时任务、其他常驻进程)会跑
     update-all,跨进程互斥只能靠文件锁——各方约定同一个锁文件。"""
-    import fcntl
     fd = os.open(VAULT / ".update-all.lock", os.O_CREAT | os.O_RDWR)
     try:
-        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if os.name == "nt":
+            import msvcrt
+            os.write(fd, b"0")
+            os.lseek(fd, 0, os.SEEK_SET)
+            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return fd
     except OSError:
         os.close(fd)
         return None
 
 
+def _release_flock(fd):
+    if os.name == "nt":
+        import msvcrt
+        os.lseek(fd, 0, os.SEEK_SET)
+        msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(fd, fcntl.LOCK_UN)
+    os.close(fd)
+
+
+def _update_argv():
+    override = os.environ.get("MIND_UPDATE_SCRIPT")
+    if override:
+        return ["bash", override]
+    if os.name == "nt":
+        return [sys.executable, str(VAULT / "scripts" / "compile_second_brain.py")]
+    return ["bash", str(VAULT / "scripts" / "update-all.sh")]
+
+
 def _run_update_all(lock_fd):
     """后台执行 update-all.sh,输出落日志,完成后回填状态。单飞由 start_update_all 加锁保证。"""
-    script = os.environ.get("MIND_UPDATE_SCRIPT") or str(VAULT / "scripts" / "update-all.sh")
     log = _update_log_path()
     rc = 127
     try:
@@ -66,7 +91,7 @@ def _run_update_all(lock_fd):
         with log.open("w", encoding="utf-8") as f:
             f.write(f"# update-all 启动 {datetime.now().isoformat(timespec='seconds')}\n")
             f.flush()
-            rc = subprocess.run(["bash", script], cwd=str(VAULT),
+            rc = subprocess.run(_update_argv(), cwd=str(VAULT),
                                 stdout=f, stderr=subprocess.STDOUT, text=True).returncode
     except OSError as e:
         try:
@@ -75,7 +100,7 @@ def _run_update_all(lock_fd):
         except OSError:
             pass
     finally:
-        os.close(lock_fd)                 # 释放跨进程锁(进程崩溃时 OS 自动释放)
+        _release_flock(lock_fd)           # 释放跨进程锁(进程崩溃时 OS 自动释放)
     with _update_lock:
         _update.update(running=False, returncode=rc,
                        finished_at=datetime.now().isoformat(timespec="seconds"))

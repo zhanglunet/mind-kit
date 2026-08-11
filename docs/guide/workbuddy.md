@@ -31,47 +31,36 @@ title: 用 Workbuddy 安装第二大脑
 你需要：
 
 - 一台由你控制的 macOS、Linux，或 Windows 10/11 电脑，Workbuddy 能在这台电脑上运行终端命令；
-- Windows 请先启用 **WSL2 + Ubuntu**，让 Workbuddy 在 WSL 终端中安装。本安装器当前不支持原生 PowerShell；
-- 已收到的**完整第二大脑仓库链接**；私有仓库还需要这台电脑已有对应 GitHub 访问权限；
+- Windows 直接使用 **PowerShell 5.1+ 或 PowerShell 7**，不需要 WSL2；
+- 公开仓库链接 [https://github.com/zhanglunet/mind-kit](https://github.com/zhanglunet/mind-kit)；
 - 飞书租户中创建企业自建应用的权限，或者能联系到租户管理员；
 - 约 15–30 分钟。文档很多时，首次同步会更久，但中断后可以增量续跑。
 
 不需要把 GitHub token、飞书 App Secret 或任何 API Key 发给本页面、Workbuddy 或发行方。
 
-## “完整仓库链接”到底填什么
+## “完整仓库链接”填什么
 
-| 仓库 | 链接 | 用途 | 能否完成本页的一键安装 |
-|---|---|---|---:|
-| `mind-kit`（公开） | [https://github.com/zhanglunet/mind-kit](https://github.com/zhanglunet/mind-kit) | 查看公开框架、文档和脱敏示例 | 否，不含私有安装器与飞书全量同步模块 |
-| 私有完整版仓库 | 邀请后在私有仓页面点击 **Code → HTTPS** 复制 | 完整安装、飞书授权与同步 | 是，获得访问权限后使用 |
+直接使用公开 HTTPS 克隆地址：
 
-所以：**公开的 `mind-kit` 链接可以先给 Workbuddy 阅读和评估，但不能替代完整仓库链接。**
-要走本页的完整流程，应在接受邀请后，从你有权访问的私有仓页面复制 HTTPS 克隆地址。
-私有仓地址不公开写在本页，由 GitHub 邀请定向交付。
+```text
+https://github.com/zhanglunet/mind-kit.git
+```
 
-### 如何获得 `mind-pro` 访问权限
-
-1. 你把自己的 **GitHub 用户名**发给发行方；不要发送密码或 token。
-2. 发行方在私有完整版仓库的 **Settings → Collaborators → Add people** 中发出邀请。
-3. 你在 GitHub 邮件或通知中接受邀请。GitHub 的官方说明见[邀请仓库协作者](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository)。
-4. 让 Workbuddy 在你的电脑上执行 `gh auth login`；浏览器中的登录和确认由你本人完成。
-5. 在私有仓页面点击 **Code → HTTPS** 复制完整克隆地址；Workbuddy 先用 `gh repo view <仓库所有者>/<私有仓库名>` 验证可访问，再开始克隆。
-
-邀请只解决 GitHub 访问权，不会把仓库公开。以后不再使用时，发行方应移除协作者权限。
+公开仓已经包含 macOS/Linux 启动器、原生 PowerShell 启动器、飞书最小权限授权页，以及
+文档、知识库、云盘文件、群聊和单聊同步模块。**不需要 GitHub 登录、私有仓邀请或访问令牌。**
 
 ## 第一步：把这段提示词交给 Workbuddy
 
-这里的 `<完整仓库链接>` 应替换为你在私有仓页面 **Code → HTTPS** 复制到的地址。如果你还没接受
-私有仓邀请，先完成上一节；不要用公开 `mind-kit` 地址顶替，也不要把 GitHub token 填进提示词。
+下面已经填好公开仓库地址，整段复制即可。
 
 ::: {.prompt-block data-label="提示词 1 · 安装并停在授权页"}
 ```text
 请在这台电脑上安装“第二大脑”，完整仓库链接是：
-<完整仓库链接>
+https://github.com/zhanglunet/mind-kit.git
 
 请按以下要求执行：
 1. 先检查目标目录是否已存在；保留已有文件和未提交改动，不覆盖、不删除用户数据。
-2. 克隆或更新完整仓库，阅读仓库内安装说明，然后在仓库根目录运行 ./install-second-brain；Windows 必须在 WSL2 的 Ubuntu 终端中运行。
+2. 克隆或更新公开仓库，阅读仓库内安装说明。macOS/Linux 在仓库根目录运行 ./install-second-brain；Windows 原生 PowerShell 运行 powershell -ExecutionPolicy Bypass -File .\install-second-brain.ps1。
 3. 保持安装器进程持续运行，不要因为命令暂时没有输出而结束它。
 4. 安装器出现 127.0.0.1 本地授权页面后，把页面地址告诉我，并停下来等我操作。
 5. 不要在聊天中索取、显示或保存飞书 App Secret、access token、refresh token、device code 或授权二维码。
@@ -180,7 +169,7 @@ http://127.0.0.1:随机端口/wizard?token=一次性随机值
 | 授权成功但 token 校验失败 | 授权尚未完成收口或 profile 不一致 | 保持原安装任务，回本地页重试；让 Workbuddy 只做脱敏诊断 |
 | 文档有、知识库为空 | 应用未开 Wiki 权限，或账号不可访问对应空间 | 检查 `wiki:wiki:readonly` 和当前飞书账号的空间权限 |
 | 手动同步正常，定时同步写入失败 | macOS 对 CloudStorage 的权限限制 | 按错误提示给定时进程授权，或把 `MIND_FEISHU_HOME` 改到普通本地目录 |
-| Workbuddy 任务被关闭 | 安装器进程随任务结束 | 回仓库重新运行 `./install-second-brain`，重新生成一次性授权，不复用旧 URL |
+| Workbuddy 任务被关闭 | 安装器进程随任务结束 | 回仓库重新运行安装器；Windows 用 `.\install-second-brain.ps1`，macOS/Linux 用 `./install-second-brain` |
 
 ## 隐私与退出
 
@@ -198,14 +187,23 @@ http://127.0.0.1:随机端口/wizard?token=一次性随机值
 首次编译会调用你配置的大模型并可能产生费用。先让 Workbuddy 只做估算：
 
 ```bash
+# macOS / Linux
 bash scripts/compile.sh --dry-run
+
+# Windows PowerShell
+.\compile-second-brain.ps1 -DryRun
 ```
 
 确认范围、模型和预估费用后，再运行：
 
 ```bash
+# macOS / Linux
 bash scripts/compile.sh
 python3 scripts/brain-server.py
+
+# Windows PowerShell
+.\compile-second-brain.ps1
+.\.venv\Scripts\python.exe scripts\brain-server.py
 ```
 
 然后打开本地私密知识门户：
@@ -219,9 +217,9 @@ python3 scripts/brain-server.py
 请继续：
 1. 说明 raw/private/feishu 是私密冷存，不是默认编译源。
 2. 帮我从待处理材料中挑选本次要编译的文件；未经我确认，不要批量复制飞书全库。
-3. 把我确认的材料放入 raw/clippings/，先运行 bash scripts/compile.sh --dry-run。
+3. 把我确认的材料放入 raw/clippings/；macOS/Linux 先运行 bash scripts/compile.sh --dry-run，Windows PowerShell 先运行 .\compile-second-brain.ps1 -DryRun。
 4. 汇报本次范围、模型和费用风险，停下来等我明确回复“可以编译”。
-5. 得到确认后运行 bash scripts/compile.sh；完成后运行 python3 scripts/brain-server.py。
+5. 得到确认后按当前操作系统运行正式编译入口；完成后启动 scripts/brain-server.py。
 6. 给我本地入口 http://127.0.0.1:8788/browse/index.html 和在线使用指南 https://aip.cab/usage。
 7. 不提交、推送或上传 raw/private、raw、_wiki、material、writing 中的个人内容。
 ```

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# 第二大脑一键安装入口：初始化本地 Vault，启动飞书权限/授权向导，授权后自动同步。
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+PY="$ROOT/.venv/bin/python"
+if [ ! -x "$PY" ]; then
+  PY="$(command -v python3 || true)"
+fi
+if [ -z "$PY" ]; then
+  echo "✗ 需要 Python 3.9+，但当前 PATH 中没有 python3。" >&2
+  exit 3
+fi
+
+exec "$PY" "$ROOT/scripts/install_second_brain.py" "$@"

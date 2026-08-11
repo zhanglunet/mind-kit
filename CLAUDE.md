@@ -45,6 +45,8 @@ second-brain/
 - **非脚本产出**(SVG/HTML/文档等无单测语义):用可复现证据替代(渲染目检、`xmllint`、跑一遍),自检里标 N/A 并写明替代证据。
 - **克隆后装一次 git 钩子**:`bash scripts/install-hooks.sh`(pre-push 在每次 push 前跑 pytest,红则拦;纯删分支/推 tag 自动跳过;`git push --no-verify` 可临时跳过)。服务端兜底见 `.github/workflows/tests.yml`(需仓库在 GitHub 启用 Actions)。
 - **收尾必验证**:真跑一遍留证据,而非"应该没问题",再 PR / 合并 / 同步本地。
+- **Windows 原生门禁只走 GitLab CI/CD**:`.gitlab-ci.yml` 的 `windows-native` job 绑定
+  `windows` + `powershell` Runner 标签；不要在 GitHub Actions 中新增 `windows-latest`。
 - **"Prompt 不是检查器"**:只有脚本/测试能确定性执行的规则才算硬门禁(pytest、pre-push、CI、评测基线);提示词与文档条款只是尽力遵守的软规范。想让某条规范"必须遵守",就为它写可执行检查,别指望文字自我执行。
 - 这套纪律本身每次开发前也要自检是否仍适用(check for a relevant skill before any task)。
 

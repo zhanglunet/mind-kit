@@ -1,0 +1,26 @@
+stages:
+  - test
+
+linux-tests:
+  stage: test
+  image: python:3.12-slim
+  before_script:
+    - python -m pip install --disable-pip-version-check -r requirements.txt -r requirements-dev.txt
+  script:
+    - python -m pytest -q
+
+windows-native:
+  stage: test
+  tags:
+    - windows
+    - powershell
+  before_script:
+    - py -3 -m venv .venv
+    - .\.venv\Scripts\python.exe -m pip install --disable-pip-version-check -r requirements.txt -r requirements-dev.txt
+  script:
+    - powershell -NoProfile -ExecutionPolicy Bypass -File .\install-second-brain.ps1 -SelfCheck
+    - powershell -NoProfile -ExecutionPolicy Bypass -File .\compile-second-brain.ps1 -SelfCheck
+    - .\.venv\Scripts\python.exe -m pytest tests\test_install_second_brain.py tests\test_cross_platform_installer.py tests\test_brain_server.py -q
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
