@@ -14,12 +14,14 @@
   <div class="navlinks">
     <a href="workbuddy.html">开始安装</a>
     <a href="architecture.html">系统原理</a>
+    <a href="compare.html">产品比较</a>
     <a href="usage.html">使用指南</a>
     <a href="services.html">获取与服务</a>
     <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
     <details class="nav-more"><summary>更多</summary><div>
       <a href="quick-install.html">其他安装方式</a>
       <a href="agent-install.html" class="active">Agent 安装详解</a>
+      <a href="codex.html">Codex 安装与备份</a>
       <a href="install.html">手动安装</a>
       <a href="faq.html">FAQ</a>
       <a href="server.html">服务器部署</a>
@@ -52,24 +54,24 @@ href="quick-install.html">一键安装:一段提示词装好</a>。
 <div class="table-wrap">
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th></th>
 <th>《<a href="install.html">安装指南</a>》</th>
 <th>本页</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>面向</td>
 <td>人手动执行</td>
 <td>交给编码 agent 执行</td>
 </tr>
-<tr>
+<tr class="even">
 <td>地位</td>
 <td><strong>权威步骤</strong></td>
 <td>执行方法 + 一段可粘贴的提示词</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>冲突时</td>
 <td><strong>以它为准</strong></td>
 <td>听它的</td>
@@ -99,30 +101,30 @@ href="quick-install.html">一键安装:一段提示词装好</a>。
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>项</th>
 <th>谁来做</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Git / Go / Node.js / Python 3.9+</td>
 <td>你(agent 给命令)</td>
 <td>装系统级运行时通常要 sudo,别让 agent 代劳</td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>一个大模型 API Key</strong></td>
 <td><strong>只有你</strong></td>
 <td>GLM(默认)/ DeepSeek / Kimi 任一;写进 shell
 profile,<strong>不落任何仓库文件</strong></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Obsidian</td>
 <td>你</td>
 <td>桌面端,安装完再把 vault 目录打开即可</td>
 </tr>
-<tr>
+<tr class="even">
 <td>一个空目录 + 已 clone 的仓库</td>
 <td>你</td>
 <td>agent 需要在<strong>仓库根</strong>启动,否则它看不到
@@ -197,38 +199,38 @@ agent,把下面整段作为第一条消息发给它:</p>
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>约束</th>
 <th>不写会怎样</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><strong>密钥你不碰</strong></td>
 <td>agent 为了”帮你配好”会把 key 写进文件或回显到对话里 ——
 密钥一旦进了聊天记录/日志,就得当作已泄露处理</td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>编译要先问</strong></td>
 <td><code>compile.sh</code> 按量计费。空的 <code>.manifest.json</code>
 会让引擎<strong>把整个知识库从头重编</strong>(全额 API 费用)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong>不许跑 <code>sage-wiki init</code></strong></td>
 <td>0.2.6 之前它会把 <code>.gitignore</code>
 整个改写成一行。<strong>没有任何东西会重建它</strong> ——
 密钥形状与个人内容的忽略规则一起消失,可能很久没人发现</td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>不许替你 commit</strong></td>
 <td>内容库/代码库分家(见第 6
 节)。提交到错的那个库,个人内容就进了代码仓的历史</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong>每步留证据</strong></td>
 <td>“应该装好了”和”装好了”在终端里长得一样。<strong>只有真实输出算数</strong></td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>第 0 步只读盘点</strong></td>
 <td>让 agent 先看清环境再动手;也给你一个”现在还什么都没改”的中断点</td>
 </tr>
@@ -352,35 +354,35 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>你有的东西</th>
 <th>放进</th>
 <th>会不会被编译</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>网页剪藏、文章库</td>
 <td><code>raw/clippings/</code></td>
 <td><strong>会</strong>(声明在 <code>config.yaml</code> 的
 <code>sources</code>)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>待深读的重要文章</td>
 <td><code>raw/todo/</code></td>
 <td>不会 —— 留给你和 agent 做对话式精读</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>本地 PDF</td>
 <td><code>raw/pdfs/</code></td>
 <td><strong>会</strong></td>
 </tr>
-<tr>
+<tr class="even">
 <td>卡片笔记增量导出</td>
 <td><code>raw/flomo/&lt;日期&gt;/</code></td>
 <td>仅 <code>delta/</code> 子目录会</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>敏感冷存</td>
 <td><code>raw/private/</code></td>
 <td><strong>永不入库</strong></td>
@@ -416,39 +418,39 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>步</th>
 <th>做什么</th>
 <th>失败会怎样</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>1/6</td>
 <td><code>sage-wiki compile</code> —— 抽概念、写摘要页</td>
 <td>中止</td>
 </tr>
-<tr>
+<tr class="even">
 <td>2/6</td>
 <td>OKF 合规注入(<code>type</code> / <code>stale_after</code>)</td>
 <td>记账,继续</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>3/6</td>
 <td>重建 <code>index.md</code></td>
 <td><strong>记账,继续</strong>,但末尾非零退出</td>
 </tr>
-<tr>
+<tr class="even">
 <td>4/6</td>
 <td><code>sage-wiki lint</code>(记账到 <code>reports/lint/</code>)</td>
 <td>同上</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>5/6</td>
 <td>生成本地浏览站 <code>browse/wiki/</code>(含关系图)</td>
 <td>best-effort;缺 <code>markdown</code> 包只告警跳过</td>
 </tr>
-<tr>
+<tr class="even">
 <td>6/6</td>
 <td>提交编译产物(经 <code>vault.sh</code> 落到内容库)</td>
 <td>—</td>
@@ -519,42 +521,42 @@ lint 记账</label></li>
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>现象</th>
 <th>多半是</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><code>no non-test Go files</code></td>
 <td><code>go install</code> 的路径漏了 <code>/cmd/sage-wiki</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td><code>command not found: sage-wiki</code></td>
 <td><code>$HOME/go/bin</code> 不在 <code>PATH</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>doctor</code> 报连不上</td>
 <td>API Key 没 export,或 export 在另一个终端里</td>
 </tr>
-<tr>
+<tr class="even">
 <td>编译返回空结果 / <code>finish_reason=length</code></td>
 <td>思维模式没关(见 5.1)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td><code>vault.sh repo</code> 打印代码库路径</td>
 <td>软链没建成,<strong>先修这个再做任何提交</strong></td>
 </tr>
-<tr>
+<tr class="even">
 <td>编译很久且账单意外</td>
 <td><code>.manifest.json</code> 被清空过,触发了全量重编</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>浏览站没生成</td>
 <td>缺 <code>markdown</code>
 包(<code>pip install -r requirements.txt</code>),不影响编译</td>
 </tr>
-<tr>
+<tr class="even">
 <td>agent 说”完成”却没有输出</td>
 <td>让它重跑并贴真实输出 —— <strong>没有输出就等于没做</strong></td>
 </tr>
@@ -610,6 +612,8 @@ agent 怎么起</a></li>
   <span>第二大脑 · 个人知识库</span>
   <a href="prd.html">PRD</a>
   <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <a href="sitemap.html">站点地图</a>
+  <a href="codex.html">Codex 安装与备份</a>
   <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
 </div></footer>
 </body>

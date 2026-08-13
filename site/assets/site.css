@@ -177,6 +177,19 @@ tbody tr:nth-child(even){background:var(--row-alt)}
 .docsgrid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-bottom:26px}
 .docsgrid a.card:hover{text-decoration:none; border-color:var(--accent)}
 .docsgrid .card .go{font-size:13px; color:var(--accent); font-weight:600}
+/* ── 产品比较页 ───────────────────────── */
+.compare-hero{margin:18px 0 34px; padding:clamp(26px,5vw,48px); border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border)); border-radius:20px; background:radial-gradient(650px 240px at 100% 0,color-mix(in srgb,#7c3aed 14%,transparent),transparent 60%),linear-gradient(145deg,color-mix(in srgb,var(--accent-soft) 70%,var(--bg)),var(--bg)); box-shadow:var(--shadow)}
+.compare-eyebrow{color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.14em; margin-bottom:12px}
+.doc-main .compare-hero h1{font-size:clamp(30px,5vw,46px); line-height:1.18; margin:0 0 16px; border:0; padding:0}
+.compare-hero>p{max-width:720px; color:var(--muted); font-size:17px; margin:0}
+.compare-verdict{display:flex; gap:14px; margin-top:24px; padding:15px 17px; border-left:4px solid var(--accent); border-radius:10px; background:var(--bg); color:var(--muted); font-size:14.5px}
+.compare-verdict b{color:var(--ink-strong); white-space:nowrap}
+.compare-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:18px 0 26px}
+.compare-cards .card{padding:17px 18px}.compare-cards .card b{color:var(--ink-strong); font-size:15px}.compare-cards .card p{margin:7px 0 0; color:var(--muted); font-size:13.5px; line-height:1.65}
+.muted{color:var(--muted); font-size:14px}
+.compare-table{max-height:none}.compare-table table{min-width:940px}.compare-table th,.compare-table td{padding:10px 12px; font-size:13.5px; line-height:1.55}.compare-table thead th{position:sticky; top:0; z-index:1}.compare-table tbody th{min-width:148px}.compare-table .col-mind{background:color-mix(in srgb,var(--accent-soft) 48%,var(--bg));}.compare-table thead .col-mind{color:var(--accent);}
+.choose-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:18px 0 30px}.choose-card{border:1px solid var(--border); border-radius:12px; padding:18px; background:var(--bg)}.choose-card.mind{border-color:color-mix(in srgb,var(--accent) 45%,var(--border)); box-shadow:var(--shadow)}.choose-card b{display:block; color:var(--ink-strong); font-size:16px}.choose-card p{color:var(--muted); font-size:14px; line-height:1.65; min-height:92px}.choose-card a{font-size:13px; font-weight:600}.source-list{font-size:14px}.source-list li{margin:.5em 0}
+@media(max-width:720px){.compare-verdict{display:block}.compare-verdict b{display:block;margin-bottom:5px}.choose-grid{grid-template-columns:1fr}.choose-card p{min-height:0}}
 /* ── Workbuddy 引导页 ─────────────────── */
 .wb-hero{position:relative; overflow:hidden; margin:18px 0 28px; padding:clamp(28px,6vw,54px); border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border)); border-radius:20px; background:radial-gradient(700px 260px at 100% 0,color-mix(in srgb,#7c3aed 17%,transparent),transparent 58%),linear-gradient(145deg,color-mix(in srgb,var(--accent-soft) 72%,var(--bg)),var(--bg)); box-shadow:var(--shadow)}
 .wb-hero .wb-eyebrow{font-size:12px; font-weight:800; letter-spacing:.16em; color:var(--accent); margin-bottom:12px}

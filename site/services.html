@@ -14,12 +14,14 @@
   <div class="navlinks">
     <a href="workbuddy.html">开始安装</a>
     <a href="architecture.html">系统原理</a>
+    <a href="compare.html">产品比较</a>
     <a href="usage.html">使用指南</a>
     <a href="services.html" class="active">获取与服务</a>
     <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
     <details class="nav-more"><summary>更多</summary><div>
       <a href="quick-install.html">其他安装方式</a>
       <a href="agent-install.html">Agent 安装详解</a>
+      <a href="codex.html">Codex 安装与备份</a>
       <a href="install.html">手动安装</a>
       <a href="faq.html">FAQ</a>
       <a href="server.html">服务器部署</a>
@@ -43,9 +45,17 @@
 数据在你的目录,<strong>我们全程零接触</strong>。</p>
 </blockquote>
 <h2 id="这是什么">这是什么</h2>
-<p>飞书个人数据备份和同步能力已经进入公开的 <a
-href="https://github.com/zhanglunet/mind-kit">mind-kit</a>，不再需要私有仓邀请、访问令牌或
-单独发行包。Workbuddy 可以直接从公开仓启动安装器。</p>
+<p>两条线,边界如实说:</p>
+<ul>
+<li><strong>公开仓 <a
+href="https://github.com/zhanglunet/mind-kit">mind-kit</a>(开源免费)</strong>:第二大脑工具集本体,
+含 <strong>Vault-only
+一键安装器</strong>——初始化本地知识库目录骨架与本地工具,支持 macOS /
+Linux / Windows(原生 PowerShell,不需要 WSL)。
+<strong>公开包不含飞书同步连接器,不能执行飞书内容同步。</strong></li>
+<li><strong>完整发行包(邀请制内测,免费)</strong>:飞书个人数据备份套件,交付私有发行仓只读访问
+与《订阅者部署手册》,含下表能力。</li>
+</ul>
 <div class="table-wrap">
 <table>
 <colgroup>
@@ -53,68 +63,71 @@ href="https://github.com/zhanglunet/mind-kit">mind-kit</a>，不再需要私有�
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr>
-<th>能力</th>
+<tr class="header">
+<th>能力(完整发行包)</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>云文档备份</td>
-<td>本人授权可见的飞书云文档 → Markdown，支持增量同步</td>
+<td>「我拥有的」飞书云文档 → Markdown,增量,重跑只补新内容</td>
 </tr>
-<tr>
+<tr class="even">
 <td>知识库备份</td>
 <td>飞书知识库(wiki)按空间/路径落盘为 Markdown</td>
 </tr>
-<tr>
-<td>云盘与消息</td>
-<td>按本人实际申请并获批的权限同步文件、群聊和单聊</td>
-</tr>
-<tr>
+<tr class="odd">
 <td>多账号</td>
 <td>一台机器管多个飞书账号,数据目录自动隔离</td>
 </tr>
-<tr>
+<tr class="even">
 <td>失败可见</td>
 <td>与 mind-kit 的失败通知层配套:定时任务挂了会通知你,不会静默烂掉</td>
+</tr>
+<tr class="odd">
+<td>云盘与消息</td>
+<td>进阶模块,后置:云盘待陌生租户实测,消息需你租户管理员审批 scope</td>
 </tr>
 </tbody>
 </table>
 </div>
 <h2 id="先看门槛如实说">先看门槛(如实说)</h2>
-<p>这不是代管账号的云服务；现在可以由 Workbuddy
-启动一键安装向导，但飞书应用创建、
-权限申请和扫码确认仍必须由你本人完成：</p>
+<p>这不是代管账号的云服务;安装器能自动化的只有本机环境,飞书应用创建、
+权限申请和扫码确认必须由你本人完成:</p>
 <ul>
-<li>一台 macOS、Linux 或 Windows 电脑；Windows 使用原生
-PowerShell，不需要 WSL</li>
+<li>一台 macOS、Linux 或 Windows 电脑;Windows 使用原生 PowerShell,不需要
+WSL</li>
 <li>需要在你的飞书租户创建<strong>企业自建应用</strong>并扫码授权(手册给逐步说明;
 只涉你本人的文档,不需要读他人数据的审批)</li>
 <li>token 有 7 天刷新窗口,需要一条保活定时任务;断供 7 天要重新扫码</li>
 <li>能力以<strong>你租户的权限策略</strong>为准——“作者能跑”不保证”你能跑”,装前看清单</li>
-<li>依赖第三方 CLI(lark-cli),发行版锁定版本并如实声明依赖边界</li>
+<li>依赖第三方 CLI(lark-cli),发行包锁定版本并如实声明依赖边界</li>
 </ul>
 <p>作为对价:你的凭证和数据<strong>从不经过我们</strong>,退出 =
 删本地数据 + 删自建应用,完。</p>
 <h2 id="怎么开始">怎么开始</h2>
-<p>不需要申请。打开 <a href="workbuddy.html">Workbuddy
-专用安装向导</a>，依次完成：</p>
 <ul>
-<li>把公开仓链接和页面中的第一段提示词交给 Workbuddy</li>
-<li>在浏览器中由本人创建飞书自建应用、申请权限并确认授权</li>
-<li>回到 Workbuddy 执行同步、编译与验收提示词</li>
+<li><strong>只想要本地第二大脑</strong>:直接用公开仓,见 <a
+href="workbuddy.html">Workbuddy 专用安装向导</a>—— Vault-only
+安装器把目录骨架和本地工具一步建好,不涉及任何飞书凭证。</li>
+<li><strong>要飞书备份(完整发行包)</strong>:邀请制内测,名额以单人能认真支持的数量为限。
+在 <a href="https://github.com/zhanglunet/mind-kit/issues">mind-kit
+Issues</a> 开一个 issue, 标题带「邀请申请」,说明使用场景与环境(macOS /
+Linux / Windows);
+通过后你会收到私有发行仓的只读访问与《订阅者部署手册》。</li>
 </ul>
-<p>如果需要企业内网部署、权限方案评审或迁移支持，可以在 <a
-href="https://github.com/zhanglunet/mind-kit/issues">mind-kit Issues</a>
-提交需求；这是可选服务， 不影响公开安装器和基础同步能力的使用。</p>
+<p>如果需要企业内网部署、权限方案评审或迁移支持,同样在 Issues 提交需求;
+这是可选服务,不代管你的凭证和数据。</p>
 <h2 id="边界与承诺">边界与承诺</h2>
 <ul>
 <li><strong>不做</strong>:微信个人号消息同步(无官方
 API,协议手段有封号与法律风险, 永久不提供);托管代跑(替你保管 token
 与数据——那是另一种产品形态, 当前明确不做)</li>
-<li><strong>开源免费</strong>：mind-kit、安装器和本地同步模块按仓库许可证提供</li>
-<li><strong>可选服务</strong>：企业权限梳理、部署与运维支持另行约定，不代管你的凭证和数据</li>
+<li><strong>开源免费</strong>:mind-kit 与 Vault-only
+安装器按仓库许可证提供</li>
+<li><strong>内测免费</strong>:完整发行包邀请制内测阶段不收费;未来若收费会提前明示,
+已装功能不受影响</li>
 </ul>
 <h2 id="相关">相关</h2>
 <ul>
@@ -149,6 +162,8 @@ id="toc-先看门槛如实说">先看门槛(如实说)</a></li>
   <span>第二大脑 · 个人知识库</span>
   <a href="prd.html">PRD</a>
   <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <a href="sitemap.html">站点地图</a>
+  <a href="codex.html">Codex 安装与备份</a>
   <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
 </div></footer>
 </body>

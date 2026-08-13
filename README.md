@@ -1,7 +1,7 @@
 # 第二大脑 · 个人知识库工具集
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-187%20passing-brightgreen.svg)](tests/)
+[![tests](https://img.shields.io/badge/tests-pytest-brightgreen.svg)](tests/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 
 一个由 LLM 持续编写与维护的、可复利的个人 Wiki 知识库。**Wiki 不是 RAG** —— 知识只编译一次,此后持续保鲜。
@@ -16,7 +16,7 @@
 
 ## Workbuddy 一键安装
 
-本公开仓已经包含飞书授权与同步安装器，不需要私有仓邀请。
+本公开仓提供 Vault-only 安装器，可初始化本地第二大脑 Vault；飞书授权与同步连接器属于完整发行包，不随公开仓发布。
 完整操作见 [Workbuddy 专用指南](docs/guide/workbuddy.md)。
 
 ```bash
@@ -29,8 +29,8 @@
 powershell -ExecutionPolicy Bypass -File .\install-second-brain.ps1
 ```
 
-安装器只监听 `127.0.0.1`。App Secret 通过标准输入交给 lark-cli，token 由 lark-cli
-保存在本机安全存储；凭证和飞书内容不会进入本仓。
+安装器只监听 `127.0.0.1`，在公开包中仅初始化本地 Vault，不请求、不存储任何飞书
+凭证；凭证和飞书内容不会进入本仓。完整发行包的申请方式见文档站「服务」页。
 
 ## 双库设计:代码与内容分离
 

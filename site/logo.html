@@ -61,6 +61,13 @@
   .dodont .ok h3{color:var(--ok)} .dodont .no h3{color:var(--warn)}
 
   .navdemo{border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;display:flex;align-items:center;gap:10px;background:var(--bg);font-weight:700;color:var(--ink-strong)}
+  .downloads{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px}
+  .download-card{border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:var(--bg-side)}
+  .download-card h3{margin:0 0 6px;font-size:16px;color:var(--ink-strong)}
+  .download-card p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.7}
+  .download-links{display:flex;gap:8px;flex-wrap:wrap}
+  .download-links a{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;padding:6px 11px;color:var(--accent);font-size:12px;font-weight:700;text-decoration:none;background:var(--bg)}
+  .download-links a:hover{border-color:var(--accent);transform:translateY(-1px)}
 </style>
 </head>
 <body>
@@ -107,6 +114,33 @@
   </div>
   <p class="metaphor" style="margin-top:26px">一半是你的「月」,一半是知识的图谱;中间那条线,叫接入。</p>
 </div></header>
+
+<section class="section" id="downloads">
+  <div class="cap">品牌资源</div>
+  <h2>Logo 下载</h2>
+  <p class="lead">提供可直接用于网站、文档、社交头像和应用图标的 SVG、PNG、JPG 文件。优先使用 SVG；需要透明背景时选择 PNG。</p>
+  <div class="downloads">
+    <div class="download-card">
+      <h3>标准 Logo · 字标</h3>
+      <p>96×96 原始视图，适合网站页眉、文档封面、品牌介绍和需要保留矢量质量的场景。</p>
+      <div class="download-links">
+        <a href="assets/downloads/second-brain-logo.svg" download>SVG 下载</a>
+        <a href="assets/downloads/second-brain-logo.png" download>PNG 下载</a>
+        <a href="assets/downloads/second-brain-logo.jpg" download>JPG 下载</a>
+      </div>
+    </div>
+    <div class="download-card">
+      <h3>App 图标 · 容器版</h3>
+      <p>圆角靛蓝容器，适合 favicon、桌面应用图标、社交头像和小尺寸展示。</p>
+      <div class="download-links">
+        <a href="assets/downloads/second-brain-app-icon.svg" download>SVG 下载</a>
+        <a href="assets/downloads/second-brain-app-icon.png" download>PNG 下载</a>
+        <a href="assets/downloads/second-brain-app-icon.jpg" download>JPG 下载</a>
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:18px;color:var(--muted);font-size:13px">非商业展示、引用和二次排版请保持 Logo 比例，不要改变节点结构、拉伸变形或冒充官方合作。需要商业授权或定制资源，请联系项目维护者。</p>
+</section>
 
 <section class="section" id="idea">
   <div class="cap">设计理念</div>

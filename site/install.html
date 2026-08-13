@@ -14,12 +14,14 @@
   <div class="navlinks">
     <a href="workbuddy.html">开始安装</a>
     <a href="architecture.html">系统原理</a>
+    <a href="compare.html">产品比较</a>
     <a href="usage.html">使用指南</a>
     <a href="services.html">获取与服务</a>
     <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
     <details class="nav-more"><summary>更多</summary><div>
       <a href="quick-install.html">其他安装方式</a>
       <a href="agent-install.html">Agent 安装详解</a>
+      <a href="codex.html">Codex 安装与备份</a>
       <a href="install.html" class="active">手动安装</a>
       <a href="faq.html">FAQ</a>
       <a href="server.html">服务器部署</a>
@@ -41,6 +43,14 @@
 分钟内把”第二大脑”骨架在你的机器上跑起来。完整设计依据见《第二大脑-个人知识库-PRD》§10.1
 与附录 B–D。</p>
 </blockquote>
+<blockquote>
+<p><strong>Workbuddy 用户</strong>：Windows 10/11 不需要 WSL。请直接看
+<a href="workbuddy.html">Workbuddy 安装向导</a>——公开仓安装器为
+<strong>Vault-only</strong>（初始化本地
+Vault，不含飞书同步）；飞书授权与同步验收流程仅适用于完整发行包（邀请制，
+见<a href="services.html">服务页</a>）。macOS/Linux
+也可以使用同一页的提示词流程。</p>
+</blockquote>
 <h2 id="前置要求">0. 前置要求</h2>
 <div class="table-wrap">
 <table>
@@ -50,35 +60,35 @@
 <col style="width: 33%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>依赖</th>
 <th>用途</th>
 <th>检查命令</th>
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>Git</td>
 <td>版本化与归档判据(必装)</td>
 <td><code>git --version</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>Go 运行环境</td>
 <td>安装 <a href="https://github.com/xoai/sage-wiki">sage-wiki</a>
 编译引擎</td>
 <td><code>go version</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Node.js</td>
 <td>安装 Claude Code CLI</td>
 <td><code>node --version</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td>Python 3.9+</td>
 <td>运行仓库脚本(索引 / 本地浏览站 / 报表等)</td>
 <td><code>python3 --version</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td>Obsidian</td>
 <td>存储/写作界面(桌面端)</td>
 <td>—</td>
@@ -141,7 +151,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 <col style="width: 20%" />
 </colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>后端</th>
 <th>env 变量</th>
 <th>端点(OpenAI 兼容)</th>
@@ -150,21 +160,21 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td><strong>GLM</strong>(默认)</td>
 <td><code>GLM_API_KEY</code></td>
 <td><code>open.bigmodel.cn/api/coding/paas/v4</code></td>
 <td><code>glm-4.5-flash</code></td>
 <td><code>config.glm.yaml</code></td>
 </tr>
-<tr>
+<tr class="even">
 <td><strong>DeepSeek</strong></td>
 <td><code>DEEPSEEK_API_KEY</code></td>
 <td><code>api.deepseek.com/v1</code></td>
 <td><code>deepseek-v4-flash</code> / <code>-pro</code></td>
 <td><code>config.deepseek.yaml</code></td>
 </tr>
-<tr>
+<tr class="odd">
 <td><strong>Kimi</strong></td>
 <td><code>KIMI_API_KEY</code></td>
 <td><code>api.kimi.com/coding/v1</code></td>
@@ -357,6 +367,8 @@ Kimi)</a></li>
   <span>第二大脑 · 个人知识库</span>
   <a href="prd.html">PRD</a>
   <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <a href="sitemap.html">站点地图</a>
+  <a href="codex.html">Codex 安装与备份</a>
   <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
 </div></footer>
 </body>

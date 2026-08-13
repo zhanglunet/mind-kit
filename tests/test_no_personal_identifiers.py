@@ -243,3 +243,47 @@ def test_gitignore_still_shields_secret_shapes():
     assert not missing, (
         "这些密钥形状**没有**被 git 忽略,一次 `git add -A` 就会入库:\n  "
         + "\n  ".join(missing))
+
+
+def _no_markdown_env(tmp_path):
+    import os
+    """造一个"没装 markdown"的现场:让 `import markdown` 抛 ModuleNotFoundError。
+
+    异常型别必须精确(同 tests/test_ci_workflow.py 的同名教训):
+    通用 `ImportError` 意味着"装了但它自己坏了",与"没装"是两回事。
+    """
+    shim = tmp_path / "shim"
+    shim.mkdir()
+    (shim / "markdown.py").write_text(
+        "raise ModuleNotFoundError(\"No module named 'markdown'\", name='markdown')\n",
+        encoding="utf-8")
+    env = {k: v for k, v in os.environ.items() if k != "MIND_KD_GROUP"}
+    env["PYTHONPATH"] = str(shim)
+    return env
+
+
+def test_kd_weekly_env_contract_survives_a_missing_optional_dep(tmp_path):
+    """**缺可选依赖不许盖掉 env 契约的报错。**
+
+    真实反复发生(2026-08-11 一天内四次):容器里没有 `markdown` 时,
+    `build-kd-weekly.py` 在**校验环境变量之前**就 `import markdown`,
+    于是「你忘了配 MIND_KD_GROUP」那句被 `ModuleNotFoundError` 盖掉 ——
+    **这条测试要守的行为,被一个与它无关的可选依赖掩埋了**,
+    而报出来的错让人以为是主干断了。
+
+    `markdown` 全脚本只在渲染 HTML 那一处用到;env 校验不需要它。
+    **fail-close 的报错必须比任何可选依赖更早、更响。**
+    """
+    import subprocess
+    import sys
+    py = REPO / "scripts" / "build-kd-weekly.py"
+    if not py.exists():
+        return
+    r = subprocess.run([sys.executable, str(py)], capture_output=True, text=True,
+                       env=_no_markdown_env(tmp_path), cwd=str(REPO), timeout=60)
+    out = r.stdout + r.stderr
+    assert r.returncode != 0, "缺群名配置应非零退出"
+    assert "MIND_KD_GROUP" in out, \
+        "缺依赖把 env 契约的报错盖掉了(这正是要修的):" + out[:400]
+    assert "ModuleNotFoundError" not in out, \
+        "不该以 ModuleNotFoundError 收场 —— 真正的问题是没配 MIND_KD_GROUP:" + out[:400]

@@ -8,6 +8,8 @@
 顺带把「站内链接不许指向不存在的文件」也钉成门禁:手工页不过 pandoc,没人替你查。
 """
 import re
+import zipfile
+from html import unescape
 from pathlib import Path
 
 import pytest
@@ -99,6 +101,39 @@ def test_no_broken_internal_links():
     assert not broken, "站内死链:\n" + "\n".join(broken)
 
 
+def test_logo_download_assets_are_published():
+    page = SITE / "logo.html"
+    assets = SITE / "assets" / "downloads"
+    expected = {
+        "second-brain-logo.svg", "second-brain-logo.png", "second-brain-logo.jpg",
+        "second-brain-app-icon.svg", "second-brain-app-icon.png", "second-brain-app-icon.jpg",
+    }
+    assert expected.issubset({p.name for p in assets.iterdir()})
+    html = page.read_text(encoding="utf-8")
+    for name in expected:
+        assert f'assets/downloads/{name}' in html, f"logo.html 缺少下载链接: {name}"
+
+
+def test_workbuddy_downloadable_skill_package_is_published():
+    package = SITE / "downloads" / "workbuddy-second-brain-skill-v1.0.0.zip"
+    page = SITE / "workbuddy.html"
+    assert package.is_file(), "WorkBuddy 安装包未发布到 site/downloads"
+    page_text = page.read_text(encoding="utf-8")
+    assert "downloads/workbuddy-second-brain-skill-v1.0.0.zip" in page_text
+    assert "第二大脑 WorkBuddy 技能包" in re.sub(r"\s+", " ", page_text)
+    assert "官方“专家”或技能市场" in page_text
+    assert "https://skillhub.cn/skills/user_4c0191ff/mind" in page_text
+    with zipfile.ZipFile(package) as archive:
+        names = set(archive.namelist())
+        assert {"README.md", "SKILL.md", "skill.yaml"}.issubset(names)
+        assert "expert.yaml" not in names
+        skill = archive.read("SKILL.md").decode("utf-8")
+        assert skill.startswith("---\n")
+        assert "App Secret" in skill
+        assert "access token" in skill
+        assert "sk-" not in skill
+
+
 def test_workbuddy_guide_is_built_and_reachable():
     source = REPO / "docs" / "guide" / "workbuddy.md"
     page = SITE / "workbuddy.html"
@@ -106,6 +141,7 @@ def test_workbuddy_guide_is_built_and_reachable():
     assert page.is_file(), "缺构建产物 site/workbuddy.html"
     md = source.read_text(encoding="utf-8")
     rendered = page.read_text(encoding="utf-8")
+    rendered_flat = re.sub(r"\s+", " ", rendered)
     for required in (
         "https://github.com/zhanglunet/mind-kit.git", "./install-second-brain", "提示词 1", "提示词 2",
         "App Secret", "127.0.0.1", "授权完成并开始同步", "missing_scope",
@@ -114,11 +150,51 @@ def test_workbuddy_guide_is_built_and_reachable():
         "usage.html", "http://127.0.0.1:8788/browse/index.html",
     ):
         assert required in md, f"Workbuddy 指南缺关键内容:{required}"
-        assert required.replace("<", "&lt;").replace(">", "&gt;") in rendered or required in rendered
+        rendered_required = required.replace("<", "&lt;").replace(">", "&gt;")
+        assert rendered_required in rendered_flat or required in rendered_flat
     href = 'href="workbuddy.html"'
     assert href in (SITE / "index.html").read_text(encoding="utf-8"), "首页没入口"
     assert href in TPL.read_text(encoding="utf-8"), "生成页导航没入口"
     assert '&lt;a class=&quot;wb-primary&quot;' not in rendered, "页首 CTA 被 pandoc 误渲染成代码"
+
+
+def test_codex_guide_is_built_and_reachable():
+    source = REPO / "docs" / "guide" / "codex.md"
+    page = SITE / "codex.html"
+    assert source.is_file(), "缺 Codex 指导页 Markdown 真源"
+    assert page.is_file(), "缺构建产物 site/codex.html"
+    md = source.read_text(encoding="utf-8")
+    rendered_html = page.read_text(encoding="utf-8")
+    rendered = re.sub(r"\s+", " ", rendered_html)
+    rendered_text = re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", rendered_html)))
+    for required in (
+        "Codex", "mind-kit", "install-second-brain", "127.0.0.1",
+        "App Secret", "missing_scope", "同步完成", "compile-second-brain.ps1",
+        "不使用 WSL", "飞书开发者后台",
+    ):
+        assert required in md, f"Codex 指南缺关键内容:{required}"
+        assert required.replace("<", "&lt;").replace(">", "&gt;") in rendered or required in rendered or required in rendered_text
+    assert 'href="codex.html"' in (SITE / "index.html").read_text(encoding="utf-8")
+    assert 'href="codex.html"' in TPL.read_text(encoding="utf-8")
+    assert 'href="codex.html"' in (SITE / "sitemap.html").read_text(encoding="utf-8")
+    assert "https://aip.cab/codex" in (SITE / "sitemap.xml").read_text(encoding="utf-8")
+
+
+def test_sitemap_page_and_search_index_exist():
+    sitemap = SITE / "sitemap.html"
+    xml = SITE / "sitemap.xml"
+    robots = SITE / "robots.txt"
+    assert sitemap.is_file(), "缺可见站点地图"
+    assert xml.is_file(), "缺搜索引擎 sitemap.xml"
+    assert robots.is_file(), "缺 robots.txt"
+    page = sitemap.read_text(encoding="utf-8")
+    assert 'href="sitemap.html"' in page
+    assert "https://aip.cab/sitemap.xml" in robots.read_text(encoding="utf-8")
+    xml_text = xml.read_text(encoding="utf-8")
+    for path in ("https://aip.cab/", "https://aip.cab/workbuddy", "https://aip.cab/sitemap"):
+        assert f"<loc>{path}</loc>" in xml_text
+    assert 'href="sitemap.html"' in (SITE / "index.html").read_text(encoding="utf-8")
+    assert 'href="sitemap.html"' in TPL.read_text(encoding="utf-8")
 
 
 def test_primary_navigation_stays_focused():
@@ -126,6 +202,7 @@ def test_primary_navigation_stays_focused():
     expected = {
         "workbuddy.html": "开始安装",
         "architecture.html": "系统原理",
+        "compare.html": "产品比较",
         "usage.html": "使用指南",
         "services.html": "获取与服务",
         "https://github.com/zhanglunet/mind-kit": "GitHub",
@@ -137,7 +214,7 @@ def test_primary_navigation_stays_focused():
         assert nav, f"{page.name} 缺主导航"
         primary = nav.group(1).split('<details class="nav-more">', 1)[0]
         links = re.findall(r'<a href="([^"]+)"[^>]*>([^<]+)</a>', primary)
-        assert len(links) == 5, f"{page.name} 主导航应为 5 项，实际 {len(links)} 项"
+        assert len(links) == 6, f"{page.name} 主导航应为 6 项，实际 {len(links)} 项"
         assert dict(links) == expected, f"{page.name} 主导航与统一信息架构不一致"
 
 

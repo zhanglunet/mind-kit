@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>用 Codex 安装第二大脑并备份飞书 · 第二大脑</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks">
+    <a href="workbuddy.html">开始安装</a>
+    <a href="architecture.html">系统原理</a>
+    <a href="compare.html">产品比较</a>
+    <a href="usage.html">使用指南</a>
+    <a href="services.html">获取与服务</a>
+    <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+    <details class="nav-more"><summary>更多</summary><div>
+      <a href="quick-install.html">其他安装方式</a>
+      <a href="agent-install.html">Agent 安装详解</a>
+      <a href="codex.html" class="active">Codex 安装与备份</a>
+      <a href="install.html">手动安装</a>
+      <a href="faq.html">FAQ</a>
+      <a href="server.html">服务器部署</a>
+      <a href="deploy.html">发布指南</a>
+      <a href="okf.html">OKF 合规</a>
+      <a href="prd.html">PRD</a>
+      <a href="weekly.html">开发周报</a>
+      <a href="changelog.html">更新日志</a>
+    </div></details>
+  </div>
+</div></nav>
+
+<div class="doc-layout">
+  <main class="doc-main">
+    <div class="crumb"><a href="index.html">首页</a> / 用 Codex
+安装第二大脑并备份飞书</div>
+<div class="wb-hero">
+<div class="wb-eyebrow">
+CODEX GUIDED SETUP
+</div>
+<h1>
+让 Codex 安装第二大脑，<br>把飞书备份到自己的知识库
+</h1>
+<p>
+把公开仓库和下面的提示词交给
+Codex：它负责检查环境、运行安装器和陪你验收；飞书权限、App Secret
+和最终授权始终由你本人确认。
+</p>
+<div class="wb-actions">
+<a class="wb-primary" href="#第一步准备仓库和提示词">从提示词开始</a>
+<a class="wb-secondary" href="#第二步在本地完成飞书授权">先看授权边界</a>
+</div>
+</div>
+<div class="wb-route" aria-label="Codex 安装过程">
+<div>
+<span>01</span><strong>Codex</strong><small>检查环境、克隆仓库</small>
+</div>
+<b aria-hidden="true">→</b>
+<div>
+<span>02</span><strong>你的浏览器</strong><small>申请权限、填写凭证</small>
+</div>
+<b aria-hidden="true">→</b>
+<div>
+<span>03</span><strong>Codex</strong><small>运行同步、检查备份</small>
+</div>
+<b aria-hidden="true">→</b>
+<div>
+<span>04</span><strong>你确认后</strong><small>首次编译、打开知识门户</small>
+</div>
+</div>
+<blockquote>
+<p><strong>安全边界</strong>：把公开仓库链接和提示词交给 Codex
+即可；不要把飞书 App Secret、access token、refresh
+token、授权二维码或私人文档正文贴进聊天。凭证只填写在安装器打开的
+<code>127.0.0.1</code> 本地页面中。</p>
+</blockquote>
+<h2 id="开始前准备">开始前准备</h2>
+<p>你需要：</p>
+<ul>
+<li>一台由你控制的 macOS、Linux 或 Windows 10/11 电脑；</li>
+<li>已安装 Git、Python 3.9+、Node.js 和 npm；</li>
+<li>公开安装仓库：<a
+href="https://github.com/zhanglunet/mind-kit">https://github.com/zhanglunet/mind-kit</a>；</li>
+<li>飞书租户中创建企业自建应用的权限，或者能联系租户管理员；</li>
+<li>约 15–30 分钟。首次同步内容较多时，需要更久，但可以增量续跑。</li>
+</ul>
+<p>Windows 用户直接使用 PowerShell，不需要 WSL2：</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Set-ExecutionPolicy</span> <span class="op">-</span>Scope <span class="kw">Process</span> <span class="op">-</span>ExecutionPolicy Bypass</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>git clone https<span class="op">://</span>github<span class="op">.</span><span class="fu">com</span><span class="op">/</span>zhanglunet<span class="op">/</span>mind<span class="op">-</span>kit<span class="op">.</span><span class="fu">git</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">Set-Location</span> <span class="op">.</span>\mind<span class="op">-</span>kit</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\install<span class="op">-</span>second<span class="op">-</span>brain<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div>
+<p>macOS/Linux 用户运行：</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/zhanglunet/mind-kit.git</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mind-kit</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./install-second-brain</span></span></code></pre></div>
+<h2 id="第一步准备仓库和提示词">第一步：准备仓库和提示词</h2>
+<p>打开 Codex，把下面整段提示词发给它。Codex
+可以使用你当前打开的仓库，也可以先从公开链接克隆；如果你使用的是自己的私有
+fork，请把链接替换为你实际有权限访问的仓库。</p>
+<div class="prompt-block" data-label="提示词 1 · 安装并停在授权页">
+<pre class="text"><code>请在这台电脑上安装“第二大脑”，公开安装仓库是：
+https://github.com/zhanglunet/mind-kit
+
+请按以下要求执行：
+1. 先检查目标目录是否已存在；保留已有文件和未提交改动，不覆盖、不删除用户数据。
+2. macOS/Linux 运行 ./install-second-brain；Windows 使用原生 PowerShell 运行 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-second-brain.ps1，不使用 WSL。
+3. 保持安装器进程运行，直到它打印 127.0.0.1 本地授权页面。
+4. 把本地授权页地址告诉我，然后暂停，等待我在浏览器中操作。
+5. 不要索取、显示、读取或保存飞书 App Secret、access token、refresh token、device code、授权二维码或私人文档正文。
+6. 不要替我点击飞书授权确认，不要自行增加提示词未要求的权限。
+7. 不要提交、推送、发布或部署代码。
+
+授权页面出现后，只汇报：
+- 仓库目录
+- 127.0.0.1 授权页面地址
+- 环境检查结果（不得包含凭证）
+- “请在浏览器完成飞书授权，完成后回来告诉我”</code></pre>
+</div>
+<p>Codex 应该停在本地授权页，而不是替你输入 Secret
+或确认授权。形如下面的地址只在你的电脑上有效，不要转发：</p>
+<pre class="text"><code>http://127.0.0.1:随机端口/wizard?token=一次性随机值</code></pre>
+<h2 id="第二步在本地完成飞书授权">第二步：在本地完成飞书授权</h2>
+<p>在 Codex 给出的本地页面中点击“打开飞书开发者后台”，或直接打开<a
+href="https://open.feishu.cn/app">飞书开发者后台</a>。</p>
+<ol type="1">
+<li>创建一个<strong>企业自建应用</strong>，例如“我的第二大脑”。</li>
+<li>进入 <strong>开发配置 → 权限管理 → 开通权限</strong>。</li>
+<li>默认申请文档和知识库的只读权限；云盘文件、聊天记录按实际需要再开通。</li>
+<li>在 <strong>应用发布 → 版本管理与发布</strong>
+中创建并发布版本，公司租户可能需要管理员审核。</li>
+<li>在“凭证与基础信息”复制 App ID 和 App Secret，只填入本地
+<code>127.0.0.1</code> 页面。</li>
+<li>在本地页生成授权链接或二维码，在飞书中核对应用名和权限后，由你本人点击确认。</li>
+<li>回到本地页点击“授权完成并开始同步”。</li>
+</ol>
+<p>推荐的最小权限：</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>模块</th>
+<th>权限 scope</th>
+<th style="text-align: right;">默认</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>云文档</td>
+<td><code>drive:drive:readonly</code></td>
+<td style="text-align: right;">是</td>
+<td>读取你有权限访问的云文档</td>
+</tr>
+<tr class="even">
+<td>文档正文</td>
+<td><code>docx:document:readonly</code></td>
+<td style="text-align: right;">是</td>
+<td>只读导出正文</td>
+</tr>
+<tr class="odd">
+<td>知识库</td>
+<td><code>wiki:wiki:readonly</code></td>
+<td style="text-align: right;">是</td>
+<td>读取你可访问的 Wiki 节点</td>
+</tr>
+<tr class="even">
+<td>云盘文件</td>
+<td><code>search:docs:read</code>、<code>drive:file:download</code></td>
+<td style="text-align: right;">否</td>
+<td>只在需要备份普通文件时申请</td>
+</tr>
+<tr class="odd">
+<td>聊天记录</td>
+<td><code>im:chat:read</code> 等</td>
+<td style="text-align: right;">否</td>
+<td>涉及其他成员内容，非必要不要申请</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>飞书官方说明：<a
+href="https://open.feishu.cn/document/server-docs/application-scope/introduction?lang=zh-CN">申请
+API 权限</a>。不要为了省事选择“全部权限”。</p>
+<h2 id="第三步让-codex-运行备份并验收">第三步：让 Codex
+运行备份并验收</h2>
+<p>完成授权后，把下面第二段提示词发回同一个 Codex 任务：</p>
+<div class="prompt-block" data-label="提示词 2 · 同步飞书并验收">
+<pre class="text"><code>我已在本地 127.0.0.1 页面完成飞书授权，并点击了“授权完成并开始同步”。
+
+请继续：
+1. 保持安装器进程运行，观察同步状态和终端日志，直到完成或出现明确错误。
+2. 不要读取、回显或保存 App Secret、token、device code、二维码内容或私人文档正文。
+3. 如果出现 missing_scope，只报告缺失的 scope 和原始 console_url，暂停等待我去飞书后台开通并发布新版本；不要自行扩大权限。
+4. 同步完成后，检查文档、知识库输出目录、状态文件和非空 Markdown 样本。
+5. 只汇报同步模块、成功/失败数量、输出目录、增量状态、脱敏后的错误和下一步建议。
+6. 不要提交、推送、发布或上传我的飞书内容。</code></pre>
+</div>
+<p>备份验收至少应满足：</p>
+<ul>
+<li>本地页面显示“同步完成”，不只是“授权成功”；</li>
+<li>默认目录 <code>raw/private/feishu/</code> 下出现非空 Markdown；</li>
+<li><code>_meta</code> 中存在增量状态，重复运行可以跳过未变化内容；</li>
+<li>Codex 的汇报中没有 Secret、token、二维码或聊天正文；</li>
+<li>飞书个人内容没有进入 Git 提交、公开站点或发行方系统。</li>
+</ul>
+<h2 id="第四步首次编译知识库">第四步：首次编译知识库</h2>
+<p>先让 Codex 完成脱敏和输出检查，再执行编译。</p>
+<p>Windows 的编译入口是
+<code>compile-second-brain.ps1</code>；macOS/Linux 使用
+<code>scripts/compile.sh</code>。</p>
+<p>Windows PowerShell：</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Set-Location</span> <span class="op">.</span>\mind<span class="op">-</span>kit</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\compile<span class="op">-</span>second<span class="op">-</span>brain<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>DryRun</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\compile<span class="op">-</span>second<span class="op">-</span>brain<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div>
+<p>macOS/Linux：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mind-kit</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh <span class="at">--dry-run</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> scripts/compile.sh</span></code></pre></div>
+<p>编译产物写入你自己的私有 Vault，通常可从下面的本地地址查看：</p>
+<pre class="text"><code>http://127.0.0.1:8788/browse/index.html</code></pre>
+<h2 id="常见问题">常见问题</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>现象</th>
+<th>处理方式</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>missing_scope</code></td>
+<td>按错误中的 <code>console_url</code>
+开通缺失权限、发布新版本，再从本地页重新授权</td>
+</tr>
+<tr class="even">
+<td>授权链接过期</td>
+<td>重新生成链接或二维码，不复用旧 URL、旧二维码或旧 device code</td>
+</tr>
+<tr class="odd">
+<td>文档有、知识库为空</td>
+<td>检查 <code>wiki:wiki:readonly</code>
+和当前账号的知识空间访问权限</td>
+</tr>
+<tr class="even">
+<td>Windows 找不到命令</td>
+<td>重新打开 PowerShell；确认 Python 安装时勾选了 Add Python to
+PATH</td>
+</tr>
+<tr class="odd">
+<td>Codex 任务结束后同步中断</td>
+<td>回仓库重新运行安装器，保持安装进程运行，再生成一次性授权</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>不要把 <code>raw/private/feishu/</code>、<code>_wiki/</code> 或个人
+Vault 提交到公开仓库。完整安装和 Windows 原生 PowerShell 说明见<a
+href="workbuddy.html">Workbuddy
+指南</a>；两者使用同一安装器和同一授权边界。</p>
+    <div class="doc-foot">
+      <span>本页由 <code>docs/</code> 下的 Markdown 生成(以 Markdown 为准)</span>
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">回到顶部 ↑</a>
+    </div>
+  </main>
+  <aside class="doc-toc"><div class="box">
+    <div class="cap">本页目录</div>
+<ul>
+<li><a href="#开始前准备" id="toc-开始前准备">开始前准备</a></li>
+<li><a href="#第一步准备仓库和提示词"
+id="toc-第一步准备仓库和提示词">第一步：准备仓库和提示词</a></li>
+<li><a href="#第二步在本地完成飞书授权"
+id="toc-第二步在本地完成飞书授权">第二步：在本地完成飞书授权</a></li>
+<li><a href="#第三步让-codex-运行备份并验收"
+id="toc-第三步让-codex-运行备份并验收">第三步：让 Codex
+运行备份并验收</a></li>
+<li><a href="#第四步首次编译知识库"
+id="toc-第四步首次编译知识库">第四步：首次编译知识库</a></li>
+<li><a href="#常见问题" id="toc-常见问题">常见问题</a></li>
+</ul>
+  </div></aside>
+</div>
+
+<footer class="sitefoot"><div class="in">
+  <span>第二大脑 · 个人知识库</span>
+  <a href="prd.html">PRD</a>
+  <a href="https://github.com/zhanglunet/mind-kit">GitHub</a>
+  <a href="sitemap.html">站点地图</a>
+  <a href="codex.html">Codex 安装与备份</a>
+  <span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span>
+</div></footer>
+</body>
+</html>

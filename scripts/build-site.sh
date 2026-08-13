@@ -43,6 +43,7 @@ build_page "$VAULT/docs/guide/setup-linux-server.md" server.html server
 build_page "$VAULT/docs/guide/quick-install.md" quick-install.html quick_install
 build_page "$VAULT/docs/guide/agent-install.md" agent-install.html agent_install
 build_page "$VAULT/docs/guide/workbuddy.md" workbuddy.html workbuddy
+build_page "$VAULT/docs/guide/codex.md" codex.html codex
 build_page "$VAULT/docs/guide/services.md"  services.html  services
 # 标题走 --metadata-file 而非 --metadata CLI 参数:argv 按 **locale** 解码,
 # 在 C/POSIX locale 的机器上(VM 的 cron 就是)中文标题每个字节变成 U+FFFD

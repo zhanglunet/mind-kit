@@ -5,7 +5,9 @@
 - Web 服务只监听 127.0.0.1，并要求每次请求携带随机会话令牌；
 - App Secret 只通过 stdin 交给 lark-cli，不写日志或仓库；
 - verification_url / device_code 仅保存在当前进程内存，完成或失败即清除；
-- 飞书 token 由 lark-cli 写入系统钥匙串，本程序不读取、不保存。
+- 飞书 token 由 lark-cli 写入系统钥匙串，本程序不读取、不保存；
+- 会话令牌经 URL query 传递（进浏览器历史/进程参数）：仅 127.0.0.1 回环、
+  随进程结束失效，接受该权衡以换取零依赖的本地页面。
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ from pathlib import Path
 from typing import Callable, Iterable
 from urllib.parse import parse_qs, urlparse
 
-import larklib
+import lark_cli_argv
 import vault_init
 
 
@@ -41,6 +43,10 @@ OFFICIAL_PERMISSION_DOC = (
     "introduction?lang=zh-CN"
 )
 FEISHU_DEVELOPER_CONSOLE = "https://open.feishu.cn/app"
+
+# lark-cli 供应链锁版本(FR-DIST-06):升级须真机复测后同步改这里与《订阅者部署手册》§1
+# (tests/test_publish_pro_sh.py 锁两处一致)。
+LARK_CLI_PACKAGE = "@larksuite/cli@1.0.87"
 
 CORE_SCOPES = (
     "drive:drive:readonly",
@@ -81,10 +87,35 @@ def selected_scopes(include_files: bool, include_messages: bool) -> tuple[str, .
 
 def module_available(name: str) -> bool:
     required = {
+        "docs": SCRIPTS / "feishu-backup-docs.py",
+        "wiki": SCRIPTS / "feishu-backup-wiki.py",
         "files": SCRIPTS / "feishu-backup-files.py",
         "messages": SCRIPTS / "feishu-backup-messages.py",
     }
     return required[name].is_file()
+
+
+def require_sync_connectors() -> None:
+    """Fail before OAuth when this distribution cannot perform the requested sync."""
+    missing = [name for name in ("docs", "wiki") if not module_available(name)]
+    if missing:
+        labels = {"docs": "云文档", "wiki": "知识库"}
+        raise RuntimeError(
+            "当前公开发行包不含 "
+            + "、".join(labels[name] for name in missing)
+            + " 同步连接器，无法开始内容同步。"
+              "请安装含飞书同步连接器的完整发行包，或仅使用本公开包初始化 Vault。"
+        )
+
+
+def sync_status() -> str:
+    return "available" if all(module_available(name) for name in ("docs", "wiki")) else "unavailable"
+
+
+def cli_description() -> str:
+    if sync_status() == "unavailable":
+        return "一键初始化第二大脑 Vault（Vault-only；飞书授权与同步需要完整发行包）。"
+    return "一键安装第二大脑，并通过本地页面完成飞书授权与同步。"
 
 
 def venv_python(root: Path = ROOT, platform: str | None = None) -> Path:
@@ -95,6 +126,7 @@ def venv_python(root: Path = ROOT, platform: str | None = None) -> Path:
 
 def sync_plan(python: str, include_files: bool, include_messages: bool) -> list[tuple[str, list[str]]]:
     """Return an argv-only plan. Every source first gets a small smoke run."""
+    require_sync_connectors()
     plan: list[tuple[str, list[str]]] = [
         ("检查冷存写权限", [python, "scripts/feishu_preflight.py"]),
         ("云文档冒烟（3 篇）", [python, "scripts/feishu-backup-docs.py", "--limit", "3"]),
@@ -233,6 +265,7 @@ class Installer:
         )
 
     def configure(self, app_id: str, app_secret: str, profile: str):
+        require_sync_connectors()
         if not APP_ID_RE.fullmatch(app_id):
             raise ValueError("App ID 格式不正确。")
         if not app_secret or len(app_secret) > 512:
@@ -240,7 +273,7 @@ class Installer:
         if not PROFILE_RE.fullmatch(profile):
             raise ValueError("Profile 只能包含字母、数字、点、下划线和连字符。")
 
-        argv = larklib.lark_argv([
+        argv = lark_cli_argv.lark_argv([
             "config", "init", "--app-id", app_id,
             "--app-secret-stdin", "--brand", "feishu", "--name", profile,
         ], profile="")
@@ -258,6 +291,7 @@ class Installer:
         self.state.add_log(f"✓ lark-cli profile 已配置：{profile}")
 
     def start_authorization(self, include_files: bool, include_messages: bool):
+        require_sync_connectors()
         if include_files and not module_available("files"):
             raise RuntimeError("当前发行包不含云盘文件同步模块。")
         if include_messages and not module_available("messages"):
@@ -266,7 +300,7 @@ class Installer:
         with self.state.lock:
             self.state.include_files = include_files
             self.state.include_messages = include_messages
-        argv = larklib.lark_argv(
+        argv = lark_cli_argv.lark_argv(
             ["auth", "login", "--scope", " ".join(scopes), "--no-wait", "--json"],
             profile=self.state.profile,
         )
@@ -287,7 +321,7 @@ class Installer:
 
         qr_name = "feishu-auth-qrcode.png"
         qr_proc = self.runner(
-            larklib.lark_argv(["auth", "qrcode", str(url), "--output", qr_name, "--size", "320"], profile=""),
+            lark_cli_argv.lark_argv(["auth", "qrcode", str(url), "--output", qr_name, "--size", "320"], profile=""),
             cwd=self.runtime.name,
             env=self._env(),
             capture_output=True,
@@ -313,7 +347,7 @@ class Installer:
             self.state.phase = "verifying"
             self.state.message = "正在确认授权……"
         proc = self._run(
-            larklib.lark_argv(["auth", "login", "--device-code", code, "--json"], profile=self.state.profile),
+            lark_cli_argv.lark_argv(["auth", "login", "--device-code", code, "--json"], profile=self.state.profile),
             timeout=180,
         )
         # 无论成败都不保留 device_code / URL / QR。
@@ -326,7 +360,7 @@ class Installer:
             raise RuntimeError(redact((envelope.get("error") or {}).get("message") or proc.stderr))
 
         verify = self._run(
-            larklib.lark_argv(["auth", "status", "--json", "--verify"], profile=self.state.profile),
+            lark_cli_argv.lark_argv(["auth", "status", "--json", "--verify"], profile=self.state.profile),
             timeout=60,
         )
         verify_env = parse_json_envelope(verify)
@@ -401,14 +435,24 @@ def bootstrap(*, install_lark: bool = True):
 
     if not shutil.which("lark-cli"):
         if not install_lark:
-            raise RuntimeError("未安装 lark-cli。")
+            # Vault-only 公开包不包含飞书连接器；初始化 Vault 不需要 lark-cli。
+            return
         npm = shutil.which("npm")
         if not npm:
             raise RuntimeError("未安装 lark-cli，且找不到 npm；请先安装 Node.js。")
-        subprocess.run([npm, "install", "-g", "@larksuite/cli"], check=True)
+        subprocess.run([npm, "install", "-g", LARK_CLI_PACKAGE], check=True)
 
 
 def wizard_html(token: str) -> str:
+    if sync_status() == "unavailable":
+        return """<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>安装第二大脑 · Vault-only</title>
+<style>body{max-width:760px;margin:48px auto;padding:0 20px;font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18202a}main{border:1px solid #d9d4c8;border-radius:14px;padding:28px;background:#fffdf8}.warn{color:#9b5c12;font-weight:700}</style>
+</head><body><main><h1>安装第二大脑（Vault-only）</h1>
+<p class="warn">当前公开包不能执行飞书内容同步。</p>
+<p>此发行包可用于初始化本地 Vault。飞书应用配置、授权和同步连接器仅包含在完整发行包中；请安装完整发行包后再进行这些操作。</p>
+</main></body></html>"""
     core = "".join(f"<li><code>{html.escape(scope)}</code></li>" for scope in CORE_SCOPES)
     files = "".join(f"<li><code>{html.escape(scope)}</code></li>" for scope in FILE_SCOPES)
     messages = "".join(f"<li><code>{html.escape(scope)}</code></li>" for scope in MESSAGE_SCOPES)
@@ -424,6 +468,10 @@ def wizard_html(token: str) -> str:
         if module_available("messages") else
         '<p class="option"><span class="warn">聊天同步模块未包含在当前发行包中。</span></p>'
     )
+    sync_notice = "" if sync_status() == "available" else (
+        '<p class="warn"><strong>当前公开包不能执行飞书内容同步。</strong>'
+        '请安装含飞书同步连接器的完整发行包；本包仍可用于初始化 Vault。</p>'
+    )
     return f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>安装第二大脑 · 飞书授权</title>
@@ -432,7 +480,7 @@ def wizard_html(token: str) -> str:
 *{{box-sizing:border-box}}body{{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}}
 main{{max-width:980px;margin:36px auto;padding:0 20px 60px}}h1{{font:700 36px/1.2 Georgia,"Noto Serif SC",serif;margin:0 0 8px}}h2{{font-size:19px;margin:0 0 12px}}.lede{{color:var(--muted);margin:0 0 26px}}.grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px}}.card{{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 8px 26px #382f2010}}.wide{{grid-column:1/-1}}label{{display:block;font-weight:650;margin:12px 0 5px}}input[type=text],input[type=password]{{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:white}}button,.button{{display:inline-block;border:0;border-radius:9px;padding:10px 15px;background:var(--accent);color:white;text-decoration:none;font-weight:700;cursor:pointer;margin:8px 8px 0 0}}button.secondary,.button.secondary{{background:#e7e2d6;color:var(--ink)}}code{{font-size:13px}}ul{{padding-left:20px}}.option{{display:block;border-top:1px solid var(--line);padding:12px 0;font-weight:400}}.warn{{color:var(--warn)}}#qr{{width:260px;max-width:80%;display:none;margin:15px 0;border:10px solid white}}#log{{background:#121820;color:#d7e1df;border-radius:10px;padding:14px;height:260px;overflow:auto;white-space:pre-wrap;font:12px/1.5 ui-monospace,SFMono-Regular,monospace}}#status{{font-weight:700}}@media(max-width:720px){{.grid{{grid-template-columns:1fr}}}}
 </style></head><body><main>
-<h1>安装第二大脑</h1><p class="lede">本地安装 · 飞书最小权限授权 · 授权成功后自动增量同步。凭证只进入本机系统钥匙串。</p>
+<h1>安装第二大脑</h1><p class="lede">本地安装 · 飞书最小权限授权 · 授权成功后自动增量同步。凭证只进入本机系统钥匙串。</p>{sync_notice}
 <div class="grid">
 <section class="card"><h2>1. 创建飞书自建应用</h2>
 <p>打开开发者后台，创建“企业自建应用”。在“开发配置 → 权限管理”开通下列权限，然后创建并发布版本。</p>
@@ -548,7 +596,7 @@ class WizardHandler(BaseHTTPRequestHandler):
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="一键安装第二大脑，并通过本地页面完成飞书授权与同步。")
+    parser = argparse.ArgumentParser(description=cli_description())
     parser.add_argument("--host", default="127.0.0.1", choices=("127.0.0.1",), help="安全起见只允许监听本机")
     parser.add_argument("--port", type=int, default=0, help="本地端口；0 表示自动选择")
     parser.add_argument("--no-open", action="store_true", help="不自动打开浏览器")
@@ -559,14 +607,15 @@ def main(argv=None) -> int:
 
     if args.self_check:
         core = {
-            "docs": (SCRIPTS / "feishu-backup-docs.py").is_file(),
-            "wiki": (SCRIPTS / "feishu-backup-wiki.py").is_file(),
+            "installer": Path(__file__).is_file(),
             "vault_init": (SCRIPTS / "vault_init.py").is_file(),
-            "larklib": (SCRIPTS / "larklib.py").is_file(),
+            "lark_cli_argv": (SCRIPTS / "lark_cli_argv.py").is_file(),
         }
-        optional = {name: module_available(name) for name in ("files", "messages")}
+        optional = {name: module_available(name) for name in ("docs", "wiki", "files", "messages")}
         payload = {
             "ok": all(core.values()),
+            "core_status": "ready" if all(core.values()) else "incomplete",
+            "sync_status": sync_status(),
             "platform": sys.platform,
             "native_windows": os.name == "nt",
             "python": ".".join(map(str, sys.version_info[:3])),
@@ -578,7 +627,7 @@ def main(argv=None) -> int:
 
     if not args.skip_bootstrap:
         print("▶ 初始化第二大脑本地环境……", flush=True)
-        bootstrap(install_lark=not args.no_install_lark)
+        bootstrap(install_lark=sync_status() == "available" and not args.no_install_lark)
         print("✓ 本地环境就绪", flush=True)
 
     state = WizardState()
@@ -589,8 +638,12 @@ def main(argv=None) -> int:
     server.session_token = session_token  # type: ignore[attr-defined]
     host, port = server.server_address
     url = f"http://{host}:{port}/wizard?token={session_token}"
-    print(f"飞书权限与授权页面：{url}", flush=True)
-    print("页面关闭后可按 Ctrl-C 停止安装器；同步在页面中显示进度。", flush=True)
+    if sync_status() == "available":
+        print(f"飞书权限与授权页面：{url}", flush=True)
+        print("页面关闭后可按 Ctrl-C 停止安装器；同步在页面中显示进度。", flush=True)
+    else:
+        print(f"Vault-only 本地页面：{url}", flush=True)
+        print("此公开包不含飞书授权/同步连接器；请安装完整发行包以启用这些能力。", flush=True)
     if not args.no_open:
         webbrowser.open(url)
     try:

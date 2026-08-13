@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 第二大脑一键安装入口：初始化本地 Vault，启动飞书权限/授权向导，授权后自动同步。
+# 第二大脑一键安装入口：初始化本地 Vault；完整发行包另含飞书授权与同步向导。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"

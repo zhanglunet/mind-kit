@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="第二大脑、飞书知识库与 ima 的功能、定位、治理和适用场景详细比较。">
+<title>第二大脑 vs 飞书知识库 vs ima · 功能比较</title>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" type="image/svg+xml" href="assets/logo-app.svg">
+</head>
+<body>
+<nav class="topnav"><div class="in">
+  <a class="brand" href="index.html"><img class="logo" src="assets/logo-app.svg" alt="" width="30" height="30" style="background:none">第二大脑</a>
+  <div class="navlinks"><a href="index.html">首页</a><a href="architecture.html">系统运作</a><a class="active" href="compare.html">产品比较</a><a href="usage.html">使用手册</a><a href="prd.html">PRD</a></div>
+</div></nav>
+
+<main class="doc-layout"><article class="doc-main">
+  <div class="crumb"><a href="index.html">第二大脑</a> / 产品比较</div>
+  <section class="compare-hero">
+    <div class="compare-eyebrow">一张表看清三种路线</div>
+    <h1>第二大脑、飞书知识库、ima，究竟有什么不同？</h1>
+    <p>三者都能“把资料放进去再问 AI”，但产品的<strong>最终产物</strong>不同：第二大脑维护一套可复利的个人 Wiki；飞书知识库管理一个组织可协作、可授权的知识空间；ima 把个人知识库、AI 搜读写与内容生态做成开箱即用的工作台。</p>
+    <div class="compare-verdict"><b>一句话结论</b><span>想把知识变成自己的长期资产，选第二大脑；想让团队共同维护并严格控权，选飞书；想今天就导入文件、直接问答和写作，选 ima。</span></div>
+  </section>
+
+  <h2 id="strength">第二大脑的优点</h2>
+  <div class="compare-cards">
+    <div class="card"><b>01 · 知识会复利</b><p>新来源不是只被切片检索，而是被编译成摘要、概念页、实体页和交叉引用；以后查询直接复用已经整理过的结构。</p></div>
+    <div class="card"><b>02 · 来源可追溯</b><p>Raw Sources 只读，Wiki 是编译产物，结论可以回到原始材料；Markdown 和 Git 让修改、回退、审阅都有证据。</p></div>
+    <div class="card"><b>03 · 主动防腐化</b><p>lint、孤立页/矛盾/缺引用检查、保鲜提示、评测回归和写集门禁，把“知识库越用越乱”变成可发现的问题。</p></div>
+    <div class="card"><b>04 · 主权与可迁移</b><p>文件在本地 Vault，格式是人类可读的 Markdown，模型只是编译器；不被某个平台的账号、界面或单一检索算法锁住。</p></div>
+    <div class="card"><b>05 · 面向高价值工作</b><p>素材库、决策五维、写作前/中/后闭环和每周调用指标，目标是产出文章、判断和行动，而不是收藏数量。</p></div>
+    <div class="card"><b>06 · 可编程、可测试</b><p>Schema、脚本、测试、Hooks 和自动化都能按个人工作流修改；确定性门禁负责底线，LLM 负责理解与提炼。</p></div>
+  </div>
+
+  <h2 id="matrix">功能全量比较</h2>
+  <p class="muted">“✓”表示该路线的核心能力；“△”表示能做到但依赖配置、版本、权限或外部工具；“—”表示不是产品目标。ima 的具体权益和模型会随版本、地区及套餐变化，以下按公开资料整理，更新于 2026-08-12。</p>
+  <div class="table-wrap compare-table"><table>
+    <thead><tr><th>功能 / 维度</th><th class="col-mind">第二大脑</th><th>飞书知识库</th><th>ima</th></tr></thead>
+    <tbody>
+      <tr><th>产品本质</th><td class="col-mind">可版本化的个人 Wiki 编译系统</td><td>组织级知识空间 / 文档树</td><td>AI 知识库工作台 + 内容生态</td></tr>
+      <tr><th>主要对象</th><td class="col-mind">个人长期知识资产</td><td>企业、团队、项目成员</td><td>个人学习办公，也支持共享知识库</td></tr>
+      <tr><th>原始资料导入</th><td class="col-mind">剪藏、Flomo、Markdown、PDF 等，按自定义脚本接入</td><td>文档、表格、网页、云盘等飞书内容</td><td>本地文件、网页、公众号、微信文件等多源导入</td></tr>
+      <tr><th>多格式 / 多模态解析</th><td class="col-mind">△ 由本地工具链或模型负责，强调可控</td><td>△ 依赖云文档及 AI 权益</td><td>✓ 文档、图片等资料的 AI 解析与解读</td></tr>
+      <tr><th>增量摄入</th><td class="col-mind">✓ 指纹、watch、Flomo delta、幂等编译</td><td>△ 平台同步 / 手工上传</td><td>✓ 持续添加资料，细节由产品版本决定</td></tr>
+      <tr><th>结构化编译</th><td class="col-mind">✓ 摘要 / 概念 / 实体 / 索引 / 输出分层</td><td>△ 主要是页面树、文档与数据库</td><td>△ 标签、知识库组织和 AI 解析</td></tr>
+      <tr><th>页面树 / 标签</th><td class="col-mind">目录、Schema、六类素材、五维决策</td><td>✓ 页面树、目录、文档权限</td><td>✓ 知识库、标签、收藏分类</td></tr>
+      <tr><th>全文检索</th><td class="col-mind">✓ 本地 BM25 + 中文 bigram + RRF</td><td>✓ 云端全文搜索</td><td>✓ AI 搜索与知识库检索</td></tr>
+      <tr><th>AI 问答</th><td class="col-mind">✓ 查询 Wiki，回答写入 outputs，可换模型</td><td>✓ 知识问答，范围受权限和版本影响</td><td>✓ 基于知识库 / 全网信源问答</td></tr>
+      <tr><th>来源引用</th><td class="col-mind">✓ 文件级、页级来源链可回看</td><td>✓ AI 问答通常提供引用，具体呈现随功能版本</td><td>✓ 公开资料称可引用知识库资料</td></tr>
+      <tr><th>矛盾 / 重复发现</th><td class="col-mind">✓ lint 与治理队列</td><td>△ 依赖人工管理和平台能力</td><td>△ AI 检索可辅助，不以治理门禁为核心</td></tr>
+      <tr><th>保鲜 / 时效管理</th><td class="col-mind">✓ 半衰期、复核提醒、只提示不擅改</td><td>△ 文档更新和管理员维护</td><td>△ 资料更新与重新导入，规则能力未作为核心公开</td></tr>
+      <tr><th>检索评测回归</th><td class="col-mind">✓ golden cases、MRR / Top-1、质量断言</td><td>— 非用户可编程核心功能</td><td>— 非用户可编程核心功能</td></tr>
+      <tr><th>写作辅助</th><td class="col-mind">✓ 素材提取 → 写作 → 回写闭环</td><td>✓ 文档 AI 等能力，依版本 / 套餐</td><td>✓ AI 读、搜、写一体</td></tr>
+      <tr><th>资料解读 / 摘要 / 翻译</th><td class="col-mind">△ 调用模型与本地工具</td><td>✓ 文档 AI 等能力，依版本 / 套餐</td><td>✓ 资料解读、总结、翻译等</td></tr>
+      <tr><th>语音 / 会议内容</th><td class="col-mind">△ 可把转写结果作为来源接入</td><td>✓ 会议纪要、妙记等飞书生态能力</td><td>△ 以当前客户端支持为准</td></tr>
+      <tr><th>个人笔记 / 灵感捕获</th><td class="col-mind">✓ Flomo / Markdown / inbox 进入编译链</td><td>✓ 文档、消息、妙记等生态入口</td><td>✓ 笔记、收藏、网页和微信内容入口</td></tr>
+      <tr><th>多人协作编辑</th><td class="col-mind">— 个人优先；可用 Git 协作</td><td>✓ 实时协作、评论、页面成员</td><td>✓ 共享知识库，具体协作深度随版本</td></tr>
+      <tr><th>组织权限</th><td class="col-mind">本地文件权限 + Git / Vault 边界</td><td>✓ 阅读、编辑、复制、打印、导出等精细权限</td><td>△ 个人 / 共享 / 公开生态分层，企业权限需核实</td></tr>
+      <tr><th>公开发布 / 订阅</th><td class="col-mind">✓ 可发布脱敏静态文档；默认不公开个人内容</td><td>✓ 分享、公开链接、企业协作</td><td>✓ 知识号、知识库广场、订阅等生态能力</td></tr>
+      <tr><th>评论 / 任务 / 流程</th><td class="col-mind">△ 用 Markdown、Git、脚本或外部工具组合</td><td>✓ 评论、审批、自动化与业务工具生态</td><td>△ 公开资料显示支持协作互动；流程深度需实测</td></tr>
+      <tr><th>自动化</th><td class="col-mind">✓ watch、cron、全量更新、LaunchAgent</td><td>✓ 自动化、开放平台、机器人等企业能力</td><td>△ Copilot / Skill 等能力在持续演进</td></tr>
+      <tr><th>可编程性</th><td class="col-mind">✓ 源码、Schema、脚本、测试全部可改</td><td>✓ 开放平台与 API，但受平台模型约束</td><td>△ 以产品提供的入口、Skill / MCP 等为主</td></tr>
+      <tr><th>模型选择</th><td class="col-mind">✓ 可接 GLM、Kimi、OpenAI 等 provider</td><td>△ 使用飞书提供的 AI 能力与权益</td><td>✓ 多模型能力随版本和地区变化</td></tr>
+      <tr><th>数据主权</th><td class="col-mind">✓ 本地优先，可审计、备份、迁移</td><td>云端组织空间，受租户、账号、权限和服务规则约束</td><td>云端账号体系，受腾讯产品规则和同步能力约束</td></tr>
+      <tr><th>离线能力</th><td class="col-mind">✓ 本地 Markdown、grep、检索可用；模型调用另计</td><td>— 主要依赖在线服务</td><td>△ 主要依赖在线服务</td></tr>
+      <tr><th>版本 / 回滚</th><td class="col-mind">✓ Git 原生</td><td>△ 文档历史版本，非完整 Git 工作流</td><td>△ 以平台版本与备份能力为准</td></tr>
+      <tr><th>治理红线</th><td class="col-mind">✓ Schema、只读源、写集门禁、隐私发布门禁</td><td>✓ 管理员、权限、安全与审计体系</td><td>△ 平台安全与内容治理；个人规则需自建</td></tr>
+      <tr><th>上手成本</th><td class="col-mind">高：需搭建工具链与维护节奏</td><td>中：已有飞书组织时较低</td><td>低：下载 / 登录 / 导入即可开始</td></tr>
+      <tr><th>最适合</th><td class="col-mind">研究、写作、长期决策、个人 AI 工作流</td><td>企业制度、项目协作、组织知识与权限</td><td>学习、资料阅读、快速问答、个人内容创作</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="choose">怎么选</h2>
+  <div class="choose-grid">
+    <div class="choose-card mind"><b>选第二大脑</b><p>你在意长期积累、来源链、可迁移、个人隐私和“同一个问题以后不用再从零回答”；愿意承担一点搭建和维护成本。</p><a href="architecture.html">看系统如何运作 →</a></div>
+    <div class="choose-card"><b>选飞书知识库</b><p>你要的是团队一起写、成员权限、评论协作、组织搜索，以及和会议、消息、文档、审批等办公流程打通。</p><a href="https://www.feishu.cn/product/wiki">查看飞书官方介绍 →</a></div>
+    <div class="choose-card"><b>选 ima</b><p>你想马上导入 PDF、网页、公众号或微信资料，直接获得 AI 搜索、解读、总结、翻译和写作辅助，并可探索公开知识生态。</p><a href="https://ima.qq.com/">访问 ima →</a></div>
+  </div>
+
+  <h2 id="combination">最现实的组合</h2>
+  <p>三者不是只能三选一：ima 适合做“快速摄入与阅读前台”，飞书适合做“团队协作与组织共享层”，第二大脑适合做“个人长期资产与决策写作后台”。真正需要保护的判断、复盘和个人方法，经过脱敏后再进入团队或公开平台。</p>
+  <blockquote><p><b>建议路线：</b>先用 ima 降低输入摩擦；有团队协作需求时把稳定的制度和共识放进飞书；把跨项目、跨年份、需要反复调用的个人判断编译进第二大脑。不要把“能搜索”误当成“已经形成知识资产”。</p></blockquote>
+
+  <h2 id="sources">口径与来源</h2>
+  <p class="muted">第二大脑一栏按本站公开的实际架构、PRD、使用手册和工程能力整理；飞书与 ima 一栏优先采用官方产品页 / 帮助中心，ima 的部分新能力因官方站点动态渲染，补充参考腾讯云开发者社区的产品说明。功能权益、地域和版本可能变化，采购或上线前应以账号实测与合同为准。</p>
+  <ul class="source-list">
+    <li>飞书：<a href="https://www.feishu.cn/product/wiki">飞书知识库产品页</a>、<a href="https://www.feishu.cn/hc/zh-CN/articles/807073676453-%E9%A3%9E%E4%B9%A6%E7%9F%A5%E8%AF%86%E5%BA%93-%E6%9E%84%E5%BB%BA%E4%BC%81%E4%B8%9A%E4%B8%8E%E4%B8%AA%E4%BA%BA%E7%9A%84%E4%B8%93%E5%B1%9E%E7%9F%A5%E5%BA%93">知识库帮助</a>、<a href="https://www.feishu.cn/hc/zh-CN/articles/138181848717-%E8%AE%BE%E7%BD%AE%E7%9F%A5%E8%AF%86%E5%BA%93%E7%9A%84%E7%9F%A5%E8%AF%86%E9%97%AE%E7%AD%94%E5%8A%9F%E8%83%BD">知识问答设置</a>。</li>
+    <li>ima：<a href="https://ima.qq.com/">ima 官网</a>、<a href="https://cloud.tencent.com/developer/techpedia/2613/20565">腾讯云技术百科：搭建个人知识库</a>、<a href="https://developer.cloud.tencent.com/article/2508787">腾讯云开发者社区：ima 基本使用</a>。</li>
+    <li>本站：<a href="index.html">第二大脑首页</a>、<a href="architecture.html">系统运作</a>、<a href="prd.html">PRD</a>。</li>
+  </ul>
+  <div class="doc-foot"><span>资料整理：第二大脑项目 · 2026-08-12</span><a href="index.html">返回首页 →</a></div>
+</article>
+<aside class="doc-toc"><div class="box"><div class="cap">本页目录</div><ul><li><a href="#strength">第二大脑的优点</a></li><li><a href="#matrix">功能全量比较</a></li><li><a href="#choose">怎么选</a></li><li><a href="#combination">组合方案</a></li><li><a href="#sources">口径与来源</a></li></ul></div></aside>
+</main>
+<footer class="sitefoot"><div class="in"><span>第二大脑 · 个人知识库</span><a href="index.html">首页</a><a href="architecture.html">系统运作</a><a href="compare.html">产品比较</a><a href="prd.html">PRD</a><span class="note">本站只发布项目文档;知识库内容(raw/_wiki/material)永不上网</span></div></footer>
+</body>
+</html>

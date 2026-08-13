@@ -46,8 +46,17 @@ def test_installer_self_check_is_machine_readable():
     assert proc.returncode == 0, proc.stdout + proc.stderr
     data = json.loads(proc.stdout)
     assert data["ok"] is True
-    assert data["core_modules"]["docs"] is True
-    assert data["core_modules"]["wiki"] is True
+    assert data["core_modules"]["installer"] is True
+    assert data["core_modules"]["vault_init"] is True
+    assert data["core_modules"]["lark_cli_argv"] is True
+    assert data["core_status"] == "ready"
+    expected_sync = "available" if all(
+        (REPO / "scripts" / name).is_file()
+        for name in ("feishu-backup-docs.py", "feishu-backup-wiki.py")
+    ) else "unavailable"
+    assert data["sync_status"] == expected_sync
+    assert "docs" in data["optional_modules"]
+    assert "wiki" in data["optional_modules"]
 
 
 def test_compile_dry_run_only_invokes_engine(tmp_path):
@@ -82,7 +91,7 @@ def test_gitlab_ci_owns_windows_validation():
     assert "windows-latest" not in workflows
 
 
-def test_public_release_keeps_installer_and_feishu_core():
+def test_public_release_keeps_installer_dependencies_and_removes_private_sync_connectors():
     delete_file = REPO / "publish" / "DELETE.txt"
     deleted = set()
     if delete_file.is_file():
@@ -93,8 +102,17 @@ def test_public_release_keeps_installer_and_feishu_core():
         "install-second-brain.ps1",
         "scripts/install_second_brain.py",
         "scripts/vault_init.py",
-        "scripts/feishu-backup-docs.py",
-        "scripts/feishu-backup-wiki.py",
+        "scripts/lark_cli_argv.py",
     ):
         assert (REPO / required).is_file()
         assert required not in deleted
+    # publish/ is private source-repository policy and intentionally absent from
+    # the exported package.  Validate it only where that source policy exists.
+    if delete_file.is_file():
+        for private in (
+            "scripts/feishu-backup-docs.py",
+            "scripts/feishu-backup-wiki.py",
+            "scripts/larklib.py",
+            "tests/test_larklib.py",
+        ):
+            assert private in deleted

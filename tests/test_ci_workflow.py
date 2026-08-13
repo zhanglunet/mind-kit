@@ -24,12 +24,39 @@ CI 从 08-04 起就没真正检查过任何一次 push —— 而它正是 pre-p
    一个可选依赖不该有掐断全套件的杀伤力。
 """
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 WORKFLOW = REPO / ".github" / "workflows" / "tests.yml"
+
+
+def _checkout_fetches_full_history(text):
+    marker = "- uses: actions/checkout@v4"
+    if marker not in text:
+        return False
+    checkout_step = text.split(marker, 1)[1].split("\n      - ", 1)[0]
+    lines = checkout_step.splitlines()
+    for index, line in enumerate(lines):
+        with_match = re.match(r"^(?P<indent>[ \t]*)with:[ \t]*(?:#[^\n]*)?$", line)
+        if not with_match:
+            continue
+        with_indent = len(with_match.group("indent"))
+        for input_line in lines[index + 1:]:
+            if not input_line.strip():
+                continue
+            input_indent = len(input_line) - len(input_line.lstrip(" \t"))
+            if input_indent <= with_indent:
+                break
+            if re.match(
+                r"^[ \t]*fetch-depth:[ \t]*0(?:[ \t]+#[^\n]*)?[ \t]*$",
+                input_line,
+            ):
+                return True
+        return False
+    return False
 
 
 def _missing_markdown_shim(tmp_path: Path) -> Path:
@@ -58,6 +85,54 @@ def test_ci_installs_runtime_requirements():
         "CI 只装了 requirements-dev.txt,没装 requirements.txt —— "
         "test_build_wiki_site.py 在 collection 期就 import markdown,"
         "缺它整个套件退 2、零测试执行(2026-08-04 起真实发生)")
+
+
+def test_ci_checkout_fetches_full_history():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    marker = "- uses: actions/checkout@v4"
+    assert marker in text, "CI 缺 actions/checkout@v4"
+    assert _checkout_fetches_full_history(text), (
+        "发布世系测试需要完整 Git 历史；浅克隆会让源仓 HEAD 无法解析"
+    )
+
+
+def _workflow_with_checkout_config(config):
+    return (
+        "jobs:\n"
+        "  pytest:\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        f"{config}\n"
+        "      - name: Run pytest\n"
+    )
+
+
+def test_ci_checkout_rejects_commented_full_history():
+    assert not _checkout_fetches_full_history(
+        _workflow_with_checkout_config("        # fetch-depth: 0")
+    )
+
+
+def test_ci_checkout_rejects_wrong_fetch_depth_key():
+    assert not _checkout_fetches_full_history(
+        _workflow_with_checkout_config("        not-fetch-depth: 0")
+    )
+
+
+def test_ci_checkout_rejects_nonzero_fetch_depth_value():
+    assert not _checkout_fetches_full_history(
+        _workflow_with_checkout_config("        fetch-depth: 01")
+    )
+
+
+def test_ci_checkout_rejects_fetch_depth_outside_with_inputs():
+    assert not _checkout_fetches_full_history(
+        _workflow_with_checkout_config(
+            "        fetch-depth: 0\n"
+            "        with:\n"
+            "          persist-credentials: false"
+        )
+    )
 
 
 def test_missing_optional_dep_skips_module_instead_of_breaking_collection(tmp_path):
