@@ -8,7 +8,7 @@ title: WorkBuddy 安装第二大脑
   <p>下载或从 SkillHub 安装技能包，WorkBuddy 负责本地安装公开仓（Vault-only）。飞书授权与内容同步属于完整发行包（邀请制），持有者沿用本页同一套提示词。</p>
 </div>
 
-[在 SkillHub 查看](https://skillhub.cn/skills/user_4c0191ff/mind) · [下载 ZIP](downloads/workbuddy-second-brain-skill-v1.0.0.zip)
+[在 SkillHub 查看](https://skillhub.cn/skills/user_4c0191ff/mind) · [下载 ZIP](downloads/workbuddy-second-brain-skill-v1.0.1.zip)
 
 <div class="wb-route" aria-label="三步安装流程">
   <div><span>01</span><strong>安装技能</strong><small>SkillHub 或 ZIP 导入</small></div>
@@ -49,7 +49,7 @@ Windows 10/11 使用 PowerShell 5.1+ 或 PowerShell 7,**不需要 WSL2**。完�
 
 ### 1. 安装技能包
 
-优先打开 [SkillHub 技能页面](https://skillhub.cn/skills/user_4c0191ff/mind) 安装；如果无法使用，下载本站 [ZIP 技能包](downloads/workbuddy-second-brain-skill-v1.0.0.zip)，进入 **专家·技能·连接器 → 技能 → 添加技能 → 上传技能**，然后在“我安装的”中启用“第二大脑安装与飞书备份技能”。
+优先打开 [SkillHub 技能页面](https://skillhub.cn/skills/user_4c0191ff/mind) 安装；如果无法使用，下载本站 [ZIP 技能包](downloads/workbuddy-second-brain-skill-v1.0.1.zip)，进入 **专家·技能·连接器 → 技能 → 添加技能 → 上传技能**，然后在“我安装的”中启用“第二大脑安装技能”。
 
 ### 2. 交给 WorkBuddy 安装
 
@@ -113,8 +113,8 @@ install-second-brain.ps1，不需要 WSL2。
 | 入口 | 用途 |
 |---|---|
 | [SkillHub](https://skillhub.cn/skills/user_4c0191ff/mind) | 查看技能详情并安装 |
-| [本站 ZIP](downloads/workbuddy-second-brain-skill-v1.0.0.zip) | 备用下载和手动导入 |
-| [GitHub Release](https://github.com/zhanglunet/mind-kit/releases/tag/workbuddy-skill-v1.0.0) | 查看版本和校验信息 |
+| [本站 ZIP](downloads/workbuddy-second-brain-skill-v1.0.1.zip) | 备用下载和手动导入 |
+| [GitHub Releases](https://github.com/zhanglunet/mind-kit/releases) | 查看各版本与校验信息 |
 | [源码仓库](https://github.com/zhanglunet/mind-kit) | 查看安装器和实现 |
 | [服务页](services.md) | 申请含飞书同步的完整发行包 |
 

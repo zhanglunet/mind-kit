@@ -115,11 +115,11 @@ def test_logo_download_assets_are_published():
 
 
 def test_workbuddy_downloadable_skill_package_is_published():
-    package = SITE / "downloads" / "workbuddy-second-brain-skill-v1.0.0.zip"
+    package = SITE / "downloads" / "workbuddy-second-brain-skill-v1.0.1.zip"
     page = SITE / "workbuddy.html"
     assert package.is_file(), "WorkBuddy 安装包未发布到 site/downloads"
     page_text = page.read_text(encoding="utf-8")
-    assert "downloads/workbuddy-second-brain-skill-v1.0.0.zip" in page_text
+    assert "downloads/workbuddy-second-brain-skill-v1.0.1.zip" in page_text
     assert "第二大脑 WorkBuddy 技能包" in re.sub(r"\s+", " ", page_text)
     assert "官方“专家”或技能市场" in page_text
     assert "https://skillhub.cn/skills/user_4c0191ff/mind" in page_text

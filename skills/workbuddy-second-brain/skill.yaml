@@ -1,0 +1,17 @@
+id: second-brain-feishu
+name: 第二大脑安装技能
+description: 安装第二大脑公开版（Vault-only 本地知识库）；持有完整发行包时另行指导飞书授权与同步。
+version: 1.0.1
+type: workbuddy-skill
+author: zhanglunet
+homepage: https://aip.cab/workbuddy
+source_repository: https://github.com/zhanglunet/mind-kit
+tags:
+  - 第二大脑
+  - 本地知识库
+  - 飞书备份
+  - PowerShell
+privacy:
+  collects_user_content: false
+  requires_secrets: false
+  network_access: user_confirmed
