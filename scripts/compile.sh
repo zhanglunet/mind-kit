@@ -32,6 +32,11 @@ today=$(date +%F)
 failed=0
 note_fail() { echo "❌ $1"; failed=$((failed + 1)); }
 
+step "0/6 预检门:规则隔离垃圾剪藏(省 LLM token)"
+# ECC 降本:「这篇值不值得调 LLM」是高频低风险决策,规则先判。
+# best-effort:预检挂了不阻塞编译(退出码恒 0,见脚本),只是本轮不省 token。
+"$MIND_PY" scripts/preflight-check.py || echo "⚠️ 预检门异常,继续编译(本轮不隔离)"
+
 step "1/6 sage-wiki compile $*"
 if ! sage-wiki compile "$@"; then echo "❌ 编译失败,中止流水线"; exit 1; fi
 
