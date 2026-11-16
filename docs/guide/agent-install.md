@@ -70,7 +70,7 @@ agent 能替你装依赖,但下面这些要么得你本人操作,要么得先存
   - `pip install -r requirements.txt`
 
 第 2 步 编译引擎 sage-wiki
-  - `go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest`
+  - `go install github.com/xoai/sage-wiki/cmd/sage-wiki@v0.2.13`
     (主包在 cmd/ 下;路径漏了会报 no non-test Go files)
   - 确认 `export PATH="$HOME/go/bin:$PATH"` 已在我的 shell profile 里
   - 跑一遍 docs/guide/install.md §3.1 的行为验证,确认版本 ≥ 0.2.6:
