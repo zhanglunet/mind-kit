@@ -1,0 +1,32 @@
+{
+  "workbuddy-second-brain": {
+    "tasks": 6,
+    "tasks_required_per_round": 30,
+    "rounds_run": 1,
+    "rounds_required": 2,
+    "baseline_error_rate": 0.5,
+    "skill_error_rate": 0.0,
+    "baseline_errors": {
+      "事实": 3,
+      "溯源": 3,
+      "结构": 3,
+      "total": 9
+    },
+    "skill_errors": {
+      "事实": 0,
+      "溯源": 0,
+      "结构": 0,
+      "total": 0
+    },
+    "category_worsening_pp": {
+      "事实": -0.5,
+      "溯源": -0.5,
+      "结构": -0.5
+    },
+    "rounds": [
+      "样本不足"
+    ],
+    "control_reproducible": true,
+    "sample_note": "本轮真实任务 6 个 < T1 §二.4 要求的 30 个；仅 1 轮 < 要求的 2 轮"
+  }
+}
