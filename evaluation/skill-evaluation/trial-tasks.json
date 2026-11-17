@@ -1,0 +1,183 @@
+{
+  "date": "2026-11-17",
+  "note": "试运行任务：6 个安装指导场景，取自技能文档记载的真实用户情形（SKILL.md 工作流/失败处理，'最常踩的坑'等）。任务表述为试运行编写，非真实用户原话；场景本身是技能文档记载的真实情形。T1 设计稿 §二.4 要求每轮不少于 30 个真实任务、本轮 6 个 < 30，结论只记样本不足（见试运行报告）。",
+  "prd": "PRD-492",
+  "schema": "skill-trial-tasks/v1",
+  "scoring": "每任务三类 0/1 计分：事实=必需事实出现其一且无禁止表述；溯源=至少出现一个依据来源；结构=structure_all 全出现且 structure_any 至少出现其一（同一步的不同说法，如“申请”与“前往服务页”，只算一种）。禁止表述检查前先遮蔽已匹配的必需事实与否定句（'不要尝试绕过'这类正确规则陈述不算违规，evaluate_quality.py 同款做法），避免否定句被误判。",
+  "skill_id": "workbuddy-second-brain",
+  "tasks": [
+    {
+      "fact_any": [
+        "公开包不含",
+        "不含云文档",
+        "不含飞书同步",
+        "不支持飞书同步",
+        "没有飞书同步",
+        "不能同步飞书",
+        "不带飞书同步"
+      ],
+      "fact_none": [
+        "可以拼凑",
+        "拼一个",
+        "从别处下载",
+        "从别处找",
+        "改安装器"
+      ],
+      "id": "t1-public-package-wants-feishu-sync",
+      "source": "skills/workbuddy-second-brain/SKILL.md §先分清用户拿到的是哪种发行包 / §失败处理",
+      "structure_all": [
+        "公开包"
+      ],
+      "task": "我装的是公开版 mind-kit，现在想让它同步我的飞书文档，该怎么弄？",
+      "trace_any": [
+        "服务页",
+        "aip.cab",
+        "完整发行包"
+      ],
+      "structure_any": [
+        "申请",
+        "前往服务页"
+      ]
+    },
+    {
+      "fact_any": [
+        "重新生成",
+        "重新创建",
+        "再生成一次",
+        "生成新的链接",
+        "生成新的二维码"
+      ],
+      "fact_none": [
+        "复用旧",
+        "用旧的链接",
+        "用原来的链接",
+        "恢复旧 token",
+        "恢复旧的 token"
+      ],
+      "id": "t2-auth-link-expired",
+      "source": "skills/workbuddy-second-brain/SKILL.md §失败处理（授权链接过期）",
+      "structure_all": [
+        "重新生成",
+        "链接"
+      ],
+      "task": "飞书授权的链接过期了，点不开，我该怎么办？",
+      "trace_any": [
+        "安装器",
+        "授权页",
+        "飞书"
+      ]
+    },
+    {
+      "fact_any": [
+        "开通缺失权限",
+        "开通权限",
+        "发布新版本",
+        "发版",
+        "重新授权",
+        "缺失 scope"
+      ],
+      "fact_none": [
+        "替你开通",
+        "我帮你开通",
+        "我来点击",
+        "替你点击",
+        "帮你点授权"
+      ],
+      "id": "t3-missing-scope",
+      "source": "skills/workbuddy-second-brain/SKILL.md §3 飞书授权与同步（missing_scope）",
+      "structure_all": [
+        "飞书后台",
+        "发布"
+      ],
+      "task": "同步时报错 missing_scope，缺了几个权限，我该怎么办？",
+      "trace_any": [
+        "飞书后台",
+        "开发者后台",
+        "open.feishu.cn"
+      ]
+    },
+    {
+      "fact_any": [
+        "这是设计",
+        "不是故障",
+        "不是失败",
+        "边界设计",
+        "正常现象",
+        "设计如此"
+      ],
+      "fact_none": [
+        "安装失败",
+        "修复安装器",
+        "绕过这个报错",
+        "重装就能"
+      ],
+      "id": "t4-public-package-connector-error",
+      "source": "skills/workbuddy-second-brain/SKILL.md §失败处理（公开包上出现不含连接器报错）",
+      "structure_all": [
+        "公开包",
+        "申请"
+      ],
+      "task": "安装器报错说“当前公开发行包不含云文档、知识库同步连接器”，是不是安装失败了？",
+      "trace_any": [
+        "公开包",
+        "Vault-only",
+        "服务页"
+      ]
+    },
+    {
+      "fact_any": [
+        "重新打开 PowerShell",
+        "检查 PATH",
+        "Add Python to PATH",
+        "勾选 Add Python",
+        "不使用 WSL2",
+        "原生 PowerShell"
+      ],
+      "fact_none": [
+        "改用 WSL",
+        "切换到 WSL",
+        "安装 WSL",
+        "在 WSL 里装",
+        "WSL 上装",
+        "换 Linux"
+      ],
+      "id": "t5-windows-command-not-found",
+      "source": "skills/workbuddy-second-brain/SKILL.md §失败处理（Windows 找不到命令）/ §1（Windows 用原生 PowerShell，不用 WSL2）",
+      "structure_all": [
+        "PowerShell",
+        "PATH"
+      ],
+      "task": "我在 Windows 上按教程装，PowerShell 说找不到命令，怎么办？",
+      "trace_any": [
+        "PowerShell",
+        "PATH"
+      ]
+    },
+    {
+      "fact_any": [
+        "保持安装器",
+        "不要恢复旧 token",
+        "别恢复旧 token",
+        "不恢复旧 token",
+        "重新运行安装器",
+        "生成一次性授权"
+      ],
+      "fact_none": [
+        "把旧 token 找回来",
+        "用旧 token 继续",
+        "恢复旧的 token"
+      ],
+      "id": "t6-sync-interrupted",
+      "source": "skills/workbuddy-second-brain/SKILL.md §失败处理（同步中断）",
+      "structure_all": [
+        "安装器",
+        "重新"
+      ],
+      "task": "飞书同步到一半断了，安装器还开着，我要不要把旧的 token 找回来继续？",
+      "trace_any": [
+        "安装器",
+        "一次性授权"
+      ]
+    }
+  ]
+}
