@@ -1,0 +1,40 @@
+{
+  "prd": "PRD-492",
+  "repo": "mind-kit",
+  "version": "v1",
+  "date": "2026-11-17",
+  "skills": [
+    {
+      "id": "workbuddy-second-brain",
+      "name": "workbuddy-second-brain",
+      "source": "skills/workbuddy-second-brain/SKILL.md"
+    }
+  ],
+  "quality_gate_variant": "error-rate",
+  "quality_gate": {
+    "workbuddy-second-brain": {
+      "verdict": "过关",
+      "reason": "错误率相对下降 28.0%，单类最大恶化 2.0pp",
+      "measurements": {
+        "baseline_error_rate": 0.25,
+        "skill_error_rate": 0.18,
+        "category_worsening_pp": {
+          "事实": 0.01,
+          "溯源": 0.0,
+          "结构": 0.02
+        },
+        "rounds": [
+          "过关",
+          "过关"
+        ],
+        "control_reproducible": true
+      },
+      "data": "合成演示数据，待真实对照复核"
+    }
+  },
+  "overlap_candidates": [],
+  "closest_pair_below_threshold": null,
+  "overlap_note": "文本通道（Jaccard/TF-IDF >= 0.70）已跑；语义通道（embedding 余弦 >= 0.85）待向量模型选型，未跑。",
+  "remediation_new_entries": [],
+  "note": "首份评估报告（T2 最小实现）：重叠检测跑在真实技能文本上；质量门判定器已跑通，但对照数据为合成演示数据，结论待真实对照复核，实测在 T5 跑真实任务。"
+}
