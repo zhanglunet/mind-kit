@@ -95,7 +95,7 @@ bash scripts/sage-backend.sh glm        # 切回 GLM
    **要 ≥ 0.2.6**,理由见下一节。
    主包在 `cmd/` 下,**装的时候别漏**(漏了会报 `no non-test Go files`):
    ```bash
-   go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest
+   go install github.com/xoai/sage-wiki/cmd/sage-wiki@v0.2.13
    export PATH="$HOME/go/bin:$PATH"   # 写进 ~/.bashrc;cron 的 PATH 也要带上
    ```
    提供 CLI / MCP server / watch 监听。装完确保 `command -v sage-wiki` 有输出。
@@ -133,7 +133,7 @@ echo "=== .manifest.json ==="; cat .manifest.json   # ✅ 仍含 a.md 与 x     
 cd ~ && rm -rf "$T"
 ```
 
-任一项 ❌ 就升级:`go install github.com/xoai/sage-wiki/cmd/sage-wiki@latest`,
+任一项 ❌ 就升级:`go install github.com/xoai/sage-wiki/cmd/sage-wiki@v0.2.13`,
 升完把上面这段**再跑一遍**确认。升级前顺手 `cp .manifest.json ~/manifest.bak`,
 一秒的事,省得万一还要重编一轮。
 
