@@ -1,0 +1,17 @@
+{
+  "_note": "合成演示数据：仅用于验证质量门判定器跑通，非真实对照实验结果；真实对照在 T5 跑真实任务后复核。",
+  "workbuddy-second-brain": {
+    "baseline_error_rate": 0.25,
+    "skill_error_rate": 0.18,
+    "category_worsening_pp": {
+      "事实": 0.01,
+      "溯源": 0.0,
+      "结构": 0.02
+    },
+    "rounds": [
+      "过关",
+      "过关"
+    ],
+    "control_reproducible": true
+  }
+}
