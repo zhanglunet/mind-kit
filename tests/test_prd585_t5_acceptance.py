@@ -76,14 +76,18 @@ class TestGates(unittest.TestCase):
         self.assertEqual(d["gate"], "block")
 
 
+REPO_ROOT = next(p for p in Path(__file__).resolve().parents
+                 if (p / ".git").exists())
+
+
 class TestChainRerun(unittest.TestCase):
     def test_t2_t3_t4_rerun_green(self):
+        tdir = str(Path(__file__).resolve().parent.relative_to(REPO_ROOT))
         for name in ("test_mindkit_hunt.py", "test_mindkit_hunt_gate.py", "test_prd585_t4_boundary.py"):
             proc = subprocess.run(
                 [sys.executable, "-m", "unittest", "discover",
-                 "-s", str(Path(__file__).resolve().parent),
-                 "-p", name],
-                capture_output=True, timeout=600)
+                 "-s", tdir, "-p", name],
+                capture_output=True, timeout=600, cwd=str(REPO_ROOT))
             self.assertEqual(proc.returncode, 0,
                              f"{name} 复跑失败："
                              f"{(proc.stdout or proc.stderr or '')[-400:]}")
