@@ -92,8 +92,9 @@ class TestFailureDrills(unittest.TestCase):
     def test_chain_rerun_green(self):
         for name in ("test_knowledge_skill_contract.py", "test_knowledge_skill_contract_gates.py", "test_prd515_t4_contract_boundary.py"):
             proc = subprocess.run(
-                [sys.executable, "-m", "pytest", "-q",
-                 str(Path(__file__).resolve().parent / name)],
+                [sys.executable, "-m", "unittest", "discover",
+                 "-s", str(Path(__file__).resolve().parent),
+                 "-p", name],
                 capture_output=True, timeout=600)
             self.assertEqual(proc.returncode, 0,
                              f"{name} 复跑失败：{proc.stdout[-400:]}")

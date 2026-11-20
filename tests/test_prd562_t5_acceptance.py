@@ -90,8 +90,9 @@ class TestChainRerun(unittest.TestCase):
                      "test_mindkit_admission_gate.py",
                      "test_prd562_t4_boundary.py"):
             proc = subprocess.run(
-                [sys.executable, "-m", "pytest", "-q",
-                 str(Path(__file__).resolve().parent / name)],
+                [sys.executable, "-m", "unittest", "discover",
+                 "-s", str(Path(__file__).resolve().parent),
+                 "-p", name],
                 capture_output=True, timeout=600)
             self.assertEqual(proc.returncode, 0, f"{name} 复跑失败")
 
