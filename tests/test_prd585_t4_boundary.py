@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """PRD-585/T4 测试（trend #2938 的 T4 环节）：巡检划界断言。
 运行：uv run --with pytest python -m pytest tests/test_prd585_t4_boundary.py -q
 按 PRD 任务拆分 T4 行：巡检与方法论包/准入检查/契约/评估/评审流水线/
