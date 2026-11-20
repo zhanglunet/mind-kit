@@ -95,7 +95,7 @@ class TestChainRerun(unittest.TestCase):
         """链复跑：T2/T3/T4 测试子进程复跑 exit 0（链上仍绿实测）。"""
         for name in ("test_knowledge_collab_session.py", "test_knowledge_collab_session_gates.py", "test_prd410_t4_session_boundary.py"):
             proc = subprocess.run(
-                [sys.executable, "-m", "pytest", "-q", str(SCRIPTS / name)], capture_output=True, timeout=300)
+                [sys.executable, "-m", "unittest", "discover", "-s", str(SCRIPTS), "-p", name), capture_output=True, timeout=300
             self.assertEqual(proc.returncode, 0,
                              f"{name} 复跑失败：{proc.stdout[-400:]}")
 
