@@ -15,7 +15,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parent
+SRC = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SRC))
 MODULE_DIR = SRC
 
@@ -90,15 +90,15 @@ class TestChainRerun(unittest.TestCase):
                      "test_mindkit_admission_gate.py",
                      "test_prd562_t4_boundary.py"):
             proc = subprocess.run(
-                [sys.executable, "-m", "unittest", "discover",
-                 "skill/mind-kit/scripts", "-p", name],
+                [sys.executable, "-m", "pytest", "-q",
+                 str(Path(__file__).resolve().parent / name)],
                 capture_output=True, timeout=600)
             self.assertEqual(proc.returncode, 0, f"{name} 复跑失败")
 
 
 class TestDocNoSecrets(unittest.TestCase):
     def test_t1_design_doc_no_secrets(self):
-        doc = next(Path(__file__).resolve().parents[3].glob(
+        doc = next(Path(__file__).resolve().parents[1].glob(
             "docs/plans/2026-11-20-prd-562-*.md"))
         text = doc.read_text(encoding="utf-8").lower()
         for needle in ("sk-" + "live", "passw" + "ord =",

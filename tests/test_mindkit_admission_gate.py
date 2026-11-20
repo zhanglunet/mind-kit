@@ -11,7 +11,7 @@ import sys
 import unittest
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[0]
+SRC = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SRC))
 MODULE_DIR = SRC
 
