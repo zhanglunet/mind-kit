@@ -67,8 +67,7 @@ class TestRealRun(unittest.TestCase):
 class TestChainRerun(unittest.TestCase):
     def test_t2_t3_t4_rerun_green(self):
         for name in (["test_mindkit_methodology.py", "test_mindkit_methodology_gate.py", "test_prd539_t4_boundary.py"]):
-            proc = subprocess.run([sys.executable, '-m', 'pytest', '-q'] +
-                                  [str(Path(__file__).resolve().parent / name)],
+            proc = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", str(Path(__file__).resolve().parent), "-p", name],
                                   capture_output=True, timeout=600)
             self.assertEqual(proc.returncode, 0,
                              f"{name} 复跑失败：{(proc.stdout or b'')[-400:]}")
