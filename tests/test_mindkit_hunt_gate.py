@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """PRD-585/T3 测试（trend #2937 的 T3 环节）：巡检校验闸门。
 运行：uv run --with pytest python -m pytest tests/test_mindkit_hunt_gate.py -q
 覆盖：append-only 复核/复现证据可验证（REPRO_MISSING）/误报复核一票否决
